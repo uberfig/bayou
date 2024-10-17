@@ -1,23 +1,21 @@
 use async_trait::async_trait;
+use bayou_protocol::{
+    cryptography::openssl::OpenSSLPublic,
+    protocol::versia_protocol::requests::Signer,
+    types::{
+        activitystream_objects::{actors::Actor, postable::ApPostable},
+        versia_types::{
+            entities::{instance_metadata::InstanceMetadata, user::User},
+            postable::VersiaPostable,
+        },
+    },
+};
 use deadpool_postgres::Pool;
 use url::Url;
 
-use crate::{
-    cryptography::openssl::OpenSSLPublic,
-    db::{
-        conn::{Conn, EntityOrigin},
-        utility::{instance_actor::InstanceActor, new_actor::NewLocal, protocols::Protocol},
-    },
-    protocols::{
-        protocol::versia_protocol::requests::Signer,
-        types::{
-            activitystream_objects::{actors::Actor, postable::ApPostable},
-            versia_types::{
-                entities::{instance_metadata::InstanceMetadata, user::User},
-                postable::VersiaPostable,
-            },
-        },
-    },
+use crate::db::{
+    conn::{Conn, EntityOrigin},
+    utility::{instance_actor::InstanceActor, new_actor::NewLocal, protocols::Protocol},
 };
 
 use super::init;

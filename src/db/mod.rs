@@ -1,4 +1,4 @@
-use crate::protocols::protocol::protocols::Protocols;
+use bayou_protocol::protocol::protocols::Protocols;
 
 pub mod conn;
 pub mod postgres;

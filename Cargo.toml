@@ -14,6 +14,8 @@ tokio-pg-mapper = "0.2.0"
 tokio-pg-mapper-derive = "0.2.0"
 refinery = { version = "0.8", features = ["tokio-postgres"]}
 
+bayou-protocol = { git = "https://github.com/uberfig/bayou-protocol.git", features = ["protocol"] }
+
 serde_json = "1.0.122"
 serde = "1.0.204"
 

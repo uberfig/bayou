@@ -108,7 +108,10 @@ async fn webfinger(
         //not the instance actor
         false => {
             let actor = conn
-                .get_actor(&preferred_username, &EntityOrigin::Local(&state.instance_domain))
+                .get_actor(
+                    &preferred_username,
+                    &EntityOrigin::Local(&state.instance_domain),
+                )
                 .await;
             let actor = match actor {
                 Some(x) => x,

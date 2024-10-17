@@ -1,9 +1,6 @@
 use crate::{
-    cryptography::digest::sha256_hash,
+    api::headers::ActixHeaders,
     db::conn::{Conn, EntityOrigin, VersiaConn},
-    protocols::protocol::{
-        headers::ActixHeaders, http_method::HttpMethod, versia_protocol::verify::verify_request,
-    },
 };
 use actix_web::{
     dev::ResourcePath,
@@ -11,6 +8,10 @@ use actix_web::{
     get,
     web::Data,
     HttpRequest, HttpResponse, Result,
+};
+use bayou_protocol::{
+    cryptography::digest::sha256_hash,
+    protocol::{http_method::HttpMethod, versia_protocol::verify::verify_request},
 };
 
 #[get("/users/{uuid}/versia")]

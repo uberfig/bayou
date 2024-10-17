@@ -9,18 +9,16 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
+use bayou_protocol::{
+    protocol::ap_protocol::verification::{verify_post, RequestVerificationError},
+    types::activitystream_objects::inboxable::VerifiedInboxable,
+};
 
 use crate::{
+    api::headers::ActixHeaders,
     db::{
         conn::{Conn, EntityOrigin},
         utility::instance_actor::InstanceActor,
-    },
-    protocols::{
-        protocol::{
-            ap_protocol::verification::{verify_post, RequestVerificationError},
-            headers::ActixHeaders,
-        },
-        types::activitystream_objects::inboxable::VerifiedInboxable,
     },
 };
 pub struct Inbox {

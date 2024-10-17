@@ -1,10 +1,12 @@
+use bayou_protocol::{
+    cryptography::{key::Key, openssl::OpenSSLPublic},
+    types::activitystream_objects::{
+        actors::{Actor, ActorType},
+        public_key::ApPublicKey,
+    },
+};
 use tokio_postgres::Row;
 use url::Url;
-
-use crate::{
-    cryptography::{key::Key, openssl::OpenSSLPublic},
-    protocols::types::activitystream_objects::actors::{Actor, ActorType},
-};
 
 use super::pg_conn::PgConn;
 
@@ -51,7 +53,7 @@ fn fedi_user_from_row(result: Row) -> Actor {
     let following: String = result.get("following");
     let pem: &str = result.get("public_key_pem");
 
-    let key = crate::protocols::types::activitystream_objects::public_key::PublicKey {
+    let key = ApPublicKey {
         id: Url::parse(&public_key_id).unwrap(),
         owner: id.clone(),
         public_key_pem: OpenSSLPublic::from_pem(pem.as_bytes()).unwrap(),

@@ -1,9 +1,8 @@
-use url::Url;
-
-use crate::cryptography::{
+use bayou_protocol::cryptography::{
     key::{Key, KeyType, PrivateKey},
     openssl::OpenSSLPrivate,
 };
+use url::Url;
 
 use super::permission::PermissionLevel;
 use argon2::{

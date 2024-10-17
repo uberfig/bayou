@@ -1,21 +1,19 @@
-use crate::{
+use actix_web::web::Data;
+use async_trait::async_trait;
+use bayou_protocol::{
     cryptography::openssl::OpenSSLPublic,
-    protocols::{
-        protocol::{
-            errors::FetchErr,
-            versia_protocol::{requests::Signer, verify::VersiaVerificationCache},
-        },
-        types::{
-            activitystream_objects::{actors::Actor, postable::ApPostable},
-            versia_types::{
-                entities::{instance_metadata::InstanceMetadata, user::User},
-                postable::VersiaPostable,
-            },
+    protocol::{
+        errors::FetchErr,
+        versia_protocol::{requests::Signer, verify::VersiaVerificationCache},
+    },
+    types::{
+        activitystream_objects::{actors::Actor, postable::ApPostable},
+        versia_types::{
+            entities::{instance_metadata::InstanceMetadata, user::User},
+            postable::VersiaPostable,
         },
     },
 };
-use actix_web::web::Data;
-use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use url::Url;
 

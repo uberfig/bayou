@@ -4,13 +4,14 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
+use bayou_protocol::protocol::ap_protocol::verification::verify_get;
 
 use crate::{
+    api::headers::ActixHeaders,
     db::{
         conn::{Conn, EntityOrigin},
         utility::{instance_actor::InstanceActor, new_actor::NewLocal},
     },
-    protocols::protocol::{ap_protocol::verification::verify_get, headers::ActixHeaders},
 };
 
 #[get("/users/{preferred_username}")]
@@ -43,7 +44,10 @@ pub async fn get_actor(
     }
 
     let actor = conn
-        .get_actor(&preferred_username, &EntityOrigin::Local(&state.instance_domain))
+        .get_actor(
+            &preferred_username,
+            &EntityOrigin::Local(&state.instance_domain),
+        )
         .await;
 
     let Some(actor) = actor else {

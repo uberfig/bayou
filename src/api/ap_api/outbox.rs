@@ -6,14 +6,14 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
+use bayou_protocol::protocol::ap_protocol::verification::verify_get;
 
 use crate::{
-    api::page_query::Page,
+    api::{headers::ActixHeaders, page_query::Page},
     db::{
         conn::{Conn, EntityOrigin},
         utility::instance_actor::InstanceActor,
     },
-    protocols::protocol::{ap_protocol::verification::verify_get, headers::ActixHeaders},
 };
 
 #[get("/users/{preferred_username}/outbox")]
@@ -54,7 +54,10 @@ pub async fn ap_outbox(
     }
 
     let Some(count) = conn
-        .get_user_post_count(&preferred_username, &EntityOrigin::Local(&state.instance_domain))
+        .get_user_post_count(
+            &preferred_username,
+            &EntityOrigin::Local(&state.instance_domain),
+        )
         .await
     else {
         return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));
@@ -72,7 +75,10 @@ pub async fn ap_outbox(
     match posts {
         Some(posts) => {
             let Some(user) = conn
-                .get_actor(&preferred_username, &EntityOrigin::Local(&state.instance_domain))
+                .get_actor(
+                    &preferred_username,
+                    &EntityOrigin::Local(&state.instance_domain),
+                )
                 .await
             else {
                 return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));

@@ -1,29 +1,20 @@
-use crate::{
-    cryptography::digest::sha256_hash,
-    db::conn::{Conn, EntityOrigin, VersiaConn},
-    protocols::{
-        protocol::{
-            headers::ActixHeaders,
-            http_method::HttpMethod,
-            versia_protocol::{requests::Signer, verify::verify_request},
-        },
-        types::versia_types::{
-            entities::{
-                change_follow::ChangeFollowing,
-                delete::{Delete, DeletedType},
-                follow_response::FollowResponse,
-                instance_metadata::InstanceMetadata,
-                user::User,
-            },
-            postable::VersiaPostable,
-        },
-    },
-};
+use crate::api::headers::ActixHeaders;
+use crate::db::conn::{Conn, EntityOrigin, VersiaConn};
 use actix_web::{error::ErrorBadRequest, http::StatusCode, rt::spawn};
 
 use actix_web::{
     dev::ResourcePath, error::ErrorUnauthorized, post, web::Data, HttpRequest, HttpResponse, Result,
 };
+use bayou_protocol::cryptography::digest::sha256_hash;
+use bayou_protocol::protocol::http_method::HttpMethod;
+use bayou_protocol::protocol::versia_protocol::requests::Signer;
+use bayou_protocol::protocol::versia_protocol::verify::verify_request;
+use bayou_protocol::types::versia_types::entities::change_follow::ChangeFollowing;
+use bayou_protocol::types::versia_types::entities::delete::{Delete, DeletedType};
+use bayou_protocol::types::versia_types::entities::follow_response::FollowResponse;
+use bayou_protocol::types::versia_types::entities::instance_metadata::InstanceMetadata;
+use bayou_protocol::types::versia_types::entities::user::User;
+use bayou_protocol::types::versia_types::postable::VersiaPostable;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

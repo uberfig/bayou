@@ -1,6 +1,5 @@
+use bayou_protocol::types::activitystream_objects::{object::Object, question::Question};
 use serde::{Deserialize, Serialize};
-
-use crate::protocols::types::activitystream_objects::{object::Object, question::Question};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PostSupertype {

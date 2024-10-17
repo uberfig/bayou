@@ -4,14 +4,18 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
+use bayou_protocol::{
+    protocol::ap_protocol::verification::verify_get,
+    types::activitystream_objects::{
+        create::{Create, CreateType},
+        link::RangeLinkItem,
+    },
+};
 use url::Url;
 
 use crate::{
+    api::headers::ActixHeaders,
     db::{conn::Conn, utility::instance_actor::InstanceActor},
-    protocols::{
-        protocol::{ap_protocol::verification::verify_get, headers::ActixHeaders},
-        types::activitystream_objects::{create::Create, link::RangeLinkItem},
-    },
 };
 
 #[get("/users/{preferred_username}/statuses/{id}")]
@@ -101,8 +105,7 @@ pub async fn get_object_create(
     match object {
         Some(object) => {
             let activity = Create {
-                type_field:
-                    crate::protocols::types::activitystream_objects::create::CreateType::Create,
+                type_field: CreateType::Create,
                 id: Url::parse(&format!("https://{}{}", &state.instance_domain, path))
                     .expect("generated invalid url"),
                 actor: object.actor().clone(),

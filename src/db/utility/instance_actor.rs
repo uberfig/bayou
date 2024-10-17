@@ -1,5 +1,5 @@
-use crate::{
-    cryptography::openssl::OpenSSLPrivate, protocols::types::activitystream_objects::actors::Actor,
+use bayou_protocol::{
+    cryptography::openssl::OpenSSLPrivate, types::activitystream_objects::actors::Actor,
 };
 
 pub struct InstanceActor {

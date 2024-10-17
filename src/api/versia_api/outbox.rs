@@ -1,19 +1,17 @@
 use crate::{
-    api::page_query::Page,
-    cryptography::digest::sha256_hash,
+    api::{headers::ActixHeaders, page_query::Page},
     db::conn::{Conn, EntityOrigin, VersiaConn},
-    protocols::{
-        protocol::{
-            headers::ActixHeaders, http_method::HttpMethod, versia_protocol::verify::verify_request,
-        },
-        types::versia_types::structures::collection::Collection,
-    },
 };
 use actix_web::{
     error::{ErrorNotFound, ErrorUnauthorized},
     get,
     web::Data,
     HttpRequest, HttpResponse, Result,
+};
+use bayou_protocol::{
+    cryptography::digest::sha256_hash,
+    protocol::{http_method::HttpMethod, versia_protocol::verify::verify_request},
+    types::versia_types::structures::collection::Collection,
 };
 
 #[get("/users/{uuid}/outbox/versia")]
