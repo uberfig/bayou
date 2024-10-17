@@ -380,7 +380,7 @@ dependencies = [
 [[package]]
 name = "bayou-protocol"
 version = "0.1.0"
-source = "git+https://github.com/uberfig/bayou-protocol.git#730ce8dac4ae2c6eaf8cd6e0f995b03f31a54897"
+source = "git+https://github.com/uberfig/bayou-protocol.git#d002ffa2ae19ab88f0f0dd1245d36abed445f242"
 dependencies = [
  "base64 0.22.1",
  "chrono",
