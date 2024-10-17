@@ -55,9 +55,7 @@ pub async fn private_inbox(
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse, Error> {
     println!("private inbox");
-    let preferred_username = path.into_inner();
-    let path = format!("/ap/users/{}/inbox", &preferred_username);
-
+    let _preferred_username = path.into_inner();
     inbox(request, body, conn, state).await
 }
 
