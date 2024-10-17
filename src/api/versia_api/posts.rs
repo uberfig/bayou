@@ -13,7 +13,7 @@ use bayou_protocol::{
     protocol::{http_method::HttpMethod, versia_protocol::verify::verify_request},
 };
 
-#[get("/users/@{uname}/statuses/{pid}/versia")]
+#[get("/users/@{uname}/statuses/{pid}")]
 pub async fn versia_posts(
     request: HttpRequest,
     body: actix_web::web::Bytes,
@@ -21,8 +21,8 @@ pub async fn versia_posts(
     state: Data<crate::config::Config>,
     conn: Data<Box<dyn Conn + Sync>>,
 ) -> Result<HttpResponse> {
-    let (uname, pid) = actix_path.into_inner();
-    let path = format!("/users/@{}/statuses/{}/versia", &uname, &pid);
+    let (_uname, pid) = actix_path.into_inner();
+    let path = request.path();
 
     let Ok(body) = String::from_utf8(body.to_vec()) else {
         return Err(ErrorUnauthorized("bad request body"));

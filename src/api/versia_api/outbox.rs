@@ -14,7 +14,7 @@ use bayou_protocol::{
     types::versia_types::structures::collection::Collection,
 };
 
-#[get("/users/{uuid}/outbox/versia")]
+#[get("/users/{uuid}/outbox")]
 pub async fn versia_outbox(
     request: HttpRequest,
     body: actix_web::web::Bytes,
@@ -32,7 +32,7 @@ pub async fn versia_outbox(
     }
 
     let uuid = actix_path.into_inner();
-    let path = format!("/users/{}/outbox/versia", &uuid);
+    let path = request.path();
 
     let Ok(body) = String::from_utf8(body.to_vec()) else {
         return Err(ErrorUnauthorized("bad request body"));
@@ -86,7 +86,7 @@ pub async fn versia_outbox(
                 page,
                 Some(user.uri),
                 &state.instance_domain,
-                &format!("users/{uuid}/outbox/versia"),
+                &format!("versia/users/{uuid}/outbox"),
             );
             Ok(HttpResponse::Ok()
                 .content_type("application/json; charset=UTF-8")

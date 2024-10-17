@@ -3,7 +3,7 @@ use crate::db::conn::{Conn, EntityOrigin, VersiaConn};
 use actix_web::{error::ErrorBadRequest, http::StatusCode, rt::spawn};
 
 use actix_web::{
-    dev::ResourcePath, error::ErrorUnauthorized, post, web::Data, HttpRequest, HttpResponse, Result,
+    error::ErrorUnauthorized, post, web::Data, HttpRequest, HttpResponse, Result,
 };
 use bayou_protocol::cryptography::digest::sha256_hash;
 use bayou_protocol::protocol::http_method::HttpMethod;
@@ -34,31 +34,30 @@ pub enum VersiaInboxItem {
 pub async fn versia_user_inbox(
     request: HttpRequest,
     body: actix_web::web::Bytes,
-    actix_path: actix_web::web::Path<String>,
+    // actix_path: actix_web::web::Path<String>,
     state: Data<crate::config::Config>,
     conn: Data<Box<dyn Conn + Sync>>,
 ) -> Result<HttpResponse> {
-    inbox(request, body, actix_path, state, conn).await
+    inbox(request, body, state, conn).await
 }
 #[post("/inbox")]
 pub async fn versia_shared_inbox(
     request: HttpRequest,
     body: actix_web::web::Bytes,
-    actix_path: actix_web::web::Path<String>,
+    // actix_path: actix_web::web::Path<String>,
     state: Data<crate::config::Config>,
     conn: Data<Box<dyn Conn + Sync>>,
 ) -> Result<HttpResponse> {
-    inbox(request, body, actix_path, state, conn).await
+    inbox(request, body, state, conn).await
 }
 
 pub async fn inbox(
     request: HttpRequest,
     body: actix_web::web::Bytes,
-    actix_path: actix_web::web::Path<String>,
     state: Data<crate::config::Config>,
     conn: Data<Box<dyn Conn + Sync>>,
 ) -> Result<HttpResponse> {
-    let path = actix_path.path().to_string();
+    let path = request.path();
 
     let Ok(body) = String::from_utf8(body.to_vec()) else {
         return Err(ErrorUnauthorized("bad request body"));

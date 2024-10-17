@@ -3,7 +3,6 @@ use crate::{
     db::conn::{Conn, EntityOrigin, VersiaConn},
 };
 use actix_web::{
-    dev::ResourcePath,
     error::{ErrorNotFound, ErrorUnauthorized},
     get,
     web::Data,
@@ -22,7 +21,7 @@ pub async fn versia_user(
     state: Data<crate::config::Config>,
     conn: Data<Box<dyn Conn + Sync>>,
 ) -> Result<HttpResponse> {
-    let path = actix_path.path().to_string();
+    let path = request.path();
     let uuid = actix_path.into_inner();
 
     let Ok(body) = String::from_utf8(body.to_vec()) else {
