@@ -7,6 +7,7 @@ use actix_web::{
     HttpRequest, HttpResponse, Result,
 };
 use bayou_protocol::protocol::ap_protocol::verification::verify_get;
+use serde::Deserialize;
 
 use crate::{
     api::{headers::ActixHeaders, page_query::Page},
@@ -22,14 +23,13 @@ pub async fn ap_outbox(
     conn: Data<Box<dyn Conn + Sync>>,
     state: Data<crate::config::Config>,
     request: HttpRequest,
-    page: actix_web::web::Query<Option<Page>>,
+    page: actix_web::web::Query<Page>,
 ) -> Result<HttpResponse> {
     let preferred_username = path.into_inner();
     let path = request.path();
-    let page = match page.into_inner() {
-        Some(x) => x.page,
-        None => 1,
-    };
+    let page = page.into_inner();
+    let is_page = page.is_page.unwrap_or(false);
+    let page = page.page.unwrap_or(1);
     if page.eq(&0) {
         return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));
     }
@@ -62,6 +62,12 @@ pub async fn ap_outbox(
     else {
         return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));
     };
+
+    if !is_page { //the root ordered collection type
+        return Ok(HttpResponse::Ok()
+                .content_type("application/json; charset=UTF-8")
+                .body(serde_json::to_string("").unwrap()));
+    }
 
     let posts = conn
         .get_user_posts_ap(

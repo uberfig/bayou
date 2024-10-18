@@ -21,12 +21,9 @@ pub async fn versia_outbox(
     actix_path: actix_web::web::Path<String>,
     state: Data<crate::config::Config>,
     conn: Data<Box<dyn Conn + Sync>>,
-    page: actix_web::web::Query<Option<Page>>,
+    page: actix_web::web::Query<Page>,
 ) -> Result<HttpResponse> {
-    let page = match page.into_inner() {
-        Some(x) => x.page,
-        None => 1,
-    };
+    let page = page.page.unwrap_or(1);
     if page.eq(&0) {
         return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));
     }
