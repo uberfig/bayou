@@ -1,7 +1,7 @@
 use config::ConfigError;
 use serde::Deserialize;
 
-use crate::db::conn::Conn;
+use crate::db::{dbconn::DbConn, postgres::pg_conn::PgConn};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
@@ -21,7 +21,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn create_conn(&self) -> Box<dyn Conn + Sync> {
+    pub fn create_conn(&self) -> DbConn {
         let db_config = deadpool_postgres::Config {
             user: Some(self.pg_user.clone()),
             password: Some(self.pg_password.clone()),
@@ -32,7 +32,7 @@ impl Config {
         };
 
         let pool = db_config.create_pool(None, tokio_postgres::NoTls).unwrap();
-        Box::new(crate::db::postgres::pg_conn::PgConn { db: pool.clone() }) as Box<dyn Conn + Sync>
+        DbConn::Postgres(PgConn { db: pool })
     }
 }
 

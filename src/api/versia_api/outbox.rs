@@ -1,6 +1,6 @@
 use crate::{
     api::{headers::ActixHeaders, page_query::Page},
-    db::conn::{Conn, EntityOrigin, VersiaConn},
+    db::{conn::EntityOrigin, dbconn::DbConn},
 };
 use actix_web::{
     error::{ErrorNotFound, ErrorUnauthorized},
@@ -20,7 +20,7 @@ pub async fn versia_outbox(
     body: actix_web::web::Bytes,
     actix_path: actix_web::web::Path<String>,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     page: actix_web::web::Query<Page>,
 ) -> Result<HttpResponse> {
     let page = page.page.unwrap_or(1);
@@ -43,7 +43,7 @@ pub async fn versia_outbox(
         HttpMethod::Get,
         &path,
         &hash,
-        &VersiaConn { conn: &conn },
+        &**conn,
     )
     .await;
 

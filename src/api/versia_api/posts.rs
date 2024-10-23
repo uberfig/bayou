@@ -1,6 +1,6 @@
 use crate::{
     api::headers::ActixHeaders,
-    db::conn::{Conn, EntityOrigin, VersiaConn},
+    db::{conn::EntityOrigin, dbconn::DbConn},
 };
 use actix_web::{
     error::{ErrorNotFound, ErrorUnauthorized},
@@ -19,7 +19,7 @@ pub async fn versia_posts(
     body: actix_web::web::Bytes,
     actix_path: actix_web::web::Path<(String, String)>,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
 ) -> Result<HttpResponse> {
     let (_uname, pid) = actix_path.into_inner();
     let path = request.path();
@@ -36,7 +36,7 @@ pub async fn versia_posts(
         HttpMethod::Get,
         &path,
         &hash,
-        &VersiaConn { conn: &conn },
+        &**conn,
     )
     .await;
 

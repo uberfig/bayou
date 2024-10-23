@@ -1,10 +1,9 @@
 use crate::api::headers::ActixHeaders;
 use crate::db::conn::{Conn, EntityOrigin, VersiaConn};
+use crate::db::dbconn::DbConn;
 use actix_web::{error::ErrorBadRequest, http::StatusCode, rt::spawn};
 
-use actix_web::{
-    error::ErrorUnauthorized, post, web::Data, HttpRequest, HttpResponse, Result,
-};
+use actix_web::{error::ErrorUnauthorized, post, web::Data, HttpRequest, HttpResponse, Result};
 use bayou_protocol::cryptography::digest::sha256_hash;
 use bayou_protocol::protocol::http_method::HttpMethod;
 use bayou_protocol::protocol::versia_protocol::requests::Signer;
@@ -36,7 +35,7 @@ pub async fn versia_user_inbox(
     body: actix_web::web::Bytes,
     // actix_path: actix_web::web::Path<String>,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
 ) -> Result<HttpResponse> {
     inbox(request, body, state, conn).await
 }
@@ -46,7 +45,7 @@ pub async fn versia_shared_inbox(
     body: actix_web::web::Bytes,
     // actix_path: actix_web::web::Path<String>,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
 ) -> Result<HttpResponse> {
     inbox(request, body, state, conn).await
 }
@@ -55,7 +54,7 @@ pub async fn inbox(
     request: HttpRequest,
     body: actix_web::web::Bytes,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
 ) -> Result<HttpResponse> {
     let path = request.path();
 
@@ -73,7 +72,7 @@ pub async fn inbox(
         HttpMethod::Get,
         &path,
         &hash,
-        &VersiaConn { conn: &conn },
+        &**conn,
     )
     .await;
 
@@ -101,7 +100,7 @@ pub async fn handle_inbox(
     signer: Signer,
     entity: VersiaInboxItem,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
 ) {
     // all signers should have a domain. federation with an ip address will
     // never be supported as they can 1. be dynamic, 2. be used to skirt defeds

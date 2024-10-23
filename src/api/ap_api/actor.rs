@@ -9,8 +9,7 @@ use bayou_protocol::protocol::ap_protocol::verification::verify_get;
 use crate::{
     api::headers::ActixHeaders,
     db::{
-        conn::{Conn, EntityOrigin},
-        utility::{instance_actor::InstanceActor, new_actor::NewLocal},
+        conn::{Conn, EntityOrigin}, dbconn::DbConn, utility::{instance_actor::InstanceActor, new_actor::NewLocal}
     },
 };
 
@@ -18,7 +17,7 @@ use crate::{
 pub async fn get_actor(
     path: web::Path<String>,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     request: HttpRequest,
 ) -> Result<HttpResponse> {
     dbg!(&request);

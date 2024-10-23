@@ -1,6 +1,7 @@
 use bayou_protocol::protocol::protocols::Protocols;
 
 pub mod conn;
+pub mod dbconn;
 pub mod postgres;
 #[cfg(test)]
 pub mod tests;

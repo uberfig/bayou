@@ -15,13 +15,13 @@ use url::Url;
 
 use crate::{
     api::headers::ActixHeaders,
-    db::{conn::Conn, utility::instance_actor::InstanceActor},
+    db::{dbconn::DbConn, utility::instance_actor::InstanceActor},
 };
 
 #[get("/users/{preferred_username}/statuses/{id}")]
 pub async fn get_object(
     path: web::Path<(String, String)>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     request: HttpRequest,
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse> {
@@ -67,7 +67,7 @@ pub async fn get_object(
 #[get("/users/{preferred_username}/statuses/{id}/activity")]
 pub async fn get_object_create(
     path: web::Path<(String, String)>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     request: HttpRequest,
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse> {

@@ -6,7 +6,10 @@ use actix_web::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::db::conn::{Conn, EntityOrigin};
+use crate::db::{
+    conn::EntityOrigin,
+    dbconn::DbConn,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WebfingerQuery {
@@ -83,7 +86,7 @@ struct Info {
 #[get("/.well-known/webfinger")]
 async fn webfinger(
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     info: web::Query<Info>,
 ) -> Result<HttpResponse> {
     let resource = info.into_inner().resource;

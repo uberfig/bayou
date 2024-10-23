@@ -7,20 +7,18 @@ use actix_web::{
     HttpRequest, HttpResponse, Result,
 };
 use bayou_protocol::protocol::ap_protocol::verification::verify_get;
-use serde::Deserialize;
 
 use crate::{
     api::{headers::ActixHeaders, page_query::Page},
     db::{
-        conn::{Conn, EntityOrigin},
-        utility::instance_actor::InstanceActor,
+        conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor
     },
 };
 
 #[get("/users/{preferred_username}/outbox")]
 pub async fn ap_outbox(
     path: web::Path<String>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     state: Data<crate::config::Config>,
     request: HttpRequest,
     page: actix_web::web::Query<Page>,
@@ -63,10 +61,11 @@ pub async fn ap_outbox(
         return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));
     };
 
-    if !is_page { //the root ordered collection type
+    if !is_page {
+        //the root ordered collection type
         return Ok(HttpResponse::Ok()
-                .content_type("application/json; charset=UTF-8")
-                .body(serde_json::to_string("").unwrap()));
+            .content_type("application/json; charset=UTF-8")
+            .body(serde_json::to_string("").unwrap()));
     }
 
     let posts = conn
@@ -113,7 +112,7 @@ pub async fn ap_outbox(
 pub async fn create_ap_post(
     path: web::Path<String>,
     body: web::Bytes,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse, Error> {
     todo!()

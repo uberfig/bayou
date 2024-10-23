@@ -17,8 +17,7 @@ use bayou_protocol::{
 use crate::{
     api::headers::ActixHeaders,
     db::{
-        conn::{Conn, EntityOrigin},
-        utility::instance_actor::InstanceActor,
+        conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor
     },
 };
 pub struct Inbox {
@@ -38,7 +37,7 @@ pub async fn shared_inbox(
     request: HttpRequest,
     // inbox: Data<Inbox>,
     body: web::Bytes,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse, Error> {
     dbg!(&request);
@@ -51,7 +50,7 @@ pub async fn private_inbox(
     path: web::Path<String>,
     // inbox: Data<Inbox>,
     body: web::Bytes,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse, Error> {
     println!("private inbox");
@@ -62,7 +61,7 @@ pub async fn private_inbox(
 async fn inbox(
     request: HttpRequest,
     body: web::Bytes,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse, Error> {
     let Ok(body) = String::from_utf8(body.to_vec()) else {
@@ -95,7 +94,7 @@ async fn inbox(
 
 #[allow(unused_variables)]
 async fn handle_inbox(
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     state: Data<crate::config::Config>,
     item: VerifiedInboxable,
 ) {
