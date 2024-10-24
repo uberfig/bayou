@@ -78,7 +78,7 @@ pub trait Conn: Sync {
 
     /// returns the uid if sucessful
     async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<String, ()>;
-    /// gets actor, backfills if not in db
+    /// gets actor, backfills if not in db. returns none if not in the db and defederated or unable to fetch
     async fn backfill_actor(&self, username: &str, origin: &EntityOrigin) -> Option<Actor>;
     async fn get_actor(&self, username: &str, origin: &EntityOrigin) -> Option<Actor>;
     /// only gets an actor we have authority over, does not backfill
