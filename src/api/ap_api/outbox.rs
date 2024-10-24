@@ -1,18 +1,19 @@
 use actix_web::{
-    error::{ErrorNotFound, ErrorUnauthorized},
+    error::{ErrorInternalServerError, ErrorNotFound, ErrorUnauthorized, ErrorUnprocessableEntity},
     get,
     http::Error,
     post,
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
-use bayou_protocol::protocol::ap_protocol::verification::verify_get;
+use bayou_protocol::{
+    protocol::ap_protocol::verification::verify_get,
+    types::activitystream_objects::new_post::NewPost,
+};
 
 use crate::{
     api::{headers::ActixHeaders, page_query::Page},
-    db::{
-        conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor
-    },
+    db::{conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor},
 };
 
 #[get("/users/{preferred_username}/outbox")]
@@ -60,7 +61,6 @@ pub async fn ap_outbox(
     else {
         return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));
     };
-
     if !is_page {
         //the root ordered collection type
         return Ok(HttpResponse::Ok()
@@ -114,6 +114,17 @@ pub async fn create_ap_post(
     body: web::Bytes,
     conn: Data<DbConn>,
     state: Data<crate::config::Config>,
-) -> Result<HttpResponse, Error> {
-    todo!()
+) -> Result<HttpResponse> {
+    //TODO impliment oauth logic
+    let new_post: NewPost = match serde_json::from_slice(&body) {
+        Ok(ok) => ok,
+        Err(err) => return Err(ErrorUnprocessableEntity(err)),
+    };
+    match conn
+        .new_local_post(new_post, &EntityOrigin::Local(&state.instance_domain))
+        .await
+    {
+        Ok(ok) => Ok(HttpResponse::Created().body(ok)),
+        Err(err) => Err(ErrorInternalServerError(err)),
+    }
 }

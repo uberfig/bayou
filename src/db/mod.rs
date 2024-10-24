@@ -6,7 +6,6 @@ pub mod postgres;
 #[cfg(test)]
 pub mod tests;
 pub mod utility;
-pub mod newpost;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Follower {

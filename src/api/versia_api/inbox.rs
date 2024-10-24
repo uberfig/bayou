@@ -67,14 +67,7 @@ pub async fn inbox(
         headermap: request.headers().clone(),
     };
 
-    let authorized = verify_request(
-        &headers,
-        HttpMethod::Get,
-        &path,
-        &hash,
-        &**conn,
-    )
-    .await;
+    let authorized = verify_request(&headers, HttpMethod::Get, &path, &hash, &**conn).await;
 
     let signer = match authorized {
         Ok(x) => x,

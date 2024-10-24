@@ -26,7 +26,7 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
     let inbox = Data::new(Inbox {
         inbox: Mutex::new(Vec::new()),
     });
-    
+
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(conn.clone()))

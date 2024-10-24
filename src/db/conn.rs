@@ -7,7 +7,7 @@ use bayou_protocol::{
         versia_protocol::{requests::Signer, verify::VersiaVerificationCache},
     },
     types::{
-        activitystream_objects::{actors::Actor, postable::ApPostable},
+        activitystream_objects::{actors::Actor, new_post::NewPost, postable::ApPostable},
         versia_types::{
             entities::{instance_metadata::InstanceMetadata, user::User},
             postable::VersiaPostable,
@@ -58,6 +58,7 @@ pub enum ProtoUser {
     ActivityPub(Actor),
 }
 
+#[allow(unused_variables)]
 #[async_trait]
 pub trait Conn: Sync {
     // async fn get_actor_post_count(&self, uname: &str, origin: &EntityOrigin) -> Option<u64>;
@@ -71,6 +72,13 @@ pub trait Conn: Sync {
     async fn get_ap_post(&self, post_id: &str, origin: &EntityOrigin) -> Option<ApPostable>;
     /// inserts a federated post into the db and returns the uuid if successful
     async fn create_ap_post(&self, post: ApPostable, origin: &EntityOrigin) -> Result<String, ()>;
+    async fn new_local_post(
+        &self,
+        new_post: NewPost,
+        origin: &EntityOrigin,
+    ) -> Result<String, DbErr> {
+        todo!()
+    }
     /// run any prep for the database, for example running migrations
     async fn init(&self) -> Result<(), String>;
     /// gets the instance actor. creates one if its not present
