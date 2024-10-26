@@ -1,4 +1,4 @@
-use crate::db::dbconn::DbConn;
+use crate::db::{conn::Conn, dbconn::DbConn};
 use actix_web::{get, web::Data, HttpResponse, Result};
 
 #[get("/.well-known/versia")]

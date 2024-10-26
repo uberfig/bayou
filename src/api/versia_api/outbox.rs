@@ -1,6 +1,9 @@
 use crate::{
     api::{headers::ActixHeaders, page_query::Page},
-    db::{conn::EntityOrigin, dbconn::DbConn},
+    db::{
+        conn::{Conn, EntityOrigin},
+        dbconn::DbConn,
+    },
 };
 use actix_web::{
     error::{ErrorNotFound, ErrorUnauthorized},

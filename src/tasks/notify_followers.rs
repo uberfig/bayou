@@ -4,7 +4,11 @@ use bayou_protocol::{
     protocol::ap_protocol::{fetch::ap_post, signature::Algorithms},
 };
 
-use crate::db::{conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor};
+use crate::db::{
+    conn::{Conn, EntityOrigin},
+    dbconn::DbConn,
+    utility::instance_actor::InstanceActor,
+};
 
 pub async fn notify_followers(conn: Data<DbConn>, post_id: &str, origin: EntityOrigin<'_>) {
     let Some(ap_rep) = conn

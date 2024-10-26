@@ -1,11 +1,6 @@
-use actix_web::web::Data;
-use async_trait::async_trait;
 use bayou_protocol::{
     cryptography::openssl::OpenSSLPublic,
-    protocol::{
-        errors::FetchErr,
-        versia_protocol::{requests::Signer, verify::VersiaVerificationCache},
-    },
+    protocol::{errors::FetchErr, versia_protocol::requests::Signer},
     types::{
         activitystream_objects::{actors::Actor, new_post::NewPost, postable::ApPostable},
         versia_types::{
@@ -14,6 +9,7 @@ use bayou_protocol::{
         },
     },
 };
+use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -46,23 +42,15 @@ pub enum EntityOrigin<'a> {
     Federated(&'a str),
 }
 
-pub struct VersiaConn<'a> {
-    pub conn: &'a Data<Box<dyn Conn + Sync>>,
-}
-
-impl VersiaVerificationCache for VersiaConn<'_> {
-    async fn get_key(&self, signed_by: &Signer) -> Option<OpenSSLPublic> {
-        self.conn.get_public_key(signed_by).await
-    }
-}
-
 pub enum ProtoUser {
     Versia(User),
     ActivityPub(Actor),
 }
 
 #[allow(unused_variables)]
-#[async_trait]
+#[enum_dispatch(UncachedConn)]
+#[enum_dispatch(CachedConn)]
+#[enum_dispatch(DbConn)]
 pub trait Conn: Sync {
     // async fn get_actor_post_count(&self, uname: &str, origin: &EntityOrigin) -> Option<u64>;
     async fn get_uuid_url(&self, url: &Url) -> &str {
@@ -71,103 +59,111 @@ pub trait Conn: Sync {
     async fn get_user_posts_ap(
         &self,
         uname: &str,
-        origin: &EntityOrigin,
+        origin: &EntityOrigin<'_>,
         page_size: u64,
         ofset: u64,
-    ) -> Option<Vec<ApPostable>>;
-    async fn get_ap_post(&self, post_id: &str, origin: &EntityOrigin) -> Option<ApPostable>;
+    ) -> Option<Vec<ApPostable>> {
+        todo!()
+    }
+    async fn get_ap_post(&self, post_id: &str, origin: &EntityOrigin<'_>) -> Option<ApPostable> {
+        todo!()
+    }
     /// inserts a federated post into the db and returns the uuid if successful
-    async fn create_ap_post(&self, post: ApPostable, origin: &EntityOrigin) -> Result<String, ()>;
+    async fn create_ap_post(
+        &self,
+        post: ApPostable,
+        origin: &EntityOrigin<'_>,
+    ) -> Result<String, ()> {
+        todo!()
+    }
     async fn new_local_post(
         &self,
         new_post: NewPost,
-        origin: &EntityOrigin,
+        origin: &EntityOrigin<'_>,
     ) -> Result<String, DbErr> {
         todo!()
     }
     /// run any prep for the database, for example running migrations
-    async fn init(&self) -> Result<(), String>;
+    async fn init(&self) -> Result<(), String> {
+        todo!()
+    }
     /// gets the instance actor. creates one if its not present
-    async fn get_instance_actor(&self) -> InstanceActor;
+    async fn get_instance_actor(&self) -> InstanceActor {
+        todo!()
+    }
 
     /// returns the uid if sucessful
-    async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<String, ()>;
+    async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<String, ()> {
+        todo!()
+    }
     /// gets actor, backfills if not in db. returns none if not in the db and defederated or unable to fetch
-    async fn backfill_actor(&self, username: &str, origin: &EntityOrigin) -> Option<Actor>;
-    async fn get_actor(&self, username: &str, origin: &EntityOrigin) -> Option<Actor>;
-    /// only gets an actor we have authority over, does not backfill
-    // async fn get_local_actor(&self, username: &str, domain: &str) -> Option<Actor>;
+    async fn backfill_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+        todo!()
+    }
+    async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+        todo!()
+    }
 
     /// signed_by will always be user for activitypub users
     /// this will backfill the user if they aren't in the db yet
-    async fn get_public_key(&self, signed_by: &Signer) -> Option<OpenSSLPublic>;
+    async fn get_public_key(&self, signed_by: &Signer) -> Option<OpenSSLPublic> {
+        todo!()
+    }
 
     //-------------------------versia---------------------
 
     // TODO make versia routes just use unames
-    async fn get_user_post_count(&self, uname: &str, origin: &EntityOrigin) -> Option<u64>;
+    async fn get_user_post_count(&self, uname: &str, origin: &EntityOrigin<'_>) -> Option<u64> {
+        todo!()
+    }
     /// ofset is one based
     async fn get_user_posts_versia(
         &self,
         uuid: &str,
-        origin: &EntityOrigin,
+        origin: &EntityOrigin<'_>,
         page_size: u64,
         ofset: u64,
-    ) -> Option<Vec<VersiaPostable>>;
-    async fn get_key(&self, signed_by: &Signer) -> Option<OpenSSLPublic>;
+    ) -> Option<Vec<VersiaPostable>> {
+        todo!()
+    }
+    async fn get_key(&self, signed_by: &Signer) -> Option<OpenSSLPublic> {
+        todo!()
+    }
     /// gets the metadata of an instance, backfills if not present
-    async fn get_versia_instance_metadata(&self, instance_domain: &str)
-        -> Option<InstanceMetadata>;
+    async fn get_versia_instance_metadata(
+        &self,
+        instance_domain: &str,
+    ) -> Option<InstanceMetadata> {
+        todo!()
+    }
     /// get the protocol of the given instance. will backfill if the instance isn't in the db
-    async fn get_protocol(&self, instance: &str) -> Protocol;
-    async fn get_versia_user(&self, uuid: &str, origin: &EntityOrigin) -> Option<User>;
-    async fn get_versia_post(&self, post_id: &str, origin: &EntityOrigin)
-        -> Option<VersiaPostable>;
+    async fn get_protocol(&self, instance: &str) -> Protocol {
+        todo!()
+    }
+    async fn get_versia_user(&self, uuid: &str, origin: &EntityOrigin<'_>) -> Option<User> {
+        todo!()
+    }
+    async fn get_versia_post(
+        &self,
+        post_id: &str,
+        origin: &EntityOrigin<'_>,
+    ) -> Option<VersiaPostable> {
+        todo!()
+    }
     /// create a post and return the post
     async fn create_versia_post(
         &self,
         post: VersiaPostable,
-        origin: &EntityOrigin,
-    ) -> Result<VersiaPostable, ()>;
-    async fn delete_post(&self, post_id: &str, origin: &EntityOrigin) -> Result<(), ()>;
-    async fn delete_user(&self, uid: &Url, origin: &EntityOrigin) -> Result<(), ()>;
-
-    // //----------------------actors---------------------------
-
-    // /// instance_domain must be provided as internal users will
-    // /// need to have their links generated based on the instance
-    // /// domain. instances running in local only mode should be able
-    // /// to change domains without any affect for the internal users
-    // ///
-    // /// in the case of users using a custom domain name, it will take
-    // /// precidence over the user. how exactly this will be implimented
-    // /// is not set in stone but we are keeping the door open to it so
-    // /// that once a nice system is figured out we can impliment it
-    // /// without too much hastle
-    // async fn get_actor(&self, uid: i64, instance_domain: &str) -> Option<Actor>;
-    // async fn get_local_user_actor(
-    //     &self,
-    //     preferred_username: &str,
-    //     instance_domain: &str,
-    // ) -> Option<(Actor, i64)>;
-
-    // async fn is_local(&self, uid: i64) -> bool;
-
-    // async fn get_federated_db_id(&self, actor_id: &str) -> Option<i64>;
-    // async fn get_local_user_db_id(&self, preferred_username: &str) -> Option<i64>;
-
-    // async fn get_federated_actor(&self, actor_id: &str) -> Option<Actor>;
-
-    // //-----------------------account managment-----------------------------
-
-    // /// since this is intended to be a dumb implimentation, the
-    // /// "password" being passed in should be the hashed argon2
-    // /// output containing the hash and the salt. the database
-    // /// should not be responsible for performing this task
-    // async fn update_password(&self, uid: i64, password: &str);
-    // async fn set_manually_approves_followers(&self, uid: i64, value: bool);
-    // async fn get_local_manually_approves_followers(&self, uid: i64) -> bool;
-    // async fn set_permission_level(&self, uid: i64, permission_level: PermissionLevel);
+        origin: &EntityOrigin<'_>,
+    ) -> Result<VersiaPostable, ()> {
+        todo!()
+    }
+    async fn delete_post(&self, post_id: &str, origin: &EntityOrigin<'_>) -> Result<(), ()> {
+        todo!()
+    }
+    async fn delete_user(&self, uid: &Url, origin: &EntityOrigin<'_>) -> Result<(), ()> {
+        todo!()
+    }
 
     // //------------------------------posts---------------------------------
 
@@ -196,21 +192,6 @@ pub trait Conn: Sync {
         todo!()
     }
 
-    // //----------------------managing actors-------------------------------
-
-    // ///used for deleting both federated and local accounts
-    // // async fn delete_user(&self, uid: &Url, origin: &EntityOrigin, reason: Option<&str>) -> Result<(), ()>;
-
-    // async fn create_local_user(&self, user: &NewLocal) -> Result<i64, DbErr>;
-    // async fn create_federated_actor(&self, actor: &Actor) -> i64;
-
-    // ///instance domain needed to form the instance actor for the request
-    // async fn load_new_federated_actor(
-    //     &self,
-    //     actor_id: &Url,
-    //     instance_domain: &str,
-    // ) -> Result<i64, DbErr>;
-
     // //--------------------followers---------------------------------
 
     async fn create_follow_request(&self, from: &str, to: &str, pending: bool) -> Result<(), ()> {
@@ -234,10 +215,4 @@ pub trait Conn: Sync {
     async fn get_follower_inboxes(&self, user: &str) -> Result<Vec<FollowerEndpoint>, DbErr> {
         todo!()
     }
-
-    // /// really just for local users, if used for a federated user it
-    // /// will only show the amout of local users following them
-    // async fn get_follower_count(&self, user: i64) -> Result<i64, ()>;
-
-    // async fn get_follow(&self, from_id: i64, to_id: i64) -> Option<Follower>;
 }

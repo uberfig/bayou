@@ -66,7 +66,7 @@ pub async fn get_actor(
 pub async fn create_test(
     path: web::Path<String>,
     state: Data<crate::config::Config>,
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
 ) -> Result<HttpResponse> {
     let preferred_username = path.into_inner();
 
@@ -83,7 +83,7 @@ pub async fn create_test(
 
 #[get("/actor")]
 pub async fn get_instance_actor(
-    conn: Data<Box<dyn Conn + Sync>>,
+    conn: Data<DbConn>,
     state: Data<crate::config::Config>,
 ) -> Result<HttpResponse> {
     println!("getting the instance actor");

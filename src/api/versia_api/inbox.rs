@@ -1,5 +1,5 @@
 use crate::api::headers::ActixHeaders;
-use crate::db::conn::EntityOrigin;
+use crate::db::conn::{Conn, EntityOrigin};
 use crate::db::dbconn::DbConn;
 use actix_web::{error::ErrorBadRequest, http::StatusCode, rt::spawn};
 

@@ -363,7 +363,6 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "argon2",
- "async-trait",
  "base64 0.22.1",
  "bayou-protocol",
  "chrono",
@@ -371,6 +370,7 @@ dependencies = [
  "deadpool-postgres",
  "ed25519",
  "ed25519-dalek",
+ "enum_dispatch",
  "httpdate",
  "openssl",
  "rand 0.8.5",
@@ -392,7 +392,7 @@ dependencies = [
 [[package]]
 name = "bayou-protocol"
 version = "0.1.0"
-source = "git+https://github.com/uberfig/bayou-protocol.git#3849ade235606b6808942c109c4eb3efa2407ecd"
+source = "git+https://github.com/uberfig/bayou-protocol.git#06f26d684c5b4cdc1dc87b107b22ede9babb0c02"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -844,6 +844,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "enum_dispatch"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa18ce2bc66555b3218614519ac839ddb759a7d6720732f979ef8d13be147ecd"
+dependencies = [
+ "once_cell",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.85",
 ]
 
 [[package]]
@@ -2253,9 +2265,9 @@ dependencies = [
 
 [[package]]
 name = "scc"
-version = "2.2.2"
+version = "2.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2c1f7fc6deb21665a9060dfc7d271be784669295a31babdcd4dd2c79ae8cbfb"
+checksum = "d8d25269dd3a12467afe2e510f69fb0b46b698e5afb296b59f2145259deaf8e8"
 dependencies = [
  "sdd",
 ]

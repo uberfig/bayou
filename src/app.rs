@@ -5,6 +5,7 @@ use actix_web::{get, web::Data, App, HttpResponse, HttpServer, Responder};
 use crate::{
     api::{ap_api::inbox::Inbox, routes::get_routes},
     config::Config,
+    db::conn::Conn,
 };
 
 #[get("/")]

@@ -1,3 +1,4 @@
+use crate::db::conn::Conn;
 use crate::{
     api::headers::ActixHeaders,
     db::{conn::EntityOrigin, dbconn::DbConn},

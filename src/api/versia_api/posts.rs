@@ -1,6 +1,9 @@
 use crate::{
     api::headers::ActixHeaders,
-    db::{conn::EntityOrigin, dbconn::DbConn},
+    db::{
+        conn::{Conn, EntityOrigin},
+        dbconn::DbConn,
+    },
 };
 use actix_web::{
     error::{ErrorNotFound, ErrorUnauthorized},

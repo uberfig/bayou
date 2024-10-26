@@ -1,8 +1,6 @@
 use actix_web::{
     error::{ErrorInternalServerError, ErrorNotFound, ErrorUnauthorized, ErrorUnprocessableEntity},
-    get,
-    http::Error,
-    post,
+    get, post,
     rt::spawn,
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
@@ -14,7 +12,11 @@ use bayou_protocol::{
 
 use crate::{
     api::{headers::ActixHeaders, page_query::Page},
-    db::{conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor},
+    db::{
+        conn::{Conn, EntityOrigin},
+        dbconn::DbConn,
+        utility::instance_actor::InstanceActor,
+    },
     tasks::notify_followers::notify_followers,
 };
 
@@ -130,7 +132,7 @@ pub async fn create_ap_post(
         Ok(ok) => {
             let taken = ok.clone();
             spawn(async move {
-                notify_followers(conn, &taken, EntityOrigin::Local(&state.instance_domain)).await           
+                notify_followers(conn, &taken, EntityOrigin::Local(&state.instance_domain)).await
             });
             Ok(HttpResponse::Created().body(ok))
         }

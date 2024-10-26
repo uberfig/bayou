@@ -15,7 +15,7 @@ use url::Url;
 
 use crate::{
     api::headers::ActixHeaders,
-    db::{dbconn::DbConn, utility::instance_actor::InstanceActor},
+    db::{conn::Conn, dbconn::DbConn, utility::instance_actor::InstanceActor},
 };
 
 #[get("/users/{preferred_username}/statuses/{id}")]

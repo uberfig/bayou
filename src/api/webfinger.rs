@@ -1,3 +1,4 @@
+use crate::db::conn::Conn;
 use actix_web::{
     error::{ErrorBadRequest, ErrorNotFound},
     get,

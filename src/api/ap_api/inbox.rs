@@ -16,7 +16,11 @@ use bayou_protocol::{
 
 use crate::{
     api::headers::ActixHeaders,
-    db::{conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor},
+    db::{
+        conn::{Conn, EntityOrigin},
+        dbconn::DbConn,
+        utility::instance_actor::InstanceActor,
+    },
 };
 pub struct Inbox {
     pub inbox: Mutex<Vec<String>>,
