@@ -2,14 +2,14 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use tokio_postgres::Row;
 
-use crate::db::Follower;
+use crate::db::types::Follower;
 
 use super::pg_conn::PgConn;
 
 ///requires following joined on unified_users
 fn to_follower(row: Row) -> Follower {
     Follower {
-        uid: row.get("follower"),
+        uuid: row.get("follower"),
         is_local: row.get("is_local"),
         protocol: serde_json::from_str(row.get("protocol"))
             .expect("failed to deserialize protocol"),

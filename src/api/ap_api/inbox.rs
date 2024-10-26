@@ -66,7 +66,7 @@ async fn inbox(
         return Ok(HttpResponse::Unauthorized()
             .body(serde_json::to_string(&RequestVerificationError::BadMessageBody).unwrap()));
     };
-    let mut instance_actor_key = conn.get_instance_actor().await.get_private_key();
+    let instance_actor = conn.get_instance_actor().await;
 
     let headers = ActixHeaders {
         headermap: request.headers().clone(),
@@ -77,7 +77,8 @@ async fn inbox(
         request.path(),
         &state.instance_domain,
         &InstanceActor::get_key_id(&state.instance_domain),
-        &mut instance_actor_key,
+        &mut instance_actor.get_private_key(),
+        instance_actor.algorithm,
     )
     .await
     {

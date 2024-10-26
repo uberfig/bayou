@@ -17,7 +17,10 @@ use bayou_protocol::{
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use super::utility::{instance_actor::InstanceActor, new_actor::NewLocal, protocols::Protocol};
+use super::{
+    types::{Follower, FollowerEndpoint},
+    utility::{instance_actor::InstanceActor, new_actor::NewLocal, protocols::Protocol},
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum InsertErr {
@@ -62,6 +65,9 @@ pub enum ProtoUser {
 #[async_trait]
 pub trait Conn: Sync {
     // async fn get_actor_post_count(&self, uname: &str, origin: &EntityOrigin) -> Option<u64>;
+    async fn get_uuid_url(&self, url: &Url) -> &str {
+        todo!()
+    }
     async fn get_user_posts_ap(
         &self,
         uname: &str,
@@ -186,7 +192,9 @@ pub trait Conn: Sync {
     // //-------------------------private keys----------------------------
 
     // /// get the private key of a local user, none if we don't have authority over them
-    // async fn get_private_key_pem(&self, uid: &Url, origin: &EntityOrigin) -> Option<String>;
+    async fn get_private_key_pem(&self, uuid: &str) -> Option<String> {
+        todo!()
+    }
 
     // //----------------------managing actors-------------------------------
 
@@ -205,15 +213,27 @@ pub trait Conn: Sync {
 
     // //--------------------followers---------------------------------
 
-    // async fn create_follow_request(&self, from: i64, to: i64, pending: bool) -> Result<(), ()>;
+    async fn create_follow_request(&self, from: &str, to: &str, pending: bool) -> Result<(), ()> {
+        todo!()
+    }
 
-    // /// approves an existing follow request and creates the record in
-    // /// the followers
-    // async fn approve_follow_request(&self, from: i64, to: i64) -> Result<(), ()>;
+    /// approves an existing follow request and creates the record in
+    /// the followers
+    async fn approve_follow_request(&self, from: &str, to: &str) -> Result<(), ()> {
+        todo!()
+    }
 
-    // /// in the event that we cannot view from the source instance, just show
-    // /// local followers
-    // async fn get_followers(&self, user: i64) -> Result<Vec<Follower>, ()>;
+    /// in the event that we cannot view from the source instance, just show
+    /// local followers
+    async fn get_followers(&self, user: &str) -> Result<Vec<Follower>, DbErr> {
+        todo!()
+    }
+
+    /// only intended for local users, will deduplicate users with the same shared inbox,
+    /// will also skip users we are authoratative over
+    async fn get_follower_inboxes(&self, user: &str) -> Result<Vec<FollowerEndpoint>, DbErr> {
+        todo!()
+    }
 
     // /// really just for local users, if used for a federated user it
     // /// will only show the amout of local users following them

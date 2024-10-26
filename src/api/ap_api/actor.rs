@@ -36,6 +36,7 @@ pub async fn get_actor(
             &state.instance_domain,
             &InstanceActor::get_key_id(&state.instance_domain),
             &mut instance_key.get_private_key(),
+            instance_key.algorithm,
         )
         .await;
 

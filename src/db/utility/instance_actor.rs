@@ -1,10 +1,12 @@
 use bayou_protocol::{
-    cryptography::openssl::OpenSSLPrivate, types::activitystream_objects::actors::Actor,
+    cryptography::openssl::OpenSSLPrivate, protocol::ap_protocol::signature::Algorithms,
+    types::activitystream_objects::actors::Actor,
 };
 
 pub struct InstanceActor {
     pub private_key_pem: String,
     pub public_key_pem: String,
+    pub algorithm: Algorithms,
 }
 
 impl InstanceActor {

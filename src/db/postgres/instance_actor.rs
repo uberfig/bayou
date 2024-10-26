@@ -1,3 +1,5 @@
+use bayou_protocol::protocol::ap_protocol::signature::Algorithms;
+
 use crate::db::utility::instance_actor::InstanceActor;
 
 use super::pg_conn::PgConn;
@@ -18,6 +20,7 @@ pub async fn get_instance_actor(conn: &PgConn) -> Option<InstanceActor> {
     result.map(|result| InstanceActor {
         private_key_pem: result.get("private_key_pem"),
         public_key_pem: result.get("public_key_pem"),
+        algorithm: Algorithms::Hs2019,
     })
 }
 

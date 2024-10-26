@@ -4,6 +4,7 @@ bind_address="127.0.0.1"
 port=8020
 contact_email="public.ivy.gifford@gmail.com"
 outbox_pagnation_size = 20
+signing_algo ="hs2019"
 
 pg_user="ivy"
 pg_password="password"

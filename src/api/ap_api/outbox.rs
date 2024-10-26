@@ -3,6 +3,7 @@ use actix_web::{
     get,
     http::Error,
     post,
+    rt::spawn,
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
@@ -14,6 +15,7 @@ use bayou_protocol::{
 use crate::{
     api::{headers::ActixHeaders, page_query::Page},
     db::{conn::EntityOrigin, dbconn::DbConn, utility::instance_actor::InstanceActor},
+    tasks::notify_followers::notify_followers,
 };
 
 #[get("/users/{preferred_username}/outbox")]
@@ -44,6 +46,7 @@ pub async fn ap_outbox(
             &state.instance_domain,
             &InstanceActor::get_key_id(&state.instance_domain),
             &mut instance_key.get_private_key(),
+            instance_key.algorithm,
         )
         .await;
 
@@ -110,7 +113,7 @@ pub async fn ap_outbox(
 
 #[post("/users/{preferred_username}/outbox")]
 pub async fn create_ap_post(
-    path: web::Path<String>,
+    // path: web::Path<String>,
     body: web::Bytes,
     conn: Data<DbConn>,
     state: Data<crate::config::Config>,
@@ -124,7 +127,13 @@ pub async fn create_ap_post(
         .new_local_post(new_post, &EntityOrigin::Local(&state.instance_domain))
         .await
     {
-        Ok(ok) => Ok(HttpResponse::Created().body(ok)),
+        Ok(ok) => {
+            let taken = ok.clone();
+            spawn(async move {
+                notify_followers(conn, &taken, EntityOrigin::Local(&state.instance_domain)).await           
+            });
+            Ok(HttpResponse::Created().body(ok))
+        }
         Err(err) => Err(ErrorInternalServerError(err)),
     }
 }

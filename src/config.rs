@@ -1,3 +1,4 @@
+use bayou_protocol::protocol::ap_protocol::signature::Algorithms;
 use config::ConfigError;
 use serde::Deserialize;
 
@@ -12,6 +13,7 @@ pub struct Config {
     pub contact_email: String,
     pub port: u16,
     pub outbox_pagnation_size: u64,
+    pub signing_algo: Algorithms,
 
     pub pg_user: String,
     pub pg_password: String,
