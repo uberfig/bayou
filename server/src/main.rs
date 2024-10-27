@@ -1,6 +1,7 @@
 use actix_web::{get, HttpResponse, Responder};
+use server::{app::start_application, config::get_config};
 
-use bayou::{app::start_application, config::get_config};
+// use bayou::{app::start_application, config::get_config};
 
 #[get("/")]
 async fn hello() -> impl Responder {

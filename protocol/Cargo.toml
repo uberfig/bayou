@@ -1,0 +1,26 @@
+[package]
+name = "bayou-protocol"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde_json = "1.0.122"
+serde = "1.0.204"
+url = {version = "2.5.1", features = ["serde"]}
+chrono = "0.4.38"
+
+openssl = {version="0.10.66", optional=true}
+rand = {version = "0.8.5", optional=true}
+base64 = {version = "0.22.1", optional=true}
+ed25519-dalek = {version = "2.1.1", features = ["pkcs8", "rand_core", "serde", "pem"], optional=true}
+thiserror = {version = "1.0.64", optional=true}
+sha2 = {version = "0.10.8", optional=true}
+
+reqwest = {version = "0.12.4", optional=true}
+textnonce = {version = "1.0.0", optional=true}
+httpdate = {version = "1.0.3", optional=true}
+
+[features]
+crypto = ["dep:openssl","dep:rand","dep:base64", "dep:ed25519-dalek", "dep:thiserror", "dep:sha2"]
+protocol = ["crypto","dep:reqwest","dep:textnonce","dep:httpdate"]
+# default = ["protocol"]

@@ -4,38 +4,21 @@ version = "0.1.0"
 edition = "2021"
 license = "AGPL-3.0-only"
 
+[workspace]
+resolver = "2"
+members = [
+    "server",
+    "protocol",
+]
+
+# [lib]
+# name = "bayou_protocol"
+# path = "protocol/src/lib.rs"
+
+[[bin]]
+name = "bayou_server"
+path = "server/src/main.rs"
+
 [dependencies]
-actix-web = "4"
-
-deadpool-postgres = { version = "0.12", features = ["serde"] }
-tokio-postgres = "0.7.11"
-tokio-pg-mapper = "0.2.0"
-tokio-pg-mapper-derive = "0.2.0"
-refinery = { version = "0.8", features = ["tokio-postgres"]}
-
-bayou-protocol = { git = "https://github.com/uberfig/bayou-protocol.git", features = ["protocol"] }
-
-serde_json = "1.0.122"
-serde = "1.0.204"
-
-httpdate = "1.0.3"
-reqwest = "0.12.4"
-url = {version = "2.5.1", features = ["serde"]}
-config = { version = "0.14.0", features = ["toml"]}
-xsd-types = {version = "0.9.5", features = ["serde"]}
-chrono = "0.4.38"
-thiserror = "1.0.64"
-
-# cryptography stuff
-argon2 = "0.5.3"
-ed25519 = "2.2.3"
-ed25519-dalek = {version = "2.1.1", features = ["pkcs8", "rand_core", "serde", "pem"]}
-rand = "0.8.5"
-textnonce = "1.0.0"
-base64 = "0.22.1"
-sha2 = "0.10.8"
-openssl = "0.10.66"
-enum_dispatch = "0.3.13"
-
-[dev-dependencies]
-serial_test = "3.1.1"
+actix-web = {version = "4"}
+server = {path = "server"}

@@ -362,37 +362,12 @@ name = "bayou"
 version = "0.1.0"
 dependencies = [
  "actix-web",
- "argon2",
- "base64 0.22.1",
- "bayou-protocol",
- "chrono",
- "config",
- "deadpool-postgres",
- "ed25519",
- "ed25519-dalek",
- "enum_dispatch",
- "httpdate",
- "openssl",
- "rand 0.8.5",
- "refinery",
- "reqwest",
- "serde",
- "serde_json",
- "serial_test",
- "sha2",
- "textnonce",
- "thiserror",
- "tokio-pg-mapper",
- "tokio-pg-mapper-derive",
- "tokio-postgres",
- "url",
- "xsd-types",
+ "server",
 ]
 
 [[package]]
 name = "bayou-protocol"
 version = "0.1.0"
-source = "git+https://github.com/uberfig/bayou-protocol.git#06f26d684c5b4cdc1dc87b107b22ede9babb0c02"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -2398,6 +2373,38 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.85",
+]
+
+[[package]]
+name = "server"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "argon2",
+ "base64 0.22.1",
+ "bayou-protocol",
+ "chrono",
+ "config",
+ "deadpool-postgres",
+ "ed25519",
+ "ed25519-dalek",
+ "enum_dispatch",
+ "httpdate",
+ "openssl",
+ "rand 0.8.5",
+ "refinery",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serial_test",
+ "sha2",
+ "textnonce",
+ "thiserror",
+ "tokio-pg-mapper",
+ "tokio-pg-mapper-derive",
+ "tokio-postgres",
+ "url",
+ "xsd-types",
 ]
 
 [[package]]
