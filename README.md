@@ -1,30 +1,13 @@
-# Bayou
- 
-this project is a rewrite of my older project https://github.com/uberfig/activity_playground
+# Introduction
 
-this project has taken a turn from its original goals and is primarily implimenting the [versia protocol](https://versia.pub/) with basic [activitypub](https://www.w3.org/TR/activitypub/) support. 
+Bayou is an in development fediverse server written in rust with the goal of being a simple and reliable server with decent performance
 
-The lack of documentation on the extensions to activitypub by mastodon and various projects makes it quite the pain to set up things like signing 
+Bayou is currently a work in progress and the migrations will be in a constant state of change until the first alpha. Because of this it sould not be run in production and it will have continuous major breaking changes. 
 
-reasons implimenting activitypub sucks
- - we just have a little [blog post](https://blog.joinmastodon.org/2018/06/how-to-implement-a-basic-activitypub-server/) to go off for signing unless we want to read the source code for mastodon
- - the blog post is incorrect as mastodon requires the message digest be signed
- - no one mentons anywhere that the algorithm needs to be inferred from the silly @context instead of making the sane design decision to just list the algorithm used beside the pem (fun fact I just found out that mastodon appearently uses spki for keys)
- - infinitely nested objects is valid within activitypub
- - when you unfollow someone your instance sends an undo. when you follow them again it undoes the undo, you can see how silly this is
- - follow requests need to have an id that can be accessed like comon this is silly
+Bayou is split into [bayou_server](/server) which will provide a full featured activitypub server and [bayou_protocol](/protocol) which provides bayou types as well as cryptography and protocol logic which can be enabled via features. Eventually a custom frontend for Bayou will be written using yew and the bayou_protocol types
 
-ok mastodon actually documented some stuff yayy 
- - https://docs.joinmastodon.org/spec/security/#http-sign
- - https://docs.joinmastodon.org/spec/activitypub/#publicKey
+Bayou intends to impliment the activitypub protocol as well as a secondary effort in implimenting the versia protocol. Bayou may impliment other protocols in the future but mastodon-activitypub is the core focus
 
-delicious finally some documentation
-https://swicg.github.io/activitypub-http-signature/
-
-alr we're following along with https://github.com/astro/sigh and we're going back to openssl
-
-down the road there may be support for other databases, but for the time being postgres is the main focus. since this project is still very very under development there will be frequent changes the database without migrations until we have the first alpha release.
+# Environment Setup
 
 for setting up your environment to run, check [environment setup](environment_setup.md)
-
-all contributions welcome :3
