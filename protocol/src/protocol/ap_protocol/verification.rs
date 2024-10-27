@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     cryptography::{
         digest::{sha256_hash, sha512_hash},
-        key::{PrivateKey, PublicKey},
+        key::{Algorithms, PrivateKey, PublicKey},
     },
     types::activitystream_objects::{
         actors::Actor,
@@ -14,7 +14,7 @@ use crate::{
 use super::{
     super::{errors::FetchErr, headers::Headers, http_method::HttpMethod},
     fetch::authorized_fetch,
-    signature::{Algorithms, Signature, SignatureErr},
+    signature::{Signature, SignatureErr},
 };
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -70,12 +70,8 @@ pub async fn verify_post<K: PrivateKey, H: Headers>(
         return Err(RequestVerificationError::BodyDeserializeErr);
     };
     let generated_digest = match signature.signature_header.algorithm {
-        super::signature::Algorithms::RsaSha256 => {
-            "SHA-256=".to_owned() + &sha256_hash(body.as_bytes())
-        }
-        super::signature::Algorithms::Hs2019 => {
-            "SHA-512=".to_owned() + &sha512_hash(body.as_bytes())
-        }
+        Algorithms::RsaSha256 => "SHA-256=".to_owned() + &sha256_hash(body.as_bytes()),
+        Algorithms::Hs2019 => "SHA-512=".to_owned() + &sha512_hash(body.as_bytes()),
     };
 
     if !digest.eq(&generated_digest) {

@@ -70,7 +70,7 @@ async fn inbox(
         return Ok(HttpResponse::Unauthorized()
             .body(serde_json::to_string(&RequestVerificationError::BadMessageBody).unwrap()));
     };
-    let instance_actor = conn.get_instance_actor().await;
+    let instance_actor = conn.get_instance_actor(state.signing_algo).await;
 
     let headers = ActixHeaders {
         headermap: request.headers().clone(),

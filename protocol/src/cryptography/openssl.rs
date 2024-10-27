@@ -4,7 +4,7 @@ use openssl::{
     rsa::Rsa,
 };
 
-use super::key::{Key, KeyType, PrivateKey, PublicKey};
+use super::key::{Algorithms, Key, PrivateKey, PublicKey};
 
 #[derive(Debug, Clone)]
 pub struct OpenSSLPrivate(PKey<Private>);
@@ -28,13 +28,13 @@ impl PrivateKey for OpenSSLPrivate {
         openssl::base64::encode_block(&signer.sign_to_vec().unwrap())
     }
 
-    fn generate(algorithm: KeyType) -> Self {
+    fn generate(algorithm: Algorithms) -> Self {
         match algorithm {
-            KeyType::Rsa256 => {
+            Algorithms::RsaSha256 => {
                 let rsa = Rsa::generate(2048).unwrap();
                 OpenSSLPrivate(PKey::from_rsa(rsa).unwrap())
             }
-            KeyType::Ed25519 => OpenSSLPrivate(openssl::pkey::PKey::generate_ed25519().unwrap()),
+            Algorithms::Hs2019 => OpenSSLPrivate(openssl::pkey::PKey::generate_ed25519().unwrap()),
         }
     }
 

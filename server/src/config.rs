@@ -1,4 +1,4 @@
-use bayou_protocol::protocol::ap_protocol::signature::Algorithms;
+use bayou_protocol::cryptography::key::Algorithms;
 use config::ConfigError;
 use serde::Deserialize;
 

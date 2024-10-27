@@ -1,7 +1,8 @@
 use actix_web::web::Data;
 use bayou_protocol::{
     cryptography::digest::{sha256_hash, sha512_hash},
-    protocol::ap_protocol::{fetch::ap_post, signature::Algorithms},
+    cryptography::key::Algorithms,
+    protocol::ap_protocol::fetch::ap_post,
 };
 
 use crate::db::{
@@ -10,7 +11,12 @@ use crate::db::{
     utility::instance_actor::InstanceActor,
 };
 
-pub async fn notify_followers(conn: Data<DbConn>, post_id: &str, origin: EntityOrigin<'_>) {
+pub async fn notify_followers(
+    conn: Data<DbConn>,
+    post_id: &str,
+    origin: EntityOrigin<'_>,
+    algorithm: Algorithms,
+) {
     let Some(ap_rep) = conn
         .get_ap_post(post_id, &origin)
         .await
@@ -19,7 +25,7 @@ pub async fn notify_followers(conn: Data<DbConn>, post_id: &str, origin: EntityO
         return;
     };
     let uuid = conn.get_uuid_url(ap_rep.item.actor()).await;
-    let actor = conn.get_instance_actor().await;
+    let actor = conn.get_instance_actor(algorithm).await;
     let keyid = InstanceActor::get_key_id(
         ap_rep
             .item

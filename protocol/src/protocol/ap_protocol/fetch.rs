@@ -1,9 +1,9 @@
-use super::{super::errors::FetchErr, signature::Algorithms};
+use super::super::errors::FetchErr;
 use serde::Deserialize;
 use std::time::SystemTime;
 use url::Url;
 
-use crate::cryptography::key::PrivateKey;
+use crate::cryptography::key::{Algorithms, PrivateKey};
 
 /// key_id and private_key are the properties of the key
 /// being used to perform the fetch. usually done by the

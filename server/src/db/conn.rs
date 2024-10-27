@@ -1,5 +1,5 @@
 use bayou_protocol::{
-    cryptography::openssl::OpenSSLPublic,
+    cryptography::{key::Algorithms, openssl::OpenSSLPublic},
     protocol::{errors::FetchErr, versia_protocol::requests::Signer},
     types::{
         activitystream_objects::{actors::Actor, new_post::NewPost, postable::ApPostable},
@@ -52,6 +52,15 @@ pub enum ProtoUser {
 #[enum_dispatch(CachedConn)]
 #[enum_dispatch(DbConn)]
 pub trait Conn: Sync {
+    /// run any prep for the database, for example running migrations
+    async fn init(&self) -> Result<(), String> {
+        todo!()
+    }
+
+    /// gets the instance actor. creates one if its not present
+    /// panics if unable to do either
+    async fn get_instance_actor(&self, algorithm: Algorithms) -> InstanceActor;
+
     // async fn get_actor_post_count(&self, uname: &str, origin: &EntityOrigin) -> Option<u64>;
     async fn get_uuid_url(&self, url: &Url) -> &str {
         todo!()
@@ -73,7 +82,7 @@ pub trait Conn: Sync {
         &self,
         post: ApPostable,
         origin: &EntityOrigin<'_>,
-    ) -> Result<String, ()> {
+    ) -> Result<String, DbErr> {
         todo!()
     }
     async fn new_local_post(
@@ -81,14 +90,6 @@ pub trait Conn: Sync {
         new_post: NewPost,
         origin: &EntityOrigin<'_>,
     ) -> Result<String, DbErr> {
-        todo!()
-    }
-    /// run any prep for the database, for example running migrations
-    async fn init(&self) -> Result<(), String> {
-        todo!()
-    }
-    /// gets the instance actor. creates one if its not present
-    async fn get_instance_actor(&self) -> InstanceActor {
         todo!()
     }
 

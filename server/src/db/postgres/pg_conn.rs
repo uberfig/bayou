@@ -1,8 +1,9 @@
+use bayou_protocol::cryptography::key::Algorithms;
 use deadpool_postgres::Pool;
 
-use crate::db::conn::Conn;
+use crate::db::{conn::Conn, utility::instance_actor::InstanceActor};
 
-use super::init;
+use super::{init, instance_actor};
 
 #[derive(Clone, Debug)]
 pub struct PgConn {
@@ -13,5 +14,9 @@ pub struct PgConn {
 impl Conn for PgConn {
     async fn init(&self) -> Result<(), String> {
         init::init(self).await
+    }
+
+    async fn get_instance_actor(&self, algorithm: Algorithms) -> InstanceActor {
+        instance_actor::get_instance_actor(self, algorithm).await
     }
 }

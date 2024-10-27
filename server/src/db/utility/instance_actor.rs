@@ -1,5 +1,5 @@
 use bayou_protocol::{
-    cryptography::openssl::OpenSSLPrivate, protocol::ap_protocol::signature::Algorithms,
+    cryptography::{key::Algorithms, openssl::OpenSSLPrivate},
     types::activitystream_objects::actors::Actor,
 };
 

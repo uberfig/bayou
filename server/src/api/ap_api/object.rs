@@ -34,7 +34,7 @@ pub async fn get_object(
         let headers = ActixHeaders {
             headermap: request.headers().clone(),
         };
-        let instance_key = conn.get_instance_actor().await;
+        let instance_key = conn.get_instance_actor(state.signing_algo).await;
         let verified = verify_get(
             &headers,
             path,
@@ -81,7 +81,7 @@ pub async fn get_object_create(
         let headers = ActixHeaders {
             headermap: request.headers().clone(),
         };
-        let instance_key = conn.get_instance_actor().await;
+        let instance_key = conn.get_instance_actor(state.signing_algo).await;
         let verified = verify_get(
             &headers,
             path,

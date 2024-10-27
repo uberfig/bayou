@@ -7,10 +7,22 @@ pub enum ParseErr {
     Failure,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum KeyType {
-    Rsa256,
-    Ed25519,
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum Algorithms {
+    #[serde(rename = "rsa-sha256")]
+    RsaSha256,
+    /// is actually Ed25519-SHA512
+    #[serde(rename = "hs2019")]
+    Hs2019,
+}
+
+impl std::fmt::Display for Algorithms {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Algorithms::RsaSha256 => write!(f, "rsa-sha256"),
+            Algorithms::Hs2019 => write!(f, "hs2019"),
+        }
+    }
 }
 
 pub trait Key: Sized {
@@ -25,7 +37,7 @@ pub trait PrivateKey: Key + Clone {
     /// sign the provided content with this key
     fn sign(&mut self, content: &str) -> String;
     // fn from_pem(pem: &str, algorithm: crate::cryptography::key::KeyType) -> Result<Self, ParseErr>;
-    fn generate(algorithm: KeyType) -> Self;
+    fn generate(algorithm: Algorithms) -> Self;
     // fn private_key_pem(&self) -> String;
     fn public_key_pem(&self) -> Result<String, Error>;
 }

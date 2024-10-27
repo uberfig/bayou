@@ -42,12 +42,13 @@ CREATE TABLE users (
 	private_key_pem		TEXT NULL,
 	permission_level 	SMALLINT NULL,
 
-	UNIQUE (domain, preferred_username)
+	UNIQUE (domain, username)
 );
 
 CREATE TABLE ap_instance_actor (
 	private_key_pem		TEXT NOT NULL,
-	public_key_pem		TEXT NOT NULL
+	public_key_pem		TEXT NOT NULL,
+	algorithm			TEXT NOT NULL
 );
 
 CREATE TABLE following (

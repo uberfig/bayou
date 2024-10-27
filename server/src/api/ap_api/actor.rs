@@ -29,7 +29,7 @@ pub async fn get_actor(
         let headers = ActixHeaders {
             headermap: request.headers().clone(),
         };
-        let instance_key = conn.get_instance_actor().await;
+        let instance_key = conn.get_instance_actor(state.signing_algo).await;
         let verified = verify_get(
             &headers,
             request.path(),
@@ -73,7 +73,13 @@ pub async fn create_test(
     let x = conn
         .create_user(
             &state.instance_domain,
-            &NewLocal::new(preferred_username, "filler".to_string(), None, None),
+            &NewLocal::new(
+                preferred_username,
+                "filler".to_string(),
+                None,
+                None,
+                state.signing_algo,
+            ),
         )
         .await
         .unwrap();
@@ -92,7 +98,7 @@ pub async fn get_instance_actor(
         .body(
             serde_json::to_string(
                 &conn
-                    .get_instance_actor()
+                    .get_instance_actor(state.signing_algo)
                     .await
                     .to_actor(&state.instance_domain)
                     .wrap_context(),

@@ -41,7 +41,7 @@ pub async fn ap_outbox(
         let headers = ActixHeaders {
             headermap: request.headers().clone(),
         };
-        let instance_key = conn.get_instance_actor().await;
+        let instance_key = conn.get_instance_actor(state.signing_algo).await;
         let verified = verify_get(
             &headers,
             path,
@@ -132,7 +132,13 @@ pub async fn create_ap_post(
         Ok(ok) => {
             let taken = ok.clone();
             spawn(async move {
-                notify_followers(conn, &taken, EntityOrigin::Local(&state.instance_domain)).await
+                notify_followers(
+                    conn,
+                    &taken,
+                    EntityOrigin::Local(&state.instance_domain),
+                    state.signing_algo,
+                )
+                .await
             });
             Ok(HttpResponse::Created().body(ok))
         }

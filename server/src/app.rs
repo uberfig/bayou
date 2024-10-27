@@ -20,7 +20,7 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
         eprintln!("{}", x);
         return Ok(());
     }
-    conn.get_instance_actor().await;
+    conn.get_instance_actor(config.signing_algo).await;
 
     let bind = config.bind_address.clone();
     let port = config.port;

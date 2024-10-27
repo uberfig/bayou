@@ -6,12 +6,12 @@ use super::{
     follow_and_response::{Follow, FollowResponse},
     postable::ApPostable,
 };
+#[cfg(feature = "protocol")]
+use crate::cryptography::key::Algorithms;
 #[cfg(feature = "crypto")]
 use crate::cryptography::key::PrivateKey;
 #[cfg(feature = "crypto")]
 use crate::protocol::ap_protocol::fetch::authorized_fetch;
-#[cfg(feature = "protocol")]
-use crate::protocol::ap_protocol::signature::Algorithms;
 #[cfg(feature = "protocol")]
 use crate::protocol::errors::FetchErr;
 use serde::{Deserialize, Serialize};

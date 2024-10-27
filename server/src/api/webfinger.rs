@@ -103,7 +103,7 @@ async fn webfinger(
     let actor = match preferred_username.eq(&state.instance_domain) {
         //is the instance actor
         true => conn
-            .get_instance_actor()
+            .get_instance_actor(state.signing_algo)
             .await
             .to_actor(&state.instance_domain),
         //not the instance actor

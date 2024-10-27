@@ -1,5 +1,5 @@
 use bayou_protocol::cryptography::{
-    key::{Key, KeyType, PrivateKey},
+    key::{Algorithms, Key, PrivateKey},
     openssl::OpenSSLPrivate,
 };
 use url::Url;
@@ -80,12 +80,13 @@ impl NewLocal {
         password: String,
         email: Option<String>,
         permission_level: Option<PermissionLevel>,
+        algorithm: Algorithms,
     ) -> Self {
         let permission_level = match permission_level {
             Some(x) => x,
             None => PermissionLevel::UntrustedUser,
         };
-        let private_key = OpenSSLPrivate::generate(KeyType::Ed25519);
+        let private_key = OpenSSLPrivate::generate(algorithm);
         let private_key_pem = private_key.to_pem().expect("generated an invalid key");
         let public_key_pem = private_key
             .public_key_pem()
