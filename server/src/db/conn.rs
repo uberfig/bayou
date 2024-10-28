@@ -48,18 +48,32 @@ pub enum ProtoUser {
 }
 
 #[allow(unused_variables)]
+// we can't do what it reccomends or it borks enum_dispatch
+#[allow(async_fn_in_trait)]
 #[enum_dispatch(UncachedConn)]
 #[enum_dispatch(CachedConn)]
 #[enum_dispatch(DbConn)]
 pub trait Conn: Sync {
     /// run any prep for the database, for example running migrations
-    async fn init(&self) -> Result<(), String> {
-        todo!()
-    }
+    async fn init(&self) -> Result<(), String>;
 
     /// gets the instance actor. creates one if its not present
     /// panics if unable to do either
     async fn get_instance_actor(&self, algorithm: Algorithms) -> InstanceActor;
+
+    //---------------------- Actor ------------------
+
+    /// returns the uid if sucessful
+    async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<String, ()>;
+    async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+        todo!()
+    }
+    /// gets actor, backfills if not in db. returns none if not in the db and defederated or unable to fetch
+    async fn backfill_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+        todo!()
+    }
+
+    //-----------------------------------------------
 
     // async fn get_actor_post_count(&self, uname: &str, origin: &EntityOrigin) -> Option<u64>;
     async fn get_uuid_url(&self, url: &Url) -> &str {
@@ -93,18 +107,8 @@ pub trait Conn: Sync {
         todo!()
     }
 
-    /// returns the uid if sucessful
-    async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<String, ()> {
-        todo!()
-    }
-    /// gets actor, backfills if not in db. returns none if not in the db and defederated or unable to fetch
-    async fn backfill_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
-        todo!()
-    }
-    async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
-        todo!()
-    }
-
+    
+    
     /// signed_by will always be user for activitypub users
     /// this will backfill the user if they aren't in the db yet
     async fn get_public_key(&self, signed_by: &Signer) -> Option<OpenSSLPublic> {
