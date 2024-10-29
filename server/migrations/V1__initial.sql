@@ -102,6 +102,8 @@ CREATE TABLE groups (
 );
 
 CREATE TABLE posts (
+	-- pid is generated locally and used by the api to 
+	-- fetch user posts
 	pid 		uuid NOT NULL PRIMARY KEY UNIQUE,
 	-- uses the versia url
 	id			TEXT NOT NULL UNIQUE,
@@ -122,8 +124,12 @@ CREATE TABLE posts (
 	in_group		TEXT NULL REFERENCES groups(group_id) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
 
-	is_reply	BOOLEAN NOT NULL DEFAULT false,
-	in_reply_to	TEXT NULL REFERENCES posts(id) ON DELETE SET NULL,
+	-- does not use a constraint as its prob better not to 
+	-- alter the post if another post is deleted and it would
+	-- prevent inserting replies to a post that failed to federate
+	-- we may decide to go back to enforcing it at some point but
+	-- for now, for simplicity's sake we'll just do this	
+	in_reply_to	TEXT NULL,
 	
 	-- need to iron this out but something of the sort is planned
 	block_replies BOOLEAN NOT NULL DEFAULT false,
