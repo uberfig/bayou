@@ -25,6 +25,12 @@ pub enum PermissionLevel {
     UntrustedUser,
 }
 
+impl PermissionLevel {
+    pub fn to_i16(self) -> i16 {
+        self.into()
+    }
+}
+
 impl From<i16> for PermissionLevel {
     fn from(value: i16) -> Self {
         match value {

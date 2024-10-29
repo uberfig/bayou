@@ -15,6 +15,7 @@ use bayou_protocol::{
 };
 use enum_dispatch::enum_dispatch;
 use url::Url;
+use uuid::Uuid;
 
 use super::{
     conn::EntityOrigin,

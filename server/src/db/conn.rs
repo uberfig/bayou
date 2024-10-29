@@ -12,6 +12,7 @@ use bayou_protocol::{
 use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
 use url::Url;
+use uuid::Uuid;
 
 use super::{
     types::{Follower, FollowerEndpoint},
@@ -21,6 +22,7 @@ use super::{
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum InsertErr {
     AlreadyExists,
+    Failure,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -64,7 +66,7 @@ pub trait Conn: Sync {
     //---------------------- Actor ------------------
 
     /// returns the uid if sucessful
-    async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<String, ()>;
+    async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<Uuid, DbErr>;
     async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
         todo!()
     }
@@ -107,8 +109,6 @@ pub trait Conn: Sync {
         todo!()
     }
 
-    
-    
     /// signed_by will always be user for activitypub users
     /// this will backfill the user if they aren't in the db yet
     async fn get_public_key(&self, signed_by: &Signer) -> Option<OpenSSLPublic> {

@@ -37,5 +37,12 @@ sha2 = "0.10.8"
 openssl = "0.10.66"
 enum_dispatch = "0.3.13"
 
+[dependencies.uuid]
+version = "1.11.0"
+features = [
+    "v7",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+]
+
 [dev-dependencies]
 serial_test = "3.1.1"

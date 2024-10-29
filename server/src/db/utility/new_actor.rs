@@ -11,6 +11,7 @@ use argon2::{
 };
 
 pub struct UserLinks {
+    /// link to the user resource
     pub id: Url,
     pub inbox: Url,
     pub outbox: Url,
@@ -23,14 +24,14 @@ pub struct UserLinks {
 
 pub fn generate_ap_links(domain: &str, uname: &str) -> UserLinks {
     UserLinks {
-        id: Url::parse(&format!("https://{domain}/users/{uname}/ap")).unwrap(),
-        inbox: Url::parse(&format!("https://{domain}/users/{uname}/inbox/ap")).unwrap(),
-        outbox: Url::parse(&format!("https://{domain}/users/{uname}/outbox/ap")).unwrap(),
-        followers: Url::parse(&format!("https://{domain}/users/{uname}/followers/ap")).unwrap(),
-        following: Url::parse(&format!("https://{domain}/users/{uname}/following/ap")).unwrap(),
-        liked: Url::parse(&format!("https://{domain}/users/{uname}/liked/ap")).unwrap(),
+        id: Url::parse(&format!("https://{domain}/ap/users/{uname}")).unwrap(),
+        inbox: Url::parse(&format!("https://{domain}/ap/users/{uname}/inbox")).unwrap(),
+        outbox: Url::parse(&format!("https://{domain}/ap/users/{uname}/outbox")).unwrap(),
+        followers: Url::parse(&format!("https://{domain}/ap/users/{uname}/followers")).unwrap(),
+        following: Url::parse(&format!("https://{domain}/ap/users/{uname}/following")).unwrap(),
+        liked: Url::parse(&format!("https://{domain}/ap/users/{uname}/liked")).unwrap(),
         url: Url::parse(&format!("https://{domain}/@{uname}")).unwrap(),
-        pub_key_id: Url::parse(&format!("https://{domain}/users/{uname}/ap#main-key")).unwrap(),
+        pub_key_id: Url::parse(&format!("https://{domain}/ap/users/{uname}#main-key")).unwrap(),
     }
 }
 
@@ -71,6 +72,7 @@ pub struct NewLocal {
     pub permission_level: PermissionLevel,
     pub private_key_pem: String,
     pub public_key_pem: String,
+    pub algorithm: Algorithms,
     // pub custom_domain: Option<String>,
 }
 
@@ -105,6 +107,7 @@ impl NewLocal {
             permission_level,
             private_key_pem,
             public_key_pem,
+            algorithm,
         }
     }
 }
