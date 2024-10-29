@@ -13,7 +13,7 @@ CREATE TABLE instances (
 
 CREATE TABLE users (
 	-- we will generate a uuid for all users
-	uid					TEXT NOT NULL PRIMARY KEY UNIQUE,
+	uid					uuid NOT NULL PRIMARY KEY UNIQUE,
 	-- this is the id field of activitypub and the url for versia
 	resource_link		TEXT NOT NULL UNIQUE,
 	-- this will just be the resource link for ap users
@@ -53,9 +53,9 @@ CREATE TABLE ap_instance_actor (
 
 CREATE TABLE following (
 	-- the user that is following
-	follower		TEXT NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	follower		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 	-- the user that is being followed
-	target_user		TEXT NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	target_user		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 	pending			BOOLEAN NOT NULL DEFAULT true,
 	published		BIGINT NOT NULL,
 	PRIMARY KEY(follower, target_user)
@@ -102,8 +102,9 @@ CREATE TABLE groups (
 );
 
 CREATE TABLE posts (
+	pid 		uuid NOT NULL PRIMARY KEY UNIQUE,
 	-- uses the versia url
-	id			TEXT NOT NULL PRIMARY KEY UNIQUE,
+	id			TEXT NOT NULL UNIQUE,
 	-- uses the activitypub id if activitypub
 	versia_id	TEXT NOT NULL,
 	domain		TEXT NOT NULL REFERENCES instances(domain) ON DELETE CASCADE,
@@ -124,6 +125,7 @@ CREATE TABLE posts (
 	is_reply	BOOLEAN NOT NULL DEFAULT false,
 	in_reply_to	TEXT NULL REFERENCES posts(id) ON DELETE SET NULL,
 	
+	-- need to iron this out but something of the sort is planned
 	block_replies BOOLEAN NOT NULL DEFAULT false,
 	restrict_replies BOOLEAN NOT NULL DEFAULT false, --only those followed by or mentoned by the creator can comment
 	local_only_replies BOOLEAN NOT NULL DEFAULT false,
@@ -135,7 +137,7 @@ CREATE TABLE posts (
 	closed				BIGINT NULL,
 	local_only_voting 	BOOLEAN NULL,
 
-	actor	TEXT NOT NULL REFERENCES users(uid) ON DELETE CASCADE
+	actor	uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE
 );
 
 CREATE TABLE likes (
@@ -143,7 +145,7 @@ CREATE TABLE likes (
 	-- needs to be here for versia compatibility
 	id			TEXT NOT NULL,
 	url			TEXT NOT NULL UNIQUE,
-	actor		TEXT NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	actor		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 	post 		TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
 	PRIMARY KEY(actor, post)
