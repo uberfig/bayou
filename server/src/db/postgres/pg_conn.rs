@@ -31,4 +31,8 @@ impl Conn for PgConn {
     async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
         actors::get_actor(self, username, origin).await
     }
+
+    async fn backfill_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+        todo!()
+    }
 }

@@ -1,9 +1,7 @@
 use bayou_protocol::{
-    cryptography::{key::Key, openssl::OpenSSLPublic},
-    types::activitystream_objects::{
-        actors::{Actor, ActorType},
-        public_key::ApPublicKey,
-    },
+    cryptography::{key::Key, openssl::OpenSSLPublic}, protocol::ap_protocol::fetch::authorized_fetch, types::activitystream_objects::{
+        actors::{Actor, ActorType}, context::ContextWrap, public_key::ApPublicKey
+    }
 };
 use tokio_postgres::Row;
 use url::Url;
@@ -80,6 +78,39 @@ pub async fn get_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>)
     //     return None;
     // }
     Some(actor_from_row(row))
+}
+
+async fn backfill_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+    let mut client = conn.db.get().await.expect("failed to get client");
+    let transaction = client
+        .transaction()
+        .await
+        .expect("failed to begin transaction");
+
+    let stmt = r#"
+        SELECT * FROM users WHERE username = $1 AND domain = $2;
+        "#;
+    let stmt = transaction.prepare(stmt).await.unwrap();
+
+    let result = transaction
+        .query(&stmt, &[&username, &origin.inner()])
+        .await
+        .expect("failed to get actor")
+        .pop();
+    match result {
+        Some(x) => return Some(actor_from_row(x)),
+        None => {
+            if origin.is_local() {
+                return None;
+            }
+        },
+    }
+    // need to perform a webfinger resolve and then get the user and inset it and commit
+    // then spin up task to finish backfilling their posts and return the actor 
+
+    // let fetched: ContextWrap<Actor> = authorized_fetch(object_id, key_id, private_key, algorithm).await;
+    
+    todo!()
 }
 
 // pub async fn get_local_user_actor(
