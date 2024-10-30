@@ -100,7 +100,7 @@ async fn webfinger(
         None => return Err(ErrorBadRequest("no preferred username provided")),
     };
 
-    let actor = match preferred_username.eq(&state.instance_domain) {
+    let actor = match preferred_username.eq("instance.actor") {
         //is the instance actor
         true => conn
             .get_instance_actor(state.signing_algo)
@@ -139,13 +139,13 @@ async fn webfinger(
             WebfingerLink {
                 rel: "self".to_string(),
                 type_field: "application/activity+json".to_string(),
-                href: format!("{}/ap", id),
+                href: id.to_string(),
             },
-            WebfingerLink {
-                rel: "self".to_string(),
-                type_field: "application/json".to_string(),
-                href: format!("{}/versia", id),
-            },
+            // WebfingerLink {
+            //     rel: "self".to_string(),
+            //     type_field: "application/json".to_string(),
+            //     href: format!("{}/versia", id),
+            // },
             WebfingerLink {
                 rel: "http://webfinger.net/rel/profile-page".to_string(),
                 type_field: "text/html".to_string(),

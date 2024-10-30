@@ -1,4 +1,7 @@
-use super::{context::ContextWrap, public_key::ApPublicKey};
+use super::{
+    context::{Context, ContextItem, ContextWrap},
+    public_key::ApPublicKey,
+};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -59,16 +62,25 @@ pub struct Actor {
 
     pub inbox: Url,
     pub outbox: Url,
-    pub followers: Url,
-    pub following: Url,
+    pub followers: Option<Url>,
+    pub following: Option<Url>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub versia_url: Option<Url>,
 }
 
 impl Actor {
+    pub fn get_context() -> Context {
+        Context::Array(vec![
+            ContextItem::String("https://www.w3.org/ns/activitystreams".to_string()),
+            ContextItem::String("https://w3id.org/security/v1".to_string()),
+        ])
+    }
     pub fn wrap_context(self) -> ContextWrap<Self> {
-        todo!()
+        ContextWrap {
+            context: Actor::get_context(),
+            item: self,
+        }
     }
 }
 
@@ -198,7 +210,7 @@ mod tests {
 	}
 }
         "#;
-        let deserialized: Result<Actor, serde_json::Error> = serde_json::from_str(mastodon_account);
+        let deserialized: Result<ContextWrap<Actor>, serde_json::Error> = serde_json::from_str(mastodon_account);
 
         match deserialized {
             Ok(_x) => Ok(()),

@@ -23,9 +23,12 @@ impl Key for OpenSSLPrivate {
 
 impl PrivateKey for OpenSSLPrivate {
     fn sign(&mut self, content: &str) -> String {
-        let mut signer = openssl::sign::Signer::new(MessageDigest::sha256(), &self.0).unwrap();
-        signer.update(content.as_bytes()).unwrap();
-        openssl::base64::encode_block(&signer.sign_to_vec().unwrap())
+        // let mut signer = openssl::sign::Signer::new(MessageDigest::sha256(), &self.0).unwrap();
+        // let test = sign_oneshot();
+        let mut signer = openssl::sign::Signer::new_without_digest(&self.0).unwrap();
+        let test = signer.sign_oneshot_to_vec(content.as_bytes()).unwrap();
+        // signer.update(content.as_bytes()).unwrap();
+        openssl::base64::encode_block(&test)
     }
 
     fn generate(algorithm: Algorithms) -> Self {
@@ -62,9 +65,11 @@ impl Key for OpenSSLPublic {
 
 impl PublicKey for OpenSSLPublic {
     fn verify(&self, plain_content: &[u8], signature: &[u8]) -> bool {
-        let mut verifier =
-            openssl::sign::Verifier::new(openssl::hash::MessageDigest::sha256(), &self.0).unwrap();
-        verifier.update(plain_content).unwrap();
-        verifier.verify(signature).unwrap()
+        let mut verifier = openssl::sign::Verifier::new_without_digest(&self.0).unwrap();
+        // let mut verifier =
+        //     openssl::sign::Verifier::new(openssl::hash::MessageDigest::sha256(), &self.0).unwrap();
+        // verifier.update(plain_content).unwrap();
+        // verifier.verify(signature).unwrap()
+        verifier.verify_oneshot(signature, plain_content).unwrap()
     }
 }

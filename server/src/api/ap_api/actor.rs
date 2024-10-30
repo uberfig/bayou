@@ -4,7 +4,10 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
-use bayou_protocol::protocol::ap_protocol::verification::verify_get;
+use bayou_protocol::{
+    protocol::ap_protocol::verification::verify_get,
+    types::activitystream_objects::{actors::Actor, context::ContextWrap},
+};
 
 use crate::{
     api::headers::ActixHeaders,
@@ -41,11 +44,12 @@ pub async fn get_actor(
         .await;
 
         if let Err(err) = verified {
+            dbg!(&err);
             return Err(ErrorUnauthorized(serde_json::to_string(&err).unwrap()));
         }
     }
 
-    let actor = conn
+    let actor: Option<Actor> = conn
         .get_actor(
             &preferred_username,
             &EntityOrigin::Local(&state.instance_domain),
@@ -56,6 +60,7 @@ pub async fn get_actor(
         return Err(ErrorNotFound(r#"{"error":"Not Found"}"#));
     };
     // let actor = actor.to_activitystream();
+    let actor = actor.wrap_context();
 
     Ok(HttpResponse::Ok()
         .content_type("application/activity+json; charset=utf-8")

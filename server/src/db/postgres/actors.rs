@@ -26,11 +26,11 @@ fn actor_from_row(result: Row) -> Actor {
     let inbox: &str = result.get("inbox");
     let inbox = Url::parse(inbox).expect("invalid inbox stored in db");
     let outbox: &str = result.get("outbox");
-    let outbox = Url::parse(outbox).expect("invalid inbox stored in db");
-    let followers: &str = result.get("followers");
-    let followers = Url::parse(followers).expect("invalid inbox stored in db");
-    let following: &str = result.get("following");
-    let following = Url::parse(following).expect("invalid inbox stored in db");
+    let outbox = Url::parse(outbox).expect("invalid outbox stored in db");
+    let followers: Option<&str> = result.get("followers");
+    let followers = followers.map(|followers| Url::parse(followers).expect("invalid followers stored in db"));
+    let following: Option<&str> = result.get("following");
+    let following = following.map(|following| Url::parse(following).expect("invalid following stored in db"));
 
     let public_key_id: &str = result.get("public_key_id");
     let pem: &str = result.get("public_key_pem");

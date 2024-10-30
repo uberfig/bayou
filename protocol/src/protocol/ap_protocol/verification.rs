@@ -139,7 +139,7 @@ pub async fn verify_get<K: PrivateKey, H: Headers>(
         return Err(RequestVerificationError::NoSignatureHeader);
     };
     let signature = match Signature::from_request(
-        HttpMethod::Post,
+        HttpMethod::Get,
         instance_domain.to_string(),
         path.to_string(),
         &signature_header,
