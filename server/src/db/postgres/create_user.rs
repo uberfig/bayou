@@ -15,7 +15,7 @@ pub async fn create_user(conn: &PgConn, domain: &str, new_user: &NewLocal) -> Re
         .expect("failed to begin transaction");
 
     let stmt = r#"
-        SELECT * FROM users WHERE preferred_username = $1 AND domain = $2;
+        SELECT * FROM users WHERE username = $1 AND domain = $2;
         "#;
     let stmt = transaction.prepare(stmt).await.unwrap();
 
@@ -35,7 +35,7 @@ pub async fn create_user(conn: &PgConn, domain: &str, new_user: &NewLocal) -> Re
     let stmt = r#"
         INSERT INTO users
     (
-        uid, resource_link, versia_id, url,
+        uid, resource_link, url,
         domain, username, public_key_pem, public_key_id,
         inbox, outbox, followers, following,
         password, email, private_key_pem, permission_level
@@ -45,19 +45,19 @@ pub async fn create_user(conn: &PgConn, domain: &str, new_user: &NewLocal) -> Re
         $1, $2, $3, $4,
         $5, $6, $7, $8,
         $9, $10, $11, $12,
-        $13, $14, $15, $16
+        $13, $14, $15
     );"#;
     let stmt = transaction.prepare(stmt).await.unwrap();
-    let uuid_str = &mut Uuid::encode_buffer();
-    let uuid_str = &*uuid.as_hyphenated().encode_lower(uuid_str);
+    // let uuid_str = &mut Uuid::encode_buffer();
+    // let uuid_str = &*uuid.as_hyphenated().encode_lower(uuid_str);
 
     let result = transaction
         .query(
             &stmt,
             &[
-                &uuid_str,
+                &uuid,
                 &links.id.to_string(),
-                &uuid_str,
+                // &uuid,
                 &links.url.to_string(),
                 &domain,
                 &new_user.username,
@@ -75,8 +75,8 @@ pub async fn create_user(conn: &PgConn, domain: &str, new_user: &NewLocal) -> Re
         )
         .await;
 
-    if result.is_err() {
-        return Err(DbErr::InsertErr(InsertErr::Failure));
+    if let Err(error) = result {
+        return Err(DbErr::InsertErr(InsertErr::Failure(error.to_string())));
     }
     transaction
         .commit()

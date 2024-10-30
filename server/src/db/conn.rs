@@ -22,7 +22,7 @@ use super::{
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum InsertErr {
     AlreadyExists,
-    Failure,
+    Failure(String),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -71,7 +71,7 @@ pub enum ProtoUser {
 #[enum_dispatch(DbConn)]
 pub trait Conn: Sync {
     /// run any prep for the database, for example running migrations
-    async fn init(&self) -> Result<(), String>;
+    async fn init(&self, primary_domain: &str) -> Result<(), String>;
 
     /// gets the instance actor. creates one if its not present
     /// panics if unable to do either

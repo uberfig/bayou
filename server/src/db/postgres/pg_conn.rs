@@ -16,8 +16,8 @@ pub struct PgConn {
 
 #[allow(unused_variables)]
 impl Conn for PgConn {
-    async fn init(&self) -> Result<(), String> {
-        init::init(self).await
+    async fn init(&self, primary_domain: &str) -> Result<(), String> {
+        init::init(self, primary_domain).await
     }
 
     async fn get_instance_actor(&self, algorithm: Algorithms) -> InstanceActor {

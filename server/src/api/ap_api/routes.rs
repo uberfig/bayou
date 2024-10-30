@@ -1,5 +1,5 @@
 use super::{
-    actor::{get_actor, get_instance_actor},
+    actor::{create_test, get_actor, get_instance_actor},
     inbox::{private_inbox, shared_inbox},
     object::{get_object, get_object_create},
     outbox::{ap_outbox, create_ap_post},
@@ -15,4 +15,5 @@ pub fn get_ap_routes() -> actix_web::Scope {
         .service(get_object_create)
         .service(create_ap_post)
         .service(ap_outbox)
+        .service(create_test)
 }

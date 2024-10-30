@@ -16,7 +16,7 @@ async fn hello() -> impl Responder {
 pub async fn start_application(config: Config) -> std::io::Result<()> {
     //init the conn and instance actor
     let conn = config.create_conn();
-    if let Err(x) = conn.init().await {
+    if let Err(x) = conn.init(&config.instance_domain).await {
         eprintln!("{}", x);
         return Ok(());
     }

@@ -1,4 +1,4 @@
-instance_domain="testing.ivytime.gay"
+instance_domain="testing1.ivytime.gay"
 force_auth_fetch=false
 bind_address="127.0.0.1"
 port=8020
@@ -10,4 +10,4 @@ pg_user="ivy"
 pg_password="password"
 pg_host="127.0.0.1"
 pg_port=5432
-pg_dbname="mini_ap"
+pg_dbname="bayou"
