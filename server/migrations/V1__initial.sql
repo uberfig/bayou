@@ -14,6 +14,7 @@ CREATE TABLE instances (
 CREATE TABLE users (
 	-- we will generate a uuid for all users
 	uid					uuid NOT NULL PRIMARY KEY UNIQUE,
+	type_field			TEXT NOT NULL DEFAULT "Person",
 	-- this is the id field of activitypub and the url for versia
 	resource_link		TEXT NOT NULL UNIQUE,
 	-- this will just be the resource link for ap users

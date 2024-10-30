@@ -43,6 +43,20 @@ pub enum EntityOrigin<'a> {
     Local(&'a str),
     Federated(&'a str),
 }
+impl EntityOrigin<'_> {
+    pub fn inner(&self) -> &str {
+        match self {
+            EntityOrigin::Local(x) => x,
+            EntityOrigin::Federated(x) => x,
+        }
+    }
+    pub fn is_local(&self) -> bool {
+        match self {
+            EntityOrigin::Local(_) => true,
+            EntityOrigin::Federated(_) => false,
+        }
+    }
+}
 
 pub enum ProtoUser {
     Versia(User),
@@ -67,9 +81,7 @@ pub trait Conn: Sync {
 
     /// returns the uid if sucessful
     async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<Uuid, DbErr>;
-    async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
-        todo!()
-    }
+    async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor>;
     /// gets actor, backfills if not in db. returns none if not in the db and defederated or unable to fetch
     async fn backfill_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
         todo!()

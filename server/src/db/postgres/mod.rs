@@ -1,5 +1,5 @@
 // mod acct_mgmt;
-// mod actors;
+mod actors;
 // mod follows;
 pub mod create_user;
 mod init;
