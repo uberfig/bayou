@@ -4,3 +4,4 @@ pub mod notify_followers;
 pub mod outgoing;
 pub mod signature;
 pub mod verification;
+pub mod webfinger_resolve;

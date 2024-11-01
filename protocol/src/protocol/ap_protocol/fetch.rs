@@ -1,4 +1,5 @@
 use super::super::errors::FetchErr;
+use reqwest::header::{ACCEPT, DATE, HOST};
 use serde::Deserialize;
 use std::time::SystemTime;
 use url::Url;
@@ -33,10 +34,10 @@ pub async fn authorized_fetch<T: PrivateKey, F: for<'a> Deserialize<'a>>(
     let client = reqwest::Client::new();
     let client = client
         .get(object_id)
-        .header("Host", fetch_domain)
-        .header("Date", date)
+        .header(HOST, fetch_domain)
+        .header(DATE, date)
         .header("Signature", header)
-        .header("accept", "application/activity+json")
+        .header(ACCEPT, "application/activity+json")
         .body("");
 
     // dbg!(&client);
@@ -97,11 +98,11 @@ pub async fn ap_post<T: PrivateKey>(
     let client = reqwest::Client::new();
     let client = client
         .post(endpoint)
-        .header("Host", fetch_domain)
-        .header("Date", date)
+        .header(HOST, fetch_domain)
+        .header(DATE, date)
         .header("Digest", digest)
         .header("Signature", header)
-        .header("accept", "application/activity+json")
+        .header(ACCEPT, "application/activity+json")
         .body(object.to_owned());
 
     // dbg!(&client);
