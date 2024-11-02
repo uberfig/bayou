@@ -5,7 +5,9 @@ use actix_web::{
     web::{self, Data},
     HttpResponse, Result,
 };
-use bayou_protocol::protocol::webfinger::{RelTypes, RelWrap, TypeWrap, WebfingerLink, WebfingerLinkTypes, WebfingerResult};
+use bayou_protocol::protocol::webfinger::{
+    RelTypes, RelWrap, TypeWrap, WebfingerLink, WebfingerLinkTypes, WebfingerResult,
+};
 use serde::{Deserialize, Serialize};
 use url::Url;
 

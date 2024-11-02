@@ -86,6 +86,9 @@ pub trait Conn: Sync {
     async fn backfill_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
         todo!()
     }
+    async fn backfill_domain(&self, domain: &str) -> Option<Uuid> {
+        todo!()
+    }
 
     //-----------------------------------------------
 

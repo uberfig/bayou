@@ -2,7 +2,10 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use crate::protocol::{errors::FetchErr, webfinger::{RelTypes, RelWrap}};
+use crate::protocol::{
+    errors::FetchErr,
+    webfinger::{RelTypes, RelWrap},
+};
 
 use super::webfinger::WebfingerResult;
 
@@ -12,7 +15,11 @@ pub struct WebfingerInfo {
     pub activitypub_item: Url,
 }
 
-pub async fn webfinger_resolve(username: &str, domain: &str, rel: RelWrap) -> Result<Url, FetchErr> {
+pub async fn webfinger_resolve(
+    username: &str,
+    domain: &str,
+    rel: RelWrap,
+) -> Result<Url, FetchErr> {
     let query = format!("https://{domain}/.well-known/webfinger?resource=acct:{username}@{domain}");
     let query = Url::parse(&query).expect("generated invalid url for webfinger resolve");
 

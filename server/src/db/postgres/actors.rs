@@ -1,6 +1,11 @@
 use bayou_protocol::{
-    cryptography::{key::{Algorithms, Key}, openssl::OpenSSLPublic},
-    protocol::{ap_protocol::fetch::authorized_fetch, webfinger::{RelTypes, RelWrap}, webfinger_resolve::webfinger_resolve},
+    cryptography::{
+        key::{Algorithms, Key},
+        openssl::OpenSSLPublic,
+    },
+    protocol::{
+        ap_protocol::fetch::authorized_fetch, errors::FetchErr, webfinger::{RelTypes, RelWrap}, webfinger_resolve::webfinger_resolve
+    },
     types::activitystream_objects::{
         actors::{Actor, ActorType},
         context::ContextWrap,
@@ -11,7 +16,10 @@ use tokio_postgres::Row;
 use url::Url;
 use uuid::Uuid;
 
-use crate::db::{conn::{Conn, DbErr, EntityOrigin}, utility::instance_actor::InstanceActor};
+use crate::db::{
+    conn::{Conn, DbErr, EntityOrigin},
+    utility::instance_actor::InstanceActor,
+};
 
 use super::pg_conn::PgConn;
 
@@ -91,7 +99,13 @@ async fn insert_actor(conn: deadpool_postgres::Transaction<'_>) -> Result<Uuid, 
     todo!()
 }
 
-async fn backfill_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>, algorithm: Algorithms, domain: &str) -> Option<Actor> {
+async fn backfill_actor(
+    conn: &PgConn,
+    username: &str,
+    origin: &EntityOrigin<'_>,
+    algorithm: Algorithms,
+    domain: &str,
+) -> Option<Actor> {
     let mut client = conn.db.get().await.expect("failed to get client");
     let transaction = client
         .transaction()
@@ -117,14 +131,30 @@ async fn backfill_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>
         }
     }
 
-    let Ok(user_id) = webfinger_resolve(username, origin.inner(), RelWrap::Defined(RelTypes::RelSelf)).await else {
+    if conn.backfill_domain(domain).await.is_none() {
+        return None;
+    }
+
+    let Ok(user_id) = webfinger_resolve(
+        username,
+        origin.inner(),
+        RelWrap::Defined(RelTypes::RelSelf),
+    )
+    .await
+    else {
         return None;
     };
     let instance_actor = conn.get_instance_actor(algorithm).await;
-    let fetched: Result<ContextWrap<Actor>, _> = authorized_fetch(user_id, &InstanceActor::get_key_id(domain), &mut instance_actor.get_private_key(), algorithm).await;
-    let Ok(fetched) = fetched else {
-        return None
-    };
+    let fetched: Result<ContextWrap<Actor>, _> = authorized_fetch(
+        user_id,
+        &InstanceActor::get_key_id(domain),
+        &mut instance_actor.get_private_key(),
+        algorithm,
+    )
+    .await;
+    let Ok(fetched) = fetched else { return None };
+
+
 
     // need to perform a webfinger resolve and then get the user and inset it and commit
     // then spin up task to finish backfilling their posts and return the actor

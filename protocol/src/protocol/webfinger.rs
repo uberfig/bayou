@@ -43,7 +43,9 @@ pub enum RelWrap {
 impl Display for RelWrap {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RelWrap::Defined(rel_types) => write!(f, "{}", serde_json::to_string(rel_types).unwrap()),
+            RelWrap::Defined(rel_types) => {
+                write!(f, "{}", serde_json::to_string(rel_types).unwrap())
+            }
             RelWrap::Unkown(unkown) => write!(f, "{}", unkown),
         }
     }
