@@ -10,6 +10,8 @@ pub enum FetchErr {
     InvalidUrl(String),
     MissingHeader(String),
     VerifyErr(VerifyRequestErr),
+    NotFound(),
+    MissingField(String),
 }
 
 impl Display for FetchErr {
@@ -23,6 +25,8 @@ impl Display for FetchErr {
             FetchErr::VerifyErr(verify_request_err) => {
                 write!(f, "VerifyErr: {}", verify_request_err)
             }
+            FetchErr::NotFound() => write!(f, "NotFound"),
+            FetchErr::MissingField(x) => write!(f, "MissingField: {}", x),
         }
     }
 }

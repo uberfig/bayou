@@ -210,7 +210,8 @@ mod tests {
 	}
 }
         "#;
-        let deserialized: Result<ContextWrap<Actor>, serde_json::Error> = serde_json::from_str(mastodon_account);
+        let deserialized: Result<ContextWrap<Actor>, serde_json::Error> =
+            serde_json::from_str(mastodon_account);
 
         match deserialized {
             Ok(_x) => Ok(()),

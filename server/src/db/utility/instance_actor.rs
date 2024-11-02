@@ -1,5 +1,8 @@
 use bayou_protocol::{
-    cryptography::{key::{Algorithms, Key}, openssl::OpenSSLPrivate},
+    cryptography::{
+        key::{Algorithms, Key},
+        openssl::OpenSSLPrivate,
+    },
     types::activitystream_objects::actors::Actor,
 };
 
@@ -21,7 +24,8 @@ impl InstanceActor {
     //     }
     // }
     pub fn get_private_key(&self) -> OpenSSLPrivate {
-        OpenSSLPrivate::from_pem(self.private_key_pem.as_bytes()).expect("invalid instance actor key")
+        OpenSSLPrivate::from_pem(self.private_key_pem.as_bytes())
+            .expect("invalid instance actor key")
     }
     pub fn get_key_id(domain: &str) -> String {
         format!("https://{}/{}", domain, domain)

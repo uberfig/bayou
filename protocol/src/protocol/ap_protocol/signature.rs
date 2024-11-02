@@ -63,7 +63,8 @@ impl SignatureHeader {
         let algorithm = signature_headers.get("algorithm");
         let algorithm = match algorithm {
             Some(x) => {
-                let val: Result<Algorithms, serde_json::Error> = serde_json::from_str(&format!(r#""{}""#, x));
+                let val: Result<Algorithms, serde_json::Error> =
+                    serde_json::from_str(&format!(r#""{}""#, x));
                 match val {
                     Ok(ok) => ok,
                     Err(_) => return Err(SignatureErr::UnkownAlgorithm),

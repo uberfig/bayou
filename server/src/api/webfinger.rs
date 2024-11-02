@@ -5,7 +5,9 @@ use actix_web::{
     web::{self, Data},
     HttpResponse, Result,
 };
+use bayou_protocol::protocol::webfinger::{RelTypes, RelWrap, TypeWrap, WebfingerLink, WebfingerLinkTypes, WebfingerResult};
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 use crate::db::{conn::EntityOrigin, dbconn::DbConn};
 
@@ -59,21 +61,6 @@ impl WebfingerQuery {
             },
         }
     }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct WebfingerResult {
-    subject: String,
-    aliases: Option<Vec<String>>,
-    links: Vec<WebfingerLink>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct WebfingerLink {
-    rel: String,
-    #[serde(rename = "type")]
-    type_field: String,
-    href: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -137,9 +124,9 @@ async fn webfinger(
         aliases: Some(vec![id.to_string(), profile_page.clone()]),
         links: vec![
             WebfingerLink {
-                rel: "self".to_string(),
-                type_field: "application/activity+json".to_string(),
-                href: id.to_string(),
+                rel: RelWrap::Defined(RelTypes::RelSelf),
+                type_field: TypeWrap::Defined(WebfingerLinkTypes::Activitypub),
+                href: Url::parse(id).unwrap(),
             },
             // WebfingerLink {
             //     rel: "self".to_string(),
@@ -147,9 +134,9 @@ async fn webfinger(
             //     href: format!("{}/versia", id),
             // },
             WebfingerLink {
-                rel: "http://webfinger.net/rel/profile-page".to_string(),
-                type_field: "text/html".to_string(),
-                href: profile_page,
+                rel: RelWrap::Defined(RelTypes::ProfilePage),
+                type_field: TypeWrap::Defined(WebfingerLinkTypes::Webpage),
+                href: Url::parse(&profile_page).unwrap(),
             },
         ],
     };

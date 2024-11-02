@@ -1,12 +1,17 @@
 use bayou_protocol::{
-    cryptography::{key::Key, openssl::OpenSSLPublic}, protocol::ap_protocol::fetch::authorized_fetch, types::activitystream_objects::{
-        actors::{Actor, ActorType}, context::ContextWrap, public_key::ApPublicKey
-    }
+    cryptography::{key::{Algorithms, Key}, openssl::OpenSSLPublic},
+    protocol::{ap_protocol::fetch::authorized_fetch, webfinger::{RelTypes, RelWrap}, webfinger_resolve::webfinger_resolve},
+    types::activitystream_objects::{
+        actors::{Actor, ActorType},
+        context::ContextWrap,
+        public_key::ApPublicKey,
+    },
 };
 use tokio_postgres::Row;
 use url::Url;
+use uuid::Uuid;
 
-use crate::db::conn::EntityOrigin;
+use crate::db::{conn::{Conn, DbErr, EntityOrigin}, utility::instance_actor::InstanceActor};
 
 use super::pg_conn::PgConn;
 
@@ -26,9 +31,11 @@ fn actor_from_row(result: Row) -> Actor {
     let outbox: &str = result.get("outbox");
     let outbox = Url::parse(outbox).expect("invalid outbox stored in db");
     let followers: Option<&str> = result.get("followers");
-    let followers = followers.map(|followers| Url::parse(followers).expect("invalid followers stored in db"));
+    let followers =
+        followers.map(|followers| Url::parse(followers).expect("invalid followers stored in db"));
     let following: Option<&str> = result.get("following");
-    let following = following.map(|following| Url::parse(following).expect("invalid following stored in db"));
+    let following =
+        following.map(|following| Url::parse(following).expect("invalid following stored in db"));
 
     let public_key_id: &str = result.get("public_key_id");
     let pem: &str = result.get("public_key_pem");
@@ -80,7 +87,11 @@ pub async fn get_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>)
     Some(actor_from_row(row))
 }
 
-async fn backfill_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+async fn insert_actor(conn: deadpool_postgres::Transaction<'_>) -> Result<Uuid, DbErr> {
+    todo!()
+}
+
+async fn backfill_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>, algorithm: Algorithms, domain: &str) -> Option<Actor> {
     let mut client = conn.db.get().await.expect("failed to get client");
     let transaction = client
         .transaction()
@@ -103,13 +114,23 @@ async fn backfill_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>
             if origin.is_local() {
                 return None;
             }
-        },
+        }
     }
+
+    let Ok(user_id) = webfinger_resolve(username, origin.inner(), RelWrap::Defined(RelTypes::RelSelf)).await else {
+        return None;
+    };
+    let instance_actor = conn.get_instance_actor(algorithm).await;
+    let fetched: Result<ContextWrap<Actor>, _> = authorized_fetch(user_id, &InstanceActor::get_key_id(domain), &mut instance_actor.get_private_key(), algorithm).await;
+    let Ok(fetched) = fetched else {
+        return None
+    };
+
     // need to perform a webfinger resolve and then get the user and inset it and commit
-    // then spin up task to finish backfilling their posts and return the actor 
+    // then spin up task to finish backfilling their posts and return the actor
 
     // let fetched: ContextWrap<Actor> = authorized_fetch(object_id, key_id, private_key, algorithm).await;
-    
+
     todo!()
 }
 
