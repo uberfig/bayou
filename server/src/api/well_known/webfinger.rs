@@ -70,7 +70,7 @@ struct Info {
     resource: String,
 }
 
-#[get("/.well-known/webfinger")]
+#[get("/webfinger")]
 async fn webfinger(
     state: Data<crate::config::Config>,
     conn: Data<DbConn>,
