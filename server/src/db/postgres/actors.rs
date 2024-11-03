@@ -88,22 +88,21 @@ pub async fn get_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>)
         Some(x) => x,
         None => return None,
     };
-    // uncomment to enforce is_authoratative
-    // let is_authoratative: bool = row.get("is_authoratative");
-    // if is_authoratative != origin.is_local() {
-    //     return None;
-    // }
+    let is_authoratative: bool = row.get("is_authoratative");
+    if origin.is_local() && is_authoratative != true {
+        return None;
+    }
     Some(actor_from_row(row))
 }
 
-async fn insert_actor(conn: &deadpool_postgres::Transaction<'_>, actor: &Actor) -> Result<Uuid, DbErr> {
+pub async fn insert_actor(conn: &deadpool_postgres::Transaction<'_>, actor: &Actor) -> Result<Uuid, DbErr> {
     todo!()
 }
 
 pub async fn get_actor_backfilling(
     conn: &PgConn,
     username: &str,
-    origin: &EntityOrigin<'_>,
+    domain: &str,
     algorithm: Algorithms,
     // the domain if this instance, used for auth fetch
     instance_domain: &str,
@@ -120,7 +119,7 @@ pub async fn get_actor_backfilling(
     let stmt = transaction.prepare(stmt).await.unwrap();
 
     let result = transaction
-        .query(&stmt, &[&username, &origin.inner()])
+        .query(&stmt, &[&username, &domain])
         .await
         .expect("failed to get actor")
         .pop();
@@ -128,20 +127,20 @@ pub async fn get_actor_backfilling(
         return Some(actor_from_row(row))
     }
 
-    if conn.is_authoratative(origin.inner()).await {
+    if conn.is_authoratative(domain).await {
         // we are authoratative over this domain and we don't
         // have this actor, it does not exist.
         return None;
     }
 
-    if conn.backfill_domain(origin.inner()).await.is_none() {
+    if conn.backfill_domain(domain).await.is_none() {
         // we could not backfill the domain, the domain and by proxy, the user, does not exist
         return None;
     }
 
     let Ok(user_id) = webfinger_resolve(
         username,
-        origin.inner(),
+        domain,
         RelWrap::Defined(RelTypes::RelSelf),
     )
     .await
@@ -167,6 +166,6 @@ pub async fn get_actor_backfilling(
     });
 
     // we don't just return fetched to ensure what this fn produces is identical to what get actor produces
-    conn.get_actor(username, origin).await
+    conn.get_actor(username, &EntityOrigin::Federated(domain)).await
 }
 

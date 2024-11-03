@@ -83,6 +83,9 @@ pub trait Conn: Sync {
 
     /// returns the uid if sucessful
     async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<Uuid, DbErr>;
+    /// if entityorigin is set to local it will enforce that we are authoratative over the user
+    /// and will return none if not. useful for ensuring we don't provide actors for actors we
+    /// are not authoratative over
     async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor>;
     /// gets actor, backfills if not in db. returns none if not in the db and defederated or unable to fetch
     async fn get_actor_backfilling(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
