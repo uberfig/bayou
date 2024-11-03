@@ -1,10 +1,11 @@
+use actix_web::rt::spawn;
 use bayou_protocol::{
     cryptography::{
         key::{Algorithms, Key},
         openssl::OpenSSLPublic,
     },
     protocol::{
-        ap_protocol::fetch::authorized_fetch, errors::FetchErr, webfinger::{RelTypes, RelWrap}, webfinger_resolve::webfinger_resolve
+        ap_protocol::fetch::authorized_fetch, webfinger::{RelTypes, RelWrap}, webfinger_resolve::webfinger_resolve
     },
     types::activitystream_objects::{
         actors::{Actor, ActorType},
@@ -95,16 +96,17 @@ pub async fn get_actor(conn: &PgConn, username: &str, origin: &EntityOrigin<'_>)
     Some(actor_from_row(row))
 }
 
-async fn insert_actor(conn: deadpool_postgres::Transaction<'_>) -> Result<Uuid, DbErr> {
+async fn insert_actor(conn: &deadpool_postgres::Transaction<'_>, actor: &Actor) -> Result<Uuid, DbErr> {
     todo!()
 }
 
-async fn backfill_actor(
+pub async fn get_actor_backfilling(
     conn: &PgConn,
     username: &str,
     origin: &EntityOrigin<'_>,
     algorithm: Algorithms,
-    domain: &str,
+    // the domain if this instance, used for auth fetch
+    instance_domain: &str,
 ) -> Option<Actor> {
     let mut client = conn.db.get().await.expect("failed to get client");
     let transaction = client
@@ -122,16 +124,18 @@ async fn backfill_actor(
         .await
         .expect("failed to get actor")
         .pop();
-    match result {
-        Some(x) => return Some(actor_from_row(x)),
-        None => {
-            if origin.is_local() {
-                return None;
-            }
-        }
+    if let Some(row) = result {
+        return Some(actor_from_row(row))
     }
 
-    if conn.backfill_domain(domain).await.is_none() {
+    if conn.is_authoratative(origin.inner()).await {
+        // we are authoratative over this domain and we don't
+        // have this actor, it does not exist.
+        return None;
+    }
+
+    if conn.backfill_domain(origin.inner()).await.is_none() {
+        // we could not backfill the domain, the domain and by proxy, the user, does not exist
         return None;
     }
 
@@ -147,253 +151,22 @@ async fn backfill_actor(
     let instance_actor = conn.get_instance_actor(algorithm).await;
     let fetched: Result<ContextWrap<Actor>, _> = authorized_fetch(
         user_id,
-        &InstanceActor::get_key_id(domain),
+        &InstanceActor::get_key_id(instance_domain),
         &mut instance_actor.get_private_key(),
         algorithm,
     )
     .await;
     let Ok(fetched) = fetched else { return None };
+    let inserted = insert_actor(&transaction, &fetched.item).await.expect("failed to insert fetched actor");
 
+    transaction.commit().await.expect("failed to commit inserting new actor from backfilling");
 
+    let cloned = conn.clone();
+    spawn(async move {
+        cloned.backfill_actor(&inserted).await
+    });
 
-    // need to perform a webfinger resolve and then get the user and inset it and commit
-    // then spin up task to finish backfilling their posts and return the actor
-
-    // let fetched: ContextWrap<Actor> = authorized_fetch(object_id, key_id, private_key, algorithm).await;
-
-    todo!()
+    // we don't just return fetched to ensure what this fn produces is identical to what get actor produces
+    conn.get_actor(username, origin).await
 }
 
-// pub async fn get_local_user_actor(
-//     conn: &PgConn,
-//     preferred_username: &str,
-//     instance_domain: &str,
-// ) -> Option<(Actor, i64)> {
-//     let client = conn.db.get().await.expect("failed to get client");
-//     let stmt = r#"
-//         SELECT * FROM internal_users NATURAL JOIN unified_users WHERE preferred_username = $1;
-//         "#;
-//     let stmt = client.prepare(stmt).await.unwrap();
-
-//     let result = client
-//         .query(&stmt, &[&preferred_username])
-//         .await
-//         .expect("failed to get local user")
-//         .pop();
-
-//     let result = match result {
-//         Some(x) => x,
-//         None => return None,
-//     };
-//     let id: i64 = result.get("uid");
-
-//     Some((local_user_from_row(result, instance_domain), id))
-// }
-
-// pub async fn get_actor(conn: &PgConn, uid: i64, instance_domain: &str) -> Option<Actor> {
-//     println!("{}", uid);
-//     let mut client = conn.db.get().await.expect("failed to get client");
-//     let transaction = client
-//         .transaction()
-//         .await
-//         .expect("failed to begin transaction");
-
-//     //LEFT OUTER JOIN internal_users ON unified_users.local_id = internal_users.local_id
-//     //LEFT OUTER JOIN federated_ap_users ON unified_users.fedi_id = federated_ap_users.fedi_id
-
-//     let stmt = r#"
-//         SELECT * FROM unified_users
-//         WHERE uid = $1;
-//         "#;
-//     let stmt = transaction.prepare(stmt).await.unwrap();
-
-//     let result = transaction
-//         .query(&stmt, &[&uid])
-//         .await
-//         .expect("failed to get actor")
-//         .pop();
-
-//     let result = match result {
-//         Some(x) => x,
-//         None => return None,
-//     };
-
-//     let is_local: bool = result.get("is_local");
-
-//     match is_local {
-//         true => {
-//             let local_id: i64 = result.get("local_id");
-//             let stmt = r#"
-//             SELECT * FROM internal_users
-//             WHERE local_id = $1;
-//             "#;
-//             let stmt = transaction.prepare(stmt).await.unwrap();
-
-//             let result = transaction
-//                 .query(&stmt, &[&local_id])
-//                 .await
-//                 .expect("failed to get actor")
-//                 .pop()
-//                 .unwrap();
-//             transaction.commit().await.expect("failed to commit");
-
-//             Some(local_user_from_row(result, instance_domain))
-//         }
-//         false => {
-//             let fedi_id: i64 = result.get("fedi_id");
-//             let stmt = r#"
-//             SELECT * FROM federated_ap_users
-//             WHERE fedi_id = $1;
-//             "#;
-//             let stmt = transaction.prepare(stmt).await.unwrap();
-
-//             let result = transaction
-//                 .query(&stmt, &[&fedi_id])
-//                 .await
-//                 .expect("failed to get actor")
-//                 .pop()
-//                 .unwrap();
-
-//             transaction.commit().await.expect("failed to commit");
-
-//             Some(actor_from_row(result))
-//         }
-//     }
-// }
-
-// pub async fn create_federated_actor(conn: &PgConn, actor: &Actor) -> i64 {
-//     let mut client = conn.db.get().await.expect("failed to get client");
-//     let transaction = client
-//         .transaction()
-//         .await
-//         .expect("failed to begin transaction");
-
-//     let stmt = r#"
-//         SELECT * FROM unified_users NATURAL JOIN federated_ap_users WHERE id = $1;
-//         "#;
-//     let stmt = transaction.prepare(stmt).await.unwrap();
-
-//     let result = transaction
-//         .query(&stmt, &[&actor.id.as_str()])
-//         .await
-//         .expect("failed to get actor")
-//         .pop();
-
-//     //user already exists
-//     if let Some(x) = result {
-//         return x.get("uid");
-//     }
-
-//     let stmt = r#"
-//         INSERT INTO federated_ap_users
-//         (
-//             id, type_field, preferred_username, domain,
-//             name, summary, url,
-//             public_key_pem, public_key_id,
-//             inbox, outbox, followers, following
-//         )
-//         VALUES
-//         (
-//             $1, $2, $3, $4,
-//             $5, $6, $7,
-//             $8, $9,
-//             $10, $11, $12, $13
-//         )
-//         RETURNING fedi_id;
-//         "#;
-//     let stmt = transaction.prepare(stmt).await.unwrap();
-
-//     let domain = actor.id.domain().unwrap();
-//     let url = actor.url.as_ref().map(|url| url.as_str());
-//     let fedi_id: i64 = transaction
-//         .query(
-//             &stmt,
-//             &[
-//                 &actor.id.as_str(),
-//                 &serde_json::to_string(&actor.type_field).unwrap(),
-//                 &actor.preferred_username,
-//                 &domain,
-//                 &actor.name,
-//                 &actor.summary,
-//                 &url,
-//                 &actor.public_key.public_key_pem.to_pem().unwrap(),
-//                 &actor.public_key.id.as_str(),
-//                 &actor.inbox.as_str(),
-//                 &actor.outbox.as_str(),
-//                 &actor.followers.as_str(),
-//                 &actor.following.as_str(),
-//             ],
-//         )
-//         .await
-//         .expect("failed to insert user")
-//         .pop()
-//         .expect("did not return fedi_id")
-//         .get("fedi_id");
-
-//     let stmt = r#"
-//         INSERT INTO unified_users
-//         (
-//             is_local, fedi_id
-//         )
-//         VALUES
-//         (
-//             $1, $2
-//         )
-//         RETURNING uid;
-//         "#;
-//     let stmt = transaction.prepare(stmt).await.unwrap();
-
-//     let uid: i64 = transaction
-//         .query(&stmt, &[&false, &fedi_id])
-//         .await
-//         .expect("failed to insert user")
-//         .pop()
-//         .expect("did not return uid")
-//         .get("uid");
-
-//     //update to have the new uid
-//     let stmt = r#"
-//         UPDATE federated_ap_users
-//         SET uid = $1
-//         WHERE fedi_id = $2;
-//     "#;
-//     let stmt = transaction.prepare(stmt).await.unwrap();
-
-//     let _ = transaction
-//         .query(&stmt, &[&uid, &fedi_id])
-//         .await
-//         .expect("failed to update fedi user");
-
-//     transaction.commit().await.expect("failed to commit");
-
-//     uid
-// }
-
-// pub async fn get_federated_db_id(conn: &PgConn, actor_id: &str) -> Option<i64> {
-//     let client = conn.db.get().await.expect("failed to get client");
-//     let stmt = r#"
-//     SELECT * FROM unified_users NATURAL JOIN federated_ap_users WHERE id = $1;
-//     "#;
-//     let stmt = client.prepare(stmt).await.unwrap();
-
-//     client
-//         .query(&stmt, &[&actor_id])
-//         .await
-//         .expect("failed to get federated user uid")
-//         .pop()
-//         .map(|x| x.get("uid"))
-// }
-// pub async fn get_local_user_db_id(conn: &PgConn, preferred_username: &str) -> Option<i64> {
-//     let client = conn.db.get().await.expect("failed to get client");
-//     let stmt = r#"
-//     SELECT * FROM unified_users NATURAL JOIN internal_users WHERE preferred_username = $1;
-//     "#;
-//     let stmt = client.prepare(stmt).await.unwrap();
-
-//     let result = client
-//         .query(&stmt, &[&preferred_username])
-//         .await
-//         .expect("failed to get local user")
-//         .pop();
-//     result.map(|x| x.get("uid"))
-// }

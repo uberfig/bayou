@@ -42,19 +42,21 @@ impl std::fmt::Display for DbErr {
 pub enum EntityOrigin<'a> {
     Local(&'a str),
     Federated(&'a str),
+    Irrevelant(&'a str),
 }
 impl EntityOrigin<'_> {
     pub fn inner(&self) -> &str {
         match self {
             EntityOrigin::Local(x) => x,
             EntityOrigin::Federated(x) => x,
+            EntityOrigin::Irrevelant(x) => x,
         }
     }
     pub fn is_local(&self) -> bool {
-        match self {
-            EntityOrigin::Local(_) => true,
-            EntityOrigin::Federated(_) => false,
-        }
+        matches!(self, EntityOrigin::Local(_))
+    }
+    pub fn is_irrevelant(&self) -> bool {
+        matches!(self, EntityOrigin::Irrevelant(_))
     }
 }
 
@@ -83,10 +85,18 @@ pub trait Conn: Sync {
     async fn create_user(&self, domain: &str, content: &NewLocal) -> Result<Uuid, DbErr>;
     async fn get_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor>;
     /// gets actor, backfills if not in db. returns none if not in the db and defederated or unable to fetch
-    async fn backfill_actor(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+    async fn get_actor_backfilling(&self, username: &str, origin: &EntityOrigin<'_>) -> Option<Actor> {
+        todo!()
+    }
+    async fn backfill_actor(&self, uuid: &Uuid) {
         todo!()
     }
     async fn backfill_domain(&self, domain: &str) -> Option<Uuid> {
+        todo!()
+    }
+    /// checks if this instance is authoratative over a domain
+    /// does not backfill, if not in db returns false
+    async fn is_authoratative(&self, domain: &str) -> bool {
         todo!()
     }
 

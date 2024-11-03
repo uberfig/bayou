@@ -1,10 +1,9 @@
 use reqwest::StatusCode;
-use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::protocol::{
     errors::FetchErr,
-    webfinger::{RelTypes, RelWrap},
+    webfinger::RelWrap,
 };
 
 use super::webfinger::WebfingerResult;
