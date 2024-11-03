@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::error::Error;
+use super::{digest::{sha256_hash, sha512_hash}, error::Error};
 
 #[derive(Debug, Clone)]
 pub enum ParseErr {
@@ -14,6 +14,16 @@ pub enum Algorithms {
     /// is actually Ed25519-SHA512
     #[serde(rename = "hs2019")]
     Hs2019,
+}
+
+impl Algorithms {
+    /// hash a body with the respective hashing algorithm and outputs `SHA-__=hash`
+    pub fn hash(&self, body: &[u8]) -> String {
+        match self {
+            Algorithms::RsaSha256 => format!("SHA-256={}", sha256_hash(body)),
+            Algorithms::Hs2019 => format!("SHA-512={}", sha512_hash(body)),
+        }
+    }
 }
 
 impl std::fmt::Display for Algorithms {

@@ -1,10 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    cryptography::{
-        digest::{sha256_hash, sha512_hash},
-        key::{Algorithms, PrivateKey, PublicKey},
-    },
+    cryptography::key::{Algorithms, PrivateKey, PublicKey},
     types::activitystream_objects::{
         actors::Actor,
         inboxable::{Inboxable, InboxableVerifyErr, VerifiedInboxable},
@@ -69,10 +66,7 @@ pub async fn verify_post<K: PrivateKey, H: Headers>(
         println!("deserialize failure\n{}", body);
         return Err(RequestVerificationError::BodyDeserializeErr);
     };
-    let generated_digest = match signature.signature_header.algorithm {
-        Algorithms::RsaSha256 => "SHA-256=".to_owned() + &sha256_hash(body.as_bytes()),
-        Algorithms::Hs2019 => "SHA-512=".to_owned() + &sha512_hash(body.as_bytes()),
-    };
+    let generated_digest = algorithm.hash(body.as_bytes());
 
     if !digest.eq(&generated_digest) {
         return Err(RequestVerificationError::DigestDoesNotMatch);

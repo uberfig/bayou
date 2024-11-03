@@ -1,6 +1,5 @@
 use actix_web::web::Data;
 use bayou_protocol::{
-    cryptography::digest::{sha256_hash, sha512_hash},
     cryptography::key::Algorithms,
     protocol::ap_protocol::fetch::ap_post,
 };
@@ -45,10 +44,7 @@ pub async fn notify_followers(
     // let versia_rep =
     //     serde_json::to_string(&versia_rep).expect("failed to serialize content from the db");
 
-    let ap_digest = match actor.algorithm {
-        Algorithms::RsaSha256 => sha256_hash(ap_rep.as_bytes()),
-        Algorithms::Hs2019 => sha512_hash(ap_rep.as_bytes()),
-    };
+    let ap_digest = algorithm.hash(ap_rep.as_bytes());
 
     for follower in followers {
         match follower.protocol {
