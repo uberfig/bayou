@@ -8,6 +8,7 @@ CREATE TABLE instances (
 	blocked				BOOLEAN NOT NULL DEFAULT false,
 	allowlisted			BOOLEAN NOT NULL DEFAULT false,
 	protocol			TEXT NULL,
+	fetched_at			BIGINT NULL,
 	favicon				BYTEA NULL
 );
 
@@ -42,6 +43,7 @@ CREATE TABLE users (
 	email				TEXT NULL,
 	private_key_pem		TEXT NULL,
 	permission_level 	SMALLINT NULL,
+	fetched_at			BIGINT NULL,
 
 	UNIQUE (domain, username)
 );
@@ -65,7 +67,7 @@ CREATE TABLE following (
 -- like servers on discord, a group of groups
 CREATE TABLE communities (
 	-- all communities will have a generated uuid
-	com_id 		TEXT NOT NULL PRIMARY KEY UNIQUE,
+	com_id 		UUID NOT NULL PRIMARY KEY UNIQUE,
 	url			TEXT NOT NULL UNIQUE,
 	-- the uuid of the community
 	id			TEXT NOT NULL,
@@ -76,18 +78,23 @@ CREATE TABLE communities (
 	-- name and description hold the json text content format
 	name		TEXT NULL,
 	description TEXT NULL,
+	fetched_at	BIGINT NULL,
 	UNIQUE (domain, id)
+);
+
+CREATE TABLE categories (
+	cat_id 		UUID NOT NULL PRIMARY KEY UNIQUE,
+	community	UUID NOT NULL REFERENCES communities(com_id) ON DELETE CASCADE
 );
 
 -- groups will be used for messaging like discord channels
 CREATE TABLE groups (
 	-- all groups will have a generated uuid
-	group_id 	TEXT NOT NULL PRIMARY KEY UNIQUE,
-	url			TEXT NOT NULL UNIQUE,
-	-- the uuid of the group
-	id			TEXT NOT NULL,
+	group_id 	UUID NOT NULL PRIMARY KEY UNIQUE,
+	ap_id		TEXT NOT NULL UNIQUE,
 	domain		TEXT NOT NULL REFERENCES instances(domain) ON DELETE CASCADE,
-	community	TEXT NULL REFERENCES communities(com_id) ON DELETE CASCADE,
+	community	UUID NULL REFERENCES communities(com_id) ON DELETE CASCADE,
+	category	UUID NULL REFERENCES categories(cat_id) ON DELETE SET NULL,
 	-- groups that are part of a community will be ordered from 
 	-- smallest to largest. to reorder, incriment all groups part of
 	-- a community that are greater than or equal to the position you
@@ -99,7 +106,7 @@ CREATE TABLE groups (
 	-- name and description hold the json text content format
 	name		TEXT NULL,
 	description TEXT NULL,
-	UNIQUE (domain, id)
+	fetched_at			BIGINT NULL
 );
 
 CREATE TABLE posts (
@@ -108,8 +115,6 @@ CREATE TABLE posts (
 	pid 		uuid NOT NULL PRIMARY KEY UNIQUE,
 	-- uses the versia url
 	id			TEXT NOT NULL UNIQUE,
-	-- uses the activitypub id if activitypub
-	versia_id	TEXT NOT NULL,
 	domain		TEXT NOT NULL REFERENCES instances(domain) ON DELETE CASCADE,
 
 	surtype		TEXT NOT NULL,
@@ -122,7 +127,7 @@ CREATE TABLE posts (
 
 	local_only	BOOLEAN NOT NULL DEFAULT false,
 	followers_only	BOOLEAN NOT NULL DEFAULT false,
-	in_group		TEXT NULL REFERENCES groups(group_id) ON DELETE CASCADE,
+	in_group		uuid NULL REFERENCES groups(group_id) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
 
 	-- does not use a constraint as its prob better not to 
@@ -144,19 +149,27 @@ CREATE TABLE posts (
 	closed				BIGINT NULL,
 	local_only_voting 	BOOLEAN NULL,
 
+	fetched_at			BIGINT NULL,
 	actor	uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE
 );
 
 -- todo figure out how mastodon actually does this
 CREATE TABLE likes (
-	-- uses the id from versia or just slap in the id url from ap
-	-- needs to be here for versia compatibility
-	-- id			TEXT NOT NULL,
 	ap_id		TEXT NOT NULL UNIQUE,
 	actor		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 	post 		uuid NOT NULL REFERENCES posts(pid) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
 	PRIMARY KEY(actor, post)
+);
+
+-- todo figure out how other platforms actually do this
+CREATE TABLE reactions (
+	ap_id		TEXT NOT NULL UNIQUE,
+	actor		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	post 		uuid NOT NULL REFERENCES posts(pid) ON DELETE CASCADE,
+	reaction	TEXT NOT NULL,
+	published	BIGINT NOT NULL,
+	PRIMARY KEY(actor, post, reaction)
 );
 
 CREATE TABLE pins (

@@ -37,12 +37,7 @@ pub async fn notify_followers(
     let Ok(followers) = conn.get_follower_inboxes(uuid).await else {
         return;
     };
-    // let Some(versia_rep) = conn.get_versia_post(post_id, &origin).await else {
-    //     return;
-    // };
     let ap_rep = serde_json::to_string(&ap_rep).expect("failed to serialize content from the db");
-    // let versia_rep =
-    //     serde_json::to_string(&versia_rep).expect("failed to serialize content from the db");
 
     let ap_digest = algorithm.hash(ap_rep.as_bytes());
 
