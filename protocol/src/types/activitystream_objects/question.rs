@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use super::context::Context;
+use super::{context::Context, note::Note};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum QuestionType {
@@ -40,7 +40,7 @@ pub struct Question {
 
 impl Question {
     pub fn get_context() -> Context {
-        todo!()
+        Note::get_context()
     }
 }
 

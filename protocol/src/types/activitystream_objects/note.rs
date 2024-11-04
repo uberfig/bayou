@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use super::super::versia_types::serde_fns::{deserialize_time, serialize_time};
 use super::collections::Collection;
+use super::context::{ContextItem, ContextMapItem};
 use super::postable::ApPostable;
 use super::{context::Context, core_types::OptionalArray, link::LinkSimpleOrExpanded};
 use serde::{Deserialize, Serialize};
@@ -81,8 +84,22 @@ pub struct Note {
 }
 
 impl Note {
+	/// currently just reproduces mastodon's contexts
     pub fn get_context() -> Context {
-        todo!()
+        Context::Array(vec![
+			ContextItem::String("https://www.w3.org/ns/activitystreams".to_string()),
+			ContextItem::Map({
+				let mut map = HashMap::new();
+				map.insert("ostatus".to_string(), ContextMapItem::String("http://ostatus.org#".to_string()));
+				map.insert("atomUri".to_string(), ContextMapItem::String("ostatus:atomUri".to_string()));
+				map.insert("inReplyToAtomUri".to_string(), ContextMapItem::String("ostatus:inReplyToAtomUri".to_string()));
+				map.insert("conversation".to_string(), ContextMapItem::String("ostatus:conversation".to_string()));
+				map.insert("sensitive".to_string(), ContextMapItem::String("as:sensitive".to_string()));
+				map.insert("toot".to_string(), ContextMapItem::String("http://joinmastodon.org/ns#".to_string()));
+				map.insert("votersCount".to_string(), ContextMapItem::String("toot:votersCount".to_string()));
+				map
+			})
+		])
     }
 }
 
