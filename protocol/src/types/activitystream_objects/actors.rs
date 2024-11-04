@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use super::{
-    context::{Context, ContextItem, ContextWrap},
+    context::{Context, ContextItem, ContextMapItem, ContextWrap},
     public_key::ApPublicKey,
 };
 use serde::{Deserialize, Serialize};
@@ -74,6 +76,40 @@ impl Actor {
         Context::Array(vec![
             ContextItem::String("https://www.w3.org/ns/activitystreams".to_string()),
             ContextItem::String("https://w3id.org/security/v1".to_string()),
+			ContextItem::Map({
+				let mut map = HashMap::new();
+				map.insert("manuallyApprovesFollowers".to_string(), ContextMapItem::String("as:manuallyApprovesFollowers".to_string()));
+				map.insert("toot".to_string(), ContextMapItem::String("http://joinmastodon.org/ns#".to_string()));
+				map.insert("featured".to_string(), ContextMapItem::Map({
+					let mut map = HashMap::new();
+					map.insert("@id".to_string(), "toot:featured".to_string());
+					map.insert("@type".to_string(), "@id".to_string());
+					map
+				}));
+				map.insert("featuredTags".to_string(), ContextMapItem::Map({
+					let mut map = HashMap::new();
+					map.insert("@id".to_string(), "toot:featuredTags".to_string());
+					map.insert("@type".to_string(), "@id".to_string());
+					map
+				}));
+				map.insert("alsoKnownAs".to_string(), ContextMapItem::Map({
+					let mut map = HashMap::new();
+					map.insert("@id".to_string(), "as:alsoKnownAs".to_string());
+					map.insert("@type".to_string(), "@id".to_string());
+					map
+				}));
+				map.insert("movedTo".to_string(), ContextMapItem::Map({
+					let mut map = HashMap::new();
+					map.insert("@id".to_string(), "as:movedTo".to_string());
+					map.insert("@type".to_string(), "@id".to_string());
+					map
+				}));
+				map.insert("schema".to_string(), ContextMapItem::String("http://schema.org#".to_string()));
+				map.insert("PropertyValue".to_string(), ContextMapItem::String("schema:PropertyValue".to_string()));
+				map.insert("value".to_string(), ContextMapItem::String("schema:value".to_string()));
+				map.insert("discoverable".to_string(), ContextMapItem::String("toot:discoverable".to_string()));
+				map
+			}),
         ])
     }
     pub fn wrap_context(self) -> ContextWrap<Self> {
