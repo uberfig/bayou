@@ -147,13 +147,20 @@ CREATE TABLE posts (
 	actor	uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE
 );
 
+-- todo figure out how mastodon actually does this
 CREATE TABLE likes (
 	-- uses the id from versia or just slap in the id url from ap
 	-- needs to be here for versia compatibility
-	id			TEXT NOT NULL,
-	url			TEXT NOT NULL UNIQUE,
+	-- id			TEXT NOT NULL,
+	ap_id		TEXT NOT NULL UNIQUE,
 	actor		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
-	post 		TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+	post 		uuid NOT NULL REFERENCES posts(pid) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
+	PRIMARY KEY(actor, post)
+);
+
+CREATE TABLE pins (
+	actor		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	post 		uuid NOT NULL REFERENCES posts(pid) ON DELETE CASCADE,
 	PRIMARY KEY(actor, post)
 );
