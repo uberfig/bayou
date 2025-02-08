@@ -109,6 +109,8 @@ CREATE TABLE groups (
 	fetched_at			BIGINT NULL
 );
 
+CREATE TYPE federation_level AS ENUM ('local', 'federated', 'bubble');
+CREATE TYPE post_visibility AS ENUM ('public', 'unlisted', 'followers_only', 'direct');
 CREATE TABLE posts (
 	-- pid is generated locally and used by the api to 
 	-- fetch user posts
@@ -125,8 +127,8 @@ CREATE TABLE posts (
 	boosts		BIGINT NOT NULL DEFAULT 0,
 	reactions	TEXT NULL,
 
-	local_only	BOOLEAN NOT NULL DEFAULT false,
-	followers_only	BOOLEAN NOT NULL DEFAULT false,
+	federation_level	federation_level NOT NULL DEFAULT 'federated',
+	visibility			post_visibility NOT NULL DEFAULT 'public',
 	in_group		uuid NULL REFERENCES groups(group_id) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
 
