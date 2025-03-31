@@ -1,0 +1,13 @@
+instance_domain="testing1.ivytime.gay"
+force_auth_fetch=false
+bind_address="127.0.0.1"
+port=8020
+contact_email="public.ivy.gifford@gmail.com"
+outbox_pagnation_size = 20
+signing_algo ="hs2019"
+
+pg_user="ivy"
+pg_password="password"
+pg_host="127.0.0.1"
+pg_port=5432
+pg_dbname="bayou"
