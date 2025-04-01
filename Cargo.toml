@@ -15,7 +15,8 @@ url = { version = "2.5.4", features = ["serde"] }
 refinery = { version = "0.8.16", features = ["tokio-postgres"] }
 tokio-postgres = { version = "0.7.13", features = ["with-uuid-1"] }
 deadpool-postgres = "0.14.1"
-uuid = { version = "1.14.0", features = ["v7", "fast-rng"] }
+# we're using getrandom to be slightly more cryptographically secure uuids
+uuid = { version = "1.14.0", features = ["v7", "v4", "rng-getrandom"] }
 
 rsa = { version = "0.9.7", features = ["pem", "sha2"] }
 ed25519-dalek = {version = "2.1.1", features = ["pkcs8", "rand_core", "serde", "pem"]}
@@ -25,3 +26,4 @@ rand = "0.8.5"
 pkcs8 = "0.10.2"
 reqwest = { version = "0.12.15", default-features = false, features = ["json", "rustls-tls"] }
 httpdate = "1.0.3"
+argon2 = "0.5.3"

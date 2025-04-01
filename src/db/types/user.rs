@@ -25,6 +25,9 @@ pub struct LocalUser {
     pub verified: bool,
     pub is_admin: bool,
     pub instance_mod: bool,
+    /// used for if signups require an application
+    pub application_message: Option<String>,
+    pub application_approved: bool,
 }
 
 impl From<tokio_postgres::Row> for DbUser {
@@ -37,6 +40,8 @@ impl From<tokio_postgres::Row> for DbUser {
                 verified: row.get("verified"),
                 is_admin: row.get("is_admin"),
                 instance_mod: row.get("instance_mod"),
+                application_message: row.get("application_message"),
+                application_approved: row.get("application_approved"),
             }),
             false => None,
         };

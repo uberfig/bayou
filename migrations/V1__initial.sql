@@ -37,9 +37,23 @@ CREATE TABLE users (
 	is_admin			BOOLEAN NULL,
 	instance_mod		BOOLEAN NULL,
 
+	application_message	TEXT NULL,
+	application_approved	BOOLEAN NULL,
 
 	created				BIGINT NOT NULL,
 	UNIQUE (domain, username)
+);
+
+CREATE TABLE signup_token (
+	-- these need to be v4 uuids with random content
+	token_id		uuid NOT NULL PRIMARY KEY UNIQUE,
+	-- the user that created the signup token, useful for auditing
+	-- makes sure that if a user is removed their invites are also removed
+	creator			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	-- since these are using uuids that may not be the most secure
+	-- we are going to make sure they always have an expiry so it
+	-- doesn't stick around for too long
+	expiry			BIGINT NOT NULL
 );
 
 CREATE TABLE friends (

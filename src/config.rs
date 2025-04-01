@@ -18,6 +18,9 @@ pub struct Config {
     pub pg_host: String,
     pub pg_port: u16,
     pub pg_dbname: String,
+
+    pub open_signups: bool,
+    pub allow_applications: bool,
 }
 
 impl Config {

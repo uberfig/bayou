@@ -1,6 +1,5 @@
 use super::types::{
-    instance::Instance,
-    user::{DbUser, UserInfo},
+    instance::Instance, signup_token::SignupToken, user::{DbUser, UserInfo}
 };
 use deadpool_postgres::{Object, Transaction};
 use tokio_postgres::{types::ToSql, Statement};
@@ -58,10 +57,7 @@ impl Sesh<'_> {
             .pop();
         result.map(|x| x.into())
     }
-    pub async fn create_user(
-        &self,
-        new_user: UserInfo,
-    ) -> DbUser {
+    pub async fn create_user(&self, new_user: UserInfo) -> DbUser {
         let id = Uuid::now_v7();
         let stmt = r#"
         INSERT INTO users 
@@ -164,13 +160,28 @@ impl Sesh<'_> {
         result.into()
     }
     pub async fn delete_user(&self, user: DbUser) {
-        todo!()
+        let stmt = r#"
+            DELETE FROM users WHERE uid = $1;
+        "#;
+        let _result = self
+            .query(stmt, &[&user.id])
+            .await
+            .expect("failed to delete user");
     }
     pub async fn set_user_banned(&self, user: &DbUser, banned: bool, reason: Option<String>) {
         todo!()
     }
-    pub async fn username_taken(&self, domain: &str) -> bool {
-        todo!()
+    /// cheaper query to use instead of getting a user just to discard the data
+    pub async fn username_taken(&self, username: &str, domain: &str) -> bool {
+        let stmt = r#"
+            SELECT uid FROM users WHERE username = $1 AND domain = $2;
+        "#;
+        let result = self
+            .query(stmt, &[&username, &domain])
+            .await
+            .expect("failed to fetch user")
+            .pop();
+        result.is_some()
     }
 }
 
@@ -245,6 +256,55 @@ impl Sesh<'_> {
         result.into()
     }
     pub async fn delete_instance(&self, instance: Instance) {
-        todo!()
+        let stmt = r#"
+            DELETE FROM instances WHERE domain = $1;
+        "#;
+        let _result = self
+            .query(stmt, &[&instance.domain])
+            .await
+            .expect("failed to delete instance");
+    }
+}
+
+impl Sesh<'_> {
+    pub async fn create_signup_token(&self, creator: &DbUser, expiry: i64) -> SignupToken {
+        let id = Uuid::new_v4();
+        let stmt = r#"
+        INSERT INTO signup_token
+        (token_id, creator, expiry)
+        VALUES
+        ($1, $2, $3)
+        RETURNING *;
+        "#;
+        let result = self
+            .query(
+                stmt,
+                &[&id, &creator.id, &expiry],
+            )
+            .await
+            .expect("failed to create signup token")
+            .pop()
+            .expect("creating signup token returned nothing");
+        result.into()
+    }
+    pub async fn get_signup_token(&self, token_id: &Uuid) -> Option<SignupToken> {
+        let stmt = r#"
+            SELECT * FROM signup_token WHERE token_id = $1;
+        "#;
+        let result = self
+            .query(stmt, &[token_id])
+            .await
+            .expect("failed to fetch signup token")
+            .pop();
+        result.map(|x| x.into())
+    }
+    pub async fn delete_signup_token(&self, token_id: &Uuid) {
+        let stmt = r#"
+            DELETE FROM signup_token WHERE token_id = $1;
+        "#;
+        let _result = self
+            .query(stmt, &[token_id])
+            .await
+            .expect("failed to delete signup token");
     }
 }
