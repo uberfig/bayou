@@ -1,9 +1,6 @@
 use argon2::{
-    password_hash::{
-        rand_core::OsRng,
-        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
-    },
-    Argon2
+    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    Argon2,
 };
 
 pub fn hash_password(password: &[u8]) -> String {
@@ -17,7 +14,8 @@ pub fn hash_password(password: &[u8]) -> String {
 }
 
 pub fn verify_password(password: &[u8], phc_string: &str) -> bool {
-    let parsed_hash = PasswordHash::new(phc_string)
-        .expect("provided invalid phc string");
-    Argon2::default().verify_password(password, &parsed_hash).is_ok()
+    let parsed_hash = PasswordHash::new(phc_string).expect("provided invalid phc string");
+    Argon2::default()
+        .verify_password(password, &parsed_hash)
+        .is_ok()
 }

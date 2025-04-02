@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-pub struct  SignupToken {
+pub struct SignupToken {
     pub id: Uuid,
     pub creator: Uuid,
     pub expiry: i64,

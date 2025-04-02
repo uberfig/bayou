@@ -2,7 +2,10 @@ use crate::db::pg_sesh::Sesh;
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
-use super::types::{instance::Instance, user::{DbUser, SignupResult, SignupUser}};
+use super::types::{
+    instance::Instance,
+    user::{DbUser, SignupResult, SignupUser},
+};
 
 #[derive(Clone, Debug)]
 pub struct PgConn {
@@ -34,7 +37,12 @@ impl PgConn {
         sesh.get_user(username, domain).await
     }
 
-    pub async fn try_signup_user(&self, new_user: SignupUser, domain: &str, require_token: bool) -> Result<DbUser, SignupResult> {
+    pub async fn try_signup_user(
+        &self,
+        new_user: SignupUser,
+        domain: &str,
+        require_token: bool,
+    ) -> Result<DbUser, SignupResult> {
         let mut client = self.db.get().await.expect("failed to get client");
         let transaction = client
             .transaction()
@@ -51,7 +59,7 @@ impl PgConn {
                         return Err(SignupResult::InvalidToken);
                     };
                     token
-                },
+                }
                 None => return Err(SignupResult::InvalidToken),
             };
             let Some(token) = sesh.get_signup_token(&token).await else {

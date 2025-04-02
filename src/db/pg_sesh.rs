@@ -1,5 +1,7 @@
 use super::types::{
-    instance::Instance, signup_token::SignupToken, user::{DbUser, UserInfo}
+    instance::Instance,
+    signup_token::SignupToken,
+    user::{DbUser, UserInfo},
 };
 use deadpool_postgres::{Object, Transaction};
 use tokio_postgres::{types::ToSql, Statement};
@@ -277,10 +279,7 @@ impl Sesh<'_> {
         RETURNING *;
         "#;
         let result = self
-            .query(
-                stmt,
-                &[&id, &creator.id, &expiry],
-            )
+            .query(stmt, &[&id, &creator.id, &expiry])
             .await
             .expect("failed to create signup token")
             .pop()
