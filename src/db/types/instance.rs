@@ -17,3 +17,36 @@ impl From<tokio_postgres::Row> for Instance {
         }
     }
 }
+
+impl Instance {
+    pub const fn create_statement() -> &'static str {
+        r#"
+        INSERT INTO instances
+        (domain, is_authoratative, blocked, reason, allowlisted)
+        VALUES
+        ($1, $2, $3, $4, $5)
+        RETURNING *;
+        "#
+    }
+    pub const fn read_statement() -> &'static str {
+        r#"
+        SELECT * FROM instances WHERE domain = $1;
+        "#
+    }
+    pub const fn update_statement() -> &'static str {
+        r#"
+        UPDATE instances SET
+        is_authoratative = $1,
+        blocked = $2,
+        reason = $3,
+        allowlisted = $4
+        WHERE domain = $5
+        RETURNING *;
+        "#
+    }
+    pub const fn delete_statement() -> &'static str {
+        r#"
+        DELETE FROM instances WHERE domain = $1;
+        "#
+    }
+}

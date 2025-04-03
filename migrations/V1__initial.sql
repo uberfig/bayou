@@ -56,6 +56,29 @@ CREATE TABLE signup_token (
 	expiry			BIGINT NOT NULL
 );
 
+CREATE TABLE registered_devices (
+	device_id		uuid NOT NULL PRIMARY KEY UNIQUE,
+	device_name		TEXT NULL,
+	software		TEXT NULL,
+	webpage			TEXT NULL,
+	redirect_url	TEXT NULL,
+	registered_at	BIGINT NOT NULL
+);
+
+-- auth flow is still very wip, expect this to change
+-- to be better in line with oath 2.0 as things are stabalized
+-- no scopes for the time being, need to introduce more granularity 
+CREATE TABLE auth_tokens (
+	-- these need to be v4 uuids with secure random content
+	-- this is prob not ideal and will need to be reworked
+	token_id		uuid NOT NULL PRIMARY KEY UNIQUE,
+	device_id		uuid NOT NULL REFERENCES registered_devices(device_id) ON DELETE CASCADE,
+	uid				uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	-- since our mechanisms are not super ideal, we're going to keep
+	-- low lifetimes so stick to like 30-90 days
+	expiry			BIGINT NOT NULL
+);
+
 CREATE TABLE friends (
 	-- the user that created the friend request
 	creator			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,

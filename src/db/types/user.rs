@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
-use std::time::{self, SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
 
-use crate::cryptography::passwords::hash_password;
+use crate::{cryptography::passwords::hash_password, db::curr_time::get_current_time};
 
 pub struct DbUser {
     pub id: Uuid,
@@ -52,13 +51,7 @@ pub struct SignupUser {
 
 impl SignupUser {
     pub fn into_user(self, instance_domain: &str) -> UserInfo {
-        // yes yes we are downcasting to an i64, if this is somehow still used
-        // in 500 years then peeps can just use seconds instead of milis
-        // or just upgrade to i128 or whatever they use in 500 years
-        let curr_time = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("time went backwards")
-            .as_millis() as i64;
+        let curr_time = get_current_time();
 
         UserInfo {
             domain: instance_domain.to_string(),
@@ -113,5 +106,67 @@ impl From<tokio_postgres::Row> for DbUser {
                 created: row.get("created"),
             },
         }
+    }
+}
+
+impl DbUser {
+    pub const fn create_statement() -> &'static str {
+        r#"
+        INSERT INTO users 
+        (
+            uid,
+            domain,
+            username,
+            display_name,
+            summary,
+            custom_emoji,
+            banned,
+            reason,
+            fetched_at,
+            is_authoratative,
+            password,
+            email,
+            verified,
+            is_admin,
+            instance_mod,
+            created
+        )
+        VALUES
+        (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
+            $11, $12, $13, $14, $15, $16
+        )
+        RETURNING *;
+        "#
+    }
+    pub const fn read_statement() -> &'static str {
+        r#"
+        SELECT * FROM users WHERE username = $1 AND domain = $2;
+        "#
+    }
+    pub const fn update_statement() -> &'static str {
+        r#"
+        UPDATE users SET
+        display_name = $1,
+        summary = $2,
+        custom_emoji = $3,
+        banned = $4,
+        reason = $5,
+        fetched_at = $6,
+        is_authoratative = $7,
+        password = $8,
+        email = $9,
+        verified = $10,
+        is_admin = $11,
+        instance_mod = $12,
+        created = $13
+        WHERE uid = $14
+        RETURNING *;
+        "#
+    }
+    pub const fn delete_statement() -> &'static str {
+        r#"
+        DELETE FROM users WHERE uid = $1;
+        "#
     }
 }
