@@ -42,7 +42,7 @@ impl Config {
 pub fn get_config() -> Result<Config, ConfigError> {
     let settings = config::Config::builder()
         // Add in `./Settings.toml`
-        .add_source(config::File::with_name("ap_config"))
+        .add_source(config::File::with_name("config"))
         // Add in settings from the environment (with a prefix of APP)
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
         .add_source(config::Environment::default())
