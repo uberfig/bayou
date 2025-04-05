@@ -7,7 +7,7 @@ use uuid::Uuid;
 use super::types::{
     auth_token::AuthToken,
     instance::Instance,
-    registered_device::RegisteredDevice,
+    registered_device::{DeviceInfo, RegisteredDevice},
     user::{DbUser, SignupResult, SignupUser},
 };
 
@@ -119,5 +119,11 @@ impl PgConn {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
         sesh.get_registered_device(device_id).await
+    }
+
+    pub async fn create_registered_device(&self, device: &DeviceInfo) -> RegisteredDevice {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.create_registered_device(device).await
     }
 }

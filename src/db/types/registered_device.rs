@@ -1,11 +1,14 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RegisteredDevice {
     pub device_id: Uuid,
     pub info: DeviceInfo,
     pub registered_at: i64,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DeviceInfo {
     pub device_name: Option<String>,
     pub software: Option<String>,
