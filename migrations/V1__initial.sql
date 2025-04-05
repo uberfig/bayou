@@ -86,7 +86,7 @@ CREATE TABLE friends (
 	target_user		uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 	pending			BOOLEAN NOT NULL DEFAULT true,
 	created			BIGINT NOT NULL,
-	PRIMARY KEY(follower, target_user)
+	PRIMARY KEY(creator, target_user)
 );
 
 -- like servers on discord, a group of rooms

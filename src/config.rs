@@ -14,17 +14,17 @@ pub struct Config {
     /// port that this will be running on
     pub port: u16,    
 
-    pub pg_user: String,
-    pub pg_password: String,
-    pub pg_host: String,
-    pub pg_port: u16,
-    pub pg_dbname: String,
-
     /// allow users to just sign up freely.
     /// note this will not affect users using 
     /// an invite to sign up 
     pub open_signups: bool,
     pub allow_applications: bool,
+
+    pub pg_user: String,
+    pub pg_password: String,
+    pub pg_host: String,
+    pub pg_port: u16,
+    pub pg_dbname: String,   
 }
 
 impl Config {
