@@ -24,13 +24,13 @@ async fn signup(
         .await;
     match result {
         Ok(_) => Ok(HttpResponse::Ok()
-            .content_type("application/jrd+json; charset=utf-8")
+            .content_type("application/json; charset=utf-8")
             .body(
                 serde_json::to_string(&SignupResult::Success)
                     .expect("failed to serialize signupresult"),
             )),
         Err(res) => Ok(HttpResponse::BadRequest()
-            .content_type("application/jrd+json; charset=utf-8")
+            .content_type("application/json; charset=utf-8")
             .body(serde_json::to_string(&res).expect("failed to serialize signupresult"))),
     }
 }
