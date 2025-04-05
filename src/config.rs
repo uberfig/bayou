@@ -5,13 +5,14 @@ use crate::db::pg_conn::PgConn;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
-    // pub database_url: String,
+    /// domain the instance is running on
+    /// eg bayou.town
     pub instance_domain: String,
-    pub force_auth_fetch: bool,
+    /// ip address to bind to when running
+    /// eg 127.0.0.1
     pub bind_address: String,
-    pub contact_email: String,
-    pub port: u16,
-    pub outbox_pagnation_size: u64,
+    /// port that this will be running on
+    pub port: u16,    
 
     pub pg_user: String,
     pub pg_password: String,
@@ -19,6 +20,9 @@ pub struct Config {
     pub pg_port: u16,
     pub pg_dbname: String,
 
+    /// allow users to just sign up freely.
+    /// note this will not affect users using 
+    /// an invite to sign up 
     pub open_signups: bool,
     pub allow_applications: bool,
 }
