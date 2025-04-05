@@ -1,3 +1,5 @@
+use std::ops::DerefMut;
+
 use crate::db::pg_sesh::Sesh;
 use deadpool_postgres::Pool;
 use uuid::Uuid;
@@ -12,7 +14,37 @@ pub struct PgConn {
     pub db: Pool,
 }
 
+mod embedded {
+    use refinery::embed_migrations;
+    embed_migrations!("./migrations");
+}
+
 impl PgConn {
+    /// apply database migrations
+    pub async fn init(&self) -> Result<(), String> {
+        let mut client = self.db.get().await.expect("failed to get client");
+        let report = embedded::migrations::runner().run_async(client.deref_mut().deref_mut()).await;
+        match report {
+            Ok(x) => {
+                println!("migrations sucessful");
+                if x.applied_migrations().is_empty() {
+                    println!("no migrations applied")
+                } else {
+                    println!("applied migrations: ");
+                    for migration in x.applied_migrations() {
+                        match migration.applied_on() {
+                            Some(x) => println!(" - {} applied {}", migration.name(), x),
+                            None => println!(" - {} applied N/A", migration.name()),
+                        }
+                    }
+                }
+                Ok(())
+            }
+            Err(x) => {
+                return Err(x.to_string());
+            }
+        }
+    }
     /// gets the main instance if exists or creates a new
     /// should be run on startup to ensure db is ready
     pub async fn get_or_init_main_instance(&self, domain: &str) -> Instance {
