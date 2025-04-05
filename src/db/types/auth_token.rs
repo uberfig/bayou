@@ -1,7 +1,9 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AuthToken {
-    pub token_id: Uuid,
+    pub token: Uuid,
     pub device_id: Uuid,
     pub uid: Uuid,
     pub expiry: i64,
@@ -10,7 +12,7 @@ pub struct AuthToken {
 impl From<tokio_postgres::Row> for AuthToken {
     fn from(row: tokio_postgres::Row) -> Self {
         AuthToken {
-            token_id: row.get("token_id"),
+            token: row.get("token_id"),
             device_id: row.get("device_id"),
             uid: row.get("uid"),
             expiry: row.get("expiry"),

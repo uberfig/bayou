@@ -1,6 +1,13 @@
-use super::{curr_time::get_expiry, types::{
-    auth_token::AuthToken, instance::Instance, registered_device::{DeviceInfo, RegisteredDevice}, signup_token::SignupToken, user::{DbUser, UserInfo}
-}};
+use super::{
+    curr_time::get_expiry,
+    types::{
+        auth_token::AuthToken,
+        instance::Instance,
+        registered_device::{DeviceInfo, RegisteredDevice},
+        signup_token::SignupToken,
+        user::{DbUser, UserInfo},
+    },
+};
 use deadpool_postgres::{Object, Transaction};
 use tokio_postgres::{types::ToSql, Statement};
 use uuid::Uuid;
@@ -202,7 +209,10 @@ impl Sesh<'_> {
     pub async fn create_signup_token(&self, creator: &DbUser, expiry: i64) -> SignupToken {
         let id = Uuid::new_v4();
         let result = self
-            .query(SignupToken::create_statement(), &[&id, &creator.id, &expiry])
+            .query(
+                SignupToken::create_statement(),
+                &[&id, &creator.id, &expiry],
+            )
             .await
             .expect("failed to create signup token")
             .pop()
@@ -230,7 +240,17 @@ impl Sesh<'_> {
     pub async fn create_registered_device(&self, device: &DeviceInfo) -> RegisteredDevice {
         let id = Uuid::now_v7();
         let result = self
-            .query(RegisteredDevice::create_statement(), &[&id, &device.device_name, &device.software, &device.webpage, &device.redirect_url, &device.registered_at])
+            .query(
+                RegisteredDevice::create_statement(),
+                &[
+                    &id,
+                    &device.device_name,
+                    &device.software,
+                    &device.webpage,
+                    &device.redirect_url,
+                    &device.registered_at,
+                ],
+            )
             .await
             .expect("failed to create registered device")
             .pop()
@@ -259,7 +279,10 @@ impl Sesh<'_> {
         let id = Uuid::new_v4();
         let expiry = get_expiry(60);
         let result = self
-            .query(AuthToken::create_statement(), &[&id, &device, &user, &expiry])
+            .query(
+                AuthToken::create_statement(),
+                &[&id, &device, &user, &expiry],
+            )
             .await
             .expect("failed to create auth token")
             .pop()

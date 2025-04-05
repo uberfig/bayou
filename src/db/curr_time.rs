@@ -5,9 +5,9 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 // or just upgrade to i128 or whatever they use in 500 years
 pub fn get_current_time() -> i64 {
     SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("time went backwards")
-            .as_millis() as i64
+        .duration_since(UNIX_EPOCH)
+        .expect("time went backwards")
+        .as_millis() as i64
 }
 
 pub fn get_expiry(days: u64) -> i64 {
