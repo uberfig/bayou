@@ -5,7 +5,9 @@ use deadpool_postgres::Pool;
 use uuid::Uuid;
 
 use super::types::{
+    auth_token::AuthToken,
     instance::Instance,
+    registered_device::RegisteredDevice,
     user::{DbUser, SignupResult, SignupUser},
 };
 
@@ -23,7 +25,9 @@ impl PgConn {
     /// apply database migrations
     pub async fn init(&self) -> Result<(), String> {
         let mut client = self.db.get().await.expect("failed to get client");
-        let report = embedded::migrations::runner().run_async(client.deref_mut().deref_mut()).await;
+        let report = embedded::migrations::runner()
+            .run_async(client.deref_mut().deref_mut())
+            .await;
         match report {
             Ok(x) => {
                 println!("migrations sucessful");
@@ -103,5 +107,17 @@ impl PgConn {
         let user = sesh.create_user(new_user.into_user(domain)).await;
         sesh.commit().await;
         Ok(user)
+    }
+
+    pub async fn create_auth_token(&self, device: &Uuid, user: &Uuid) -> AuthToken {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.create_auth_token(device, user).await
+    }
+
+    pub async fn get_registered_device(&self, device_id: &Uuid) -> Option<RegisteredDevice> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.get_registered_device(device_id).await
     }
 }

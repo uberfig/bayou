@@ -12,11 +12,11 @@ pub struct Config {
     /// eg 127.0.0.1
     pub bind_address: String,
     /// port that this will be running on
-    pub port: u16,    
+    pub port: u16,
 
     /// allow users to just sign up freely.
-    /// note this will not affect users using 
-    /// an invite to sign up 
+    /// note this will not affect users using
+    /// an invite to sign up
     pub open_signups: bool,
     pub allow_applications: bool,
 
@@ -24,7 +24,7 @@ pub struct Config {
     pub pg_password: String,
     pub pg_host: String,
     pub pg_port: u16,
-    pub pg_dbname: String,   
+    pub pg_dbname: String,
 }
 
 impl Config {

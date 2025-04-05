@@ -1,8 +1,6 @@
 use actix_web::{web::Data, App, HttpServer};
 
-use crate::{
-    config::Config, routes::get_routes,
-};
+use crate::{config::Config, routes::get_routes};
 
 pub async fn start_application(config: Config) -> std::io::Result<()> {
     //init the conn and instance actor
@@ -11,7 +9,9 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
         eprintln!("{}", x);
         return Ok(());
     }
-    let _ = conn.get_or_init_main_instance(&config.instance_domain).await;
+    let _ = conn
+        .get_or_init_main_instance(&config.instance_domain)
+        .await;
     // conn.get_instance_actor(config.signing_algo).await;
 
     let bind = config.bind_address.clone();
