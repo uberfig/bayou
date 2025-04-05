@@ -3,6 +3,7 @@ use uuid::Uuid;
 pub struct RegisteredDevice {
     pub device_id: Uuid,
     pub info: DeviceInfo,
+    pub registered_at: i64,
 }
 
 pub struct DeviceInfo {
@@ -10,7 +11,6 @@ pub struct DeviceInfo {
     pub software: Option<String>,
     pub webpage: Option<String>,
     pub redirect_url: Option<String>,
-    pub registered_at: i64,
 }
 
 impl From<tokio_postgres::Row> for RegisteredDevice {
@@ -22,8 +22,8 @@ impl From<tokio_postgres::Row> for RegisteredDevice {
                 software: row.get("software"),
                 webpage: row.get("webpage"),
                 redirect_url: row.get("redirect_url"),
-                registered_at: row.get("registered_at"),
             },
+            registered_at: row.get("registered_at"),
         }
     }
 }

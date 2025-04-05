@@ -1,5 +1,5 @@
 use super::{
-    curr_time::get_expiry,
+    curr_time::{get_current_time, get_expiry},
     types::{
         auth_token::AuthToken,
         instance::Instance,
@@ -248,7 +248,7 @@ impl Sesh<'_> {
                     &device.software,
                     &device.webpage,
                     &device.redirect_url,
-                    &device.registered_at,
+                    &get_current_time(),
                 ],
             )
             .await
