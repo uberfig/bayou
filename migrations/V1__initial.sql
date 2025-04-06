@@ -99,10 +99,24 @@ CREATE TABLE communities (
 	
 	name			TEXT NOT NULL,
 	description 	TEXT NULL,
+	-- custom emoji present in the name and description
 	custom_emoji 	TEXT NULL,
 	created			BIGINT NOT NULL,
 
 	UNIQUE (external_id, domain)
+);
+
+CREATE TABLE join_token (
+	-- these need to be v4 uuids with random content
+	token_id		uuid NOT NULL PRIMARY KEY UNIQUE,
+	-- the user that created the signup token, useful for auditing
+	-- makes sure that if a user is removed their invites are also removed
+	creator			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	commmunity		uuid NOT NULL REFERENCES communities(com_id) ON DELETE CASCADE,
+	-- since these are using uuids that may not be the most secure
+	-- we are going to make sure they always have an expiry so it
+	-- doesn't stick around for too long
+	expiry			BIGINT NOT NULL
 );
 
 -- used to group rooms
