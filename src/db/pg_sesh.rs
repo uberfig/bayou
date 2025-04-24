@@ -1,10 +1,9 @@
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
-        auth_token::DBAuthToken,
+        tokens::{auth_token::DBAuthToken, signup_token::SignupToken,},
         instance::Instance,
         registered_device::{DeviceInfo, RegisteredDevice},
-        signup_token::SignupToken,
         user::{DbUser, UserInfo},
     },
 };

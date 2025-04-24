@@ -4,8 +4,8 @@ use crate::db::pg_sesh::Sesh;
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
-use super::{curr_time::{self, get_current_time}, types::{
-    auth_token::{AuthToken, DBAuthToken},
+use super::{curr_time::get_current_time, types::{
+    tokens::auth_token::{AuthToken, DBAuthToken},
     community::{Communityinfo, DbCommunity},
     instance::Instance,
     registered_device::{DeviceInfo, RegisteredDevice},

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::db::types::{auth_token::AuthToken, community::Communityinfo};
+use crate::db::types::{tokens::auth_token::AuthToken, community::Communityinfo};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BearrerCommunityInfo {
