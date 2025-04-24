@@ -141,6 +141,11 @@ impl DbUser {
     }
     pub const fn read_statement() -> &'static str {
         r#"
+        SELECT * FROM users WHERE uid = $1;
+        "#
+    }
+    pub const fn read_uid_statement() -> &'static str {
+        r#"
         SELECT * FROM users WHERE username = $1 AND domain = $2;
         "#
     }

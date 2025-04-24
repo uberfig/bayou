@@ -5,7 +5,8 @@ use deadpool_postgres::Pool;
 use uuid::Uuid;
 
 use super::types::{
-    auth_token::AuthToken,
+    auth_token::{AuthToken, DBAuthToken},
+    community::{Communityinfo, DbCommunity},
     instance::Instance,
     registered_device::{DeviceInfo, RegisteredDevice},
     user::{DbUser, SignupResult, SignupUser},
@@ -72,6 +73,11 @@ impl PgConn {
         let sesh = Sesh::Client(client);
         sesh.get_user(username, domain).await
     }
+    pub async fn get_user_uid(&self, uid: &Uuid) -> Option<DbUser> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.get_user_uuid(uid).await
+    }
 
     pub async fn try_signup_user(
         &self,
@@ -109,7 +115,7 @@ impl PgConn {
         Ok(user)
     }
 
-    pub async fn create_auth_token(&self, device: &Uuid, user: &Uuid) -> AuthToken {
+    pub async fn create_auth_token(&self, device: &Uuid, user: &Uuid) -> DBAuthToken {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
         sesh.create_auth_token(device, user).await
@@ -125,5 +131,14 @@ impl PgConn {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
         sesh.create_registered_device(device).await
+    }
+
+    pub async fn validate_auth_token(&self, token: &AuthToken) -> Result<(), ()> {
+        todo!()
+    }
+
+    /// creates a new community and a general channel set as system channel
+    pub async fn create_community(&self, info: &Communityinfo, oner: &DbUser) -> DbCommunity {
+        todo!()
     }
 }

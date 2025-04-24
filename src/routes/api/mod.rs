@@ -1,3 +1,4 @@
+pub mod community;
 pub mod login;
 pub mod regester_device;
 pub mod routes;

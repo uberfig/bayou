@@ -2,25 +2,38 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct AuthToken {
-    pub token: Uuid,
-    pub device_id: Uuid,
-    pub uid: Uuid,
+pub struct DBAuthToken {
+    pub required_token: AuthToken,
     pub expiry: i64,
 }
 
-impl From<tokio_postgres::Row> for AuthToken {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AuthToken {
+    #[serde(with = "uuid::serde::simple")]
+    pub token: Uuid,
+    /// auth tokens will only be valid for the device they were
+    /// issued to
+    #[serde(with = "uuid::serde::simple")]
+    pub device_id: Uuid,
+    /// the uid this auth token is valid for
+    #[serde(with = "uuid::serde::simple")]
+    pub uid: Uuid,
+}
+
+impl From<tokio_postgres::Row> for DBAuthToken {
     fn from(row: tokio_postgres::Row) -> Self {
-        AuthToken {
-            token: row.get("token_id"),
-            device_id: row.get("device_id"),
-            uid: row.get("uid"),
+        DBAuthToken {
+            required_token: AuthToken {
+                token: row.get("token_id"),
+                device_id: row.get("device_id"),
+                uid: row.get("uid"),
+            },
             expiry: row.get("expiry"),
         }
     }
 }
 
-impl AuthToken {
+impl DBAuthToken {
     pub const fn create_statement() -> &'static str {
         r#"
         INSERT INTO auth_tokens

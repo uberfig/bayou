@@ -1,28 +1,43 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-pub struct Community {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DbCommunity {
     pub id: Uuid,
+    /// will be equal to the id when a local community, used to
+    /// access communities at the protocol endpoint when federation
+    /// is implimented
     pub external_id: Uuid,
     pub domain: String,
-    pub name: String,
-    pub description: Option<String>,
+    pub info: Communityinfo,
     pub created: i64,
 }
 
-impl From<tokio_postgres::Row> for Community {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Communityinfo {
+    pub name: String,
+    pub description: Option<String>,
+    /// custom emoji present in the name and description
+    pub custom_emoji: Option<String>,
+}
+
+impl From<tokio_postgres::Row> for DbCommunity {
     fn from(row: tokio_postgres::Row) -> Self {
-        Community {
+        DbCommunity {
             id: row.get("id"),
             external_id: row.get("external_id"),
             domain: row.get("domain"),
-            name: row.get("name"),
-            description: row.get("description"),
+            info: Communityinfo {
+                name: row.get("name"),
+                description: row.get("description"),
+                custom_emoji: row.get("custom_emoji"),
+            },
             created: row.get("created"),
         }
     }
 }
 
-impl Community {
+impl DbCommunity {
     pub const fn create_statement() -> &'static str {
         r#"
         INSERT INTO communities 

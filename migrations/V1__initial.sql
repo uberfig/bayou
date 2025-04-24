@@ -112,11 +112,24 @@ CREATE TABLE join_token (
 	-- the user that created the signup token, useful for auditing
 	-- makes sure that if a user is removed their invites are also removed
 	creator			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
-	commmunity		uuid NOT NULL REFERENCES communities(com_id) ON DELETE CASCADE,
+	com_id			uuid NOT NULL REFERENCES communities(com_id) ON DELETE CASCADE,
 	-- since these are using uuids that may not be the most secure
 	-- we are going to make sure they always have an expiry so it
 	-- doesn't stick around for too long
 	expiry			BIGINT NOT NULL
+);
+
+-- todo 
+-- - create trigger on delete to check if a community no longer
+-- has members and to then delete it if so
+-- - create trigger on update to check if is changed to be the owner and set owner to null
+-- for all others in the community (only one owner may exist at a time per comm)
+CREATE TABLE community_membership (
+	com_id		uuid NOT NULL REFERENCES communities(com_id) ON DELETE CASCADE,
+	uid			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	joined		BIGINT NOT NULL,
+	owner		BOOLEAN NOT NULL,
+	PRIMARY KEY(com_id, uid)
 );
 
 -- used to group rooms
@@ -135,6 +148,7 @@ CREATE TABLE rooms (
 	domain		TEXT NOT NULL REFERENCES instances(domain) ON DELETE CASCADE,
 	community	UUID NULL REFERENCES communities(com_id) ON DELETE CASCADE,
 	category	UUID NULL REFERENCES categories(cat_id) ON DELETE SET NULL,
+	system_channel	BOOLEAN NOT NULL,
 	-- groups that are part of a community will be ordered from 
 	-- smallest to largest. to reorder, incriment all groups part of
 	-- a community that are greater than or equal to the position you
@@ -149,11 +163,39 @@ CREATE TABLE rooms (
 	user_b		uuid NULL REFERENCES users(uid) ON DELETE CASCADE
 );
 
+CREATE OR REPLACE FUNCTION room_integrity()
+  RETURNS TRIGGER
+  LANGUAGE PLPGSQL
+  AS
+$$
+BEGIN
+	-- only one system channel integrity
+	IF NEW.system_channel = true AND OLD.system_channel = false THEN
+		 UPDATE rooms SET system_channel = false WHERE community = NEW.community;
+	END IF;
+
+	-- shift down room display orders to make room for new order when inserting
+	IF NEW.display_order <> OLD.display_order THEN
+		 UPDATE rooms SET display_order = display_order + 1 
+		 WHERE community = NEW.community AND display_order >= NEW.display_order;
+	END IF;
+
+	RETURN NEW;
+END;
+$$
+
+CREATE TRIGGER update_room_integrity
+    BEFORE UPDATE ON rooms
+    FOR EACH ROW
+    EXECUTE FUNCTION room_integrity();
+
 -- used for group chats not part of a community
+-- todo, create on delete trigger to delete room if no more memberships exist for room
 CREATE TABLE room_membership (
 	room_id 	uuid NOT NULL REFERENCES rooms(room_id) ON DELETE CASCADE,
 	uid			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
-	joined		BIGINT NOT NULL
+	joined		BIGINT NOT NULL,
+	PRIMARY KEY(room_id, uid)
 );
 
 CREATE TABLE messages (

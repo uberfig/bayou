@@ -1,7 +1,7 @@
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
-        auth_token::AuthToken,
+        auth_token::DBAuthToken,
         instance::Instance,
         registered_device::{DeviceInfo, RegisteredDevice},
         signup_token::SignupToken,
@@ -56,6 +56,14 @@ impl Sesh<'_> {
     pub async fn get_user(&self, username: &str, domain: &str) -> Option<DbUser> {
         let result = self
             .query(DbUser::read_statement(), &[&username, &domain])
+            .await
+            .expect("failed to fetch user")
+            .pop();
+        result.map(|x| x.into())
+    }
+    pub async fn get_user_uuid(&self, uid: &Uuid) -> Option<DbUser> {
+        let result = self
+            .query(DbUser::read_uid_statement(), &[&uid])
             .await
             .expect("failed to fetch user")
             .pop();
@@ -275,12 +283,12 @@ impl Sesh<'_> {
 
 // ------------------------- auth tokens -----------------------------
 impl Sesh<'_> {
-    pub async fn create_auth_token(&self, device: &Uuid, user: &Uuid) -> AuthToken {
+    pub async fn create_auth_token(&self, device: &Uuid, user: &Uuid) -> DBAuthToken {
         let id = Uuid::new_v4();
         let expiry = get_expiry(60);
         let result = self
             .query(
-                AuthToken::create_statement(),
+                DBAuthToken::create_statement(),
                 &[&id, &device, &user, &expiry],
             )
             .await
@@ -289,9 +297,9 @@ impl Sesh<'_> {
             .expect("creating auth token returned nothing");
         result.into()
     }
-    pub async fn get_auth_token(&self, token_id: &Uuid) -> Option<AuthToken> {
+    pub async fn get_auth_token(&self, token_id: &Uuid) -> Option<DBAuthToken> {
         let result = self
-            .query(AuthToken::read_statement(), &[token_id])
+            .query(DBAuthToken::read_statement(), &[token_id])
             .await
             .expect("failed to fetch auth token")
             .pop();
@@ -299,7 +307,7 @@ impl Sesh<'_> {
     }
     pub async fn delete_auth_token(&self, token_id: &Uuid) {
         let _result = self
-            .query(AuthToken::delete_statement(), &[token_id])
+            .query(DBAuthToken::delete_statement(), &[token_id])
             .await
             .expect("failed to delete registered device");
     }
