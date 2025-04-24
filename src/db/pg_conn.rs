@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use super::{curr_time::get_current_time, types::{
     tokens::auth_token::{AuthToken, DBAuthToken},
-    community::{Communityinfo, DbCommunity},
+    comm::community::{Communityinfo, DbCommunity},
     instance::Instance,
     registered_device::{DeviceInfo, RegisteredDevice},
     user::{DbUser, SignupResult, SignupUser},
