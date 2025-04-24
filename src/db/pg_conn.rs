@@ -4,13 +4,13 @@ use crate::db::pg_sesh::Sesh;
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
-use super::types::{
+use super::{curr_time::{self, get_current_time}, types::{
     auth_token::{AuthToken, DBAuthToken},
     community::{Communityinfo, DbCommunity},
     instance::Instance,
     registered_device::{DeviceInfo, RegisteredDevice},
     user::{DbUser, SignupResult, SignupUser},
-};
+}};
 
 #[derive(Clone, Debug)]
 pub struct PgConn {
@@ -134,7 +134,25 @@ impl PgConn {
     }
 
     pub async fn validate_auth_token(&self, token: &AuthToken) -> Result<(), ()> {
-        todo!()
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        let Some(retrived_token) = sesh.get_auth_token(&token.token).await else {
+            return Err(());
+        };
+        if retrived_token.expiry < get_current_time() {
+            sesh.delete_auth_token(&token.token).await;
+            return Err(());
+        }
+        if retrived_token.required_token.device_id != token.device_id {
+            // token is being used by a device it was not issued to
+            return Err(());
+        }
+        if retrived_token.required_token.uid != token.uid {
+            // we may wish to log this, attempting to use a token for a user it was
+            // not issued to 
+            return Err(());
+        }
+        Ok(())
     }
 
     /// creates a new community and a general channel set as system channel

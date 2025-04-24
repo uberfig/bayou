@@ -8,7 +8,6 @@ use crate::{db::pg_conn::PgConn, routes::api::types::community_info::BearrerComm
 
 #[post("/create")]
 async fn create(
-    state: Data<crate::config::Config>,
     conn: Data<PgConn>,
     new_community: web::Json<BearrerCommunityInfo>,
 ) -> Result<HttpResponse> {
