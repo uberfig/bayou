@@ -1,7 +1,7 @@
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
-        comm::community::{Communityinfo, DbCommunity},
+        comm::{community::{Communityinfo, DbCommunity}, community_membership::CommMembership},
         instance::Instance,
         registered_device::{DeviceInfo, RegisteredDevice},
         tokens::{auth_token::DBAuthToken, signup_token::SignupToken},
@@ -199,9 +199,9 @@ impl Sesh<'_> {
                 ],
             )
             .await
-            .expect("failed to update tag")
+            .expect("failed to update instance")
             .pop()
-            .expect("updating tag returned nothing");
+            .expect("updating instance returned nothing");
         result.into()
     }
     pub async fn delete_instance(&self, instance: Instance) {
@@ -366,5 +366,71 @@ impl Sesh<'_> {
             .query(DbCommunity::delete_statement(), &[com_id])
             .await
             .expect("failed to delete community");
+    }
+}
+
+// ------------------------- community membership -----------------------------
+impl Sesh<'_> {
+    pub async fn create_comm_membership(&self, membership: CommMembership) -> CommMembership {
+        // let id = Uuid::now_v7();
+        let result = self
+            .query(
+                CommMembership::create_statement(),
+                &[
+                    &membership.com_id,
+                    &membership.uid,
+                    &membership.joined,
+                    &membership.owner,
+                ],
+            )
+            .await
+            .expect("failed to create community membership")
+            .pop()
+            .expect("creating community membership returned nothing");
+        result.into()
+    }
+    pub async fn get_comm_membership(&self, com_id: &Uuid, uid: &Uuid) -> Option<CommMembership> {
+        let result = self
+            .query(CommMembership::read_statement(), &[com_id, uid])
+            .await
+            .expect("failed to fetch community membership")
+            .pop();
+        result.map(|x| x.into())
+    }
+    pub async fn update_comm_owner(&self, com_id: &Uuid, uid: &Uuid, owner: bool) -> CommMembership {
+        let result = self
+            .query(
+                CommMembership::update_owner_statement(),
+                &[
+                    &owner,
+                    com_id,
+                    uid
+                ],
+            )
+            .await
+            .expect("failed to update community membership")
+            .pop()
+            .expect("updating community membership returned nothing");
+        result.into()
+    }
+    pub async fn delete_comm_membership(&self, com_id: &Uuid, uid: &Uuid) {
+        let _result = self
+            .query(CommMembership::delete_statement(), &[com_id, uid])
+            .await
+            .expect("failed to delete community membership");
+    }
+    pub async fn get_all_user_comms(&self, uid: &Uuid) -> Vec<CommMembership> {
+        let result = self
+            .query(CommMembership::get_all_user_comms(), &[uid])
+            .await
+            .expect("failed to fetch user communities");
+        result.into_iter().map(|x| x.into()).collect()
+    }
+    pub async fn get_all_comm_members(&self, com_id: &Uuid) -> Vec<CommMembership> {
+        let result = self
+            .query(CommMembership::get_all_user_comms(), &[com_id])
+            .await
+            .expect("failed to fetch community members");
+        result.into_iter().map(|x| x.into()).collect()
     }
 }
