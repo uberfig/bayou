@@ -50,15 +50,15 @@ impl CommMembership {
         SELECT * FROM community_membership WHERE com_id = $1 AND uid = $2;
         "#
     }
-    /// note no trigger yet
-    pub const fn update_owner_statement() -> &'static str {
-        r#"
-        UPDATE community_membership SET
-        owner = $1,
-        WHERE com_id = $2 AND uid = $3
-        RETURNING *;
-        "#
-    }
+    // /// note no trigger yet
+    // pub const fn update_owner_statement() -> &'static str {
+    //     r#"
+    //     UPDATE community_membership SET
+    //     owner = $1,
+    //     WHERE com_id = $2 AND uid = $3
+    //     RETURNING *;
+    //     "#
+    // }
     /// params:
     /// - $1: com_id
     /// - $2: uid

@@ -11,6 +11,7 @@ pub struct DbCommunity {
     pub domain: String,
     pub info: Communityinfo,
     pub created: i64,
+    pub owner: Uuid,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -33,6 +34,7 @@ impl From<tokio_postgres::Row> for DbCommunity {
                 custom_emoji: row.get("custom_emoji"),
             },
             created: row.get("created"),
+            owner: row.get("owner"),
         }
     }
 }
@@ -48,11 +50,12 @@ impl DbCommunity {
             name,
             description,
             custom_emoji,
-            created
+            created,
+            owner
         )
         VALUES
         (
-            $1, $2, $3, $4, $5, $6, $7
+            $1, $2, $3, $4, $5, $6, $7, $8
         )
         RETURNING *;
         "#

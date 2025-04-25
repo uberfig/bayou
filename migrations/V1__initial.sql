@@ -91,11 +91,13 @@ CREATE TABLE friends (
 
 -- like servers on discord, a group of rooms
 CREATE TABLE communities (
-	-- all communities will have a generated uuid
+	-- all communities will have an internal generated uuid
 	com_id 			UUID NOT NULL PRIMARY KEY UNIQUE,
 	-- all communities wll be at a specified endpoint
 	external_id		UUID NOT NULL,
+	-- domain of the community owner
 	domain			TEXT NOT NULL REFERENCES instances(domain) ON DELETE CASCADE,
+	owner			uuid NOT NULL REFERENCES users(uid) ON DELETE SET NULL,
 	
 	name			TEXT NOT NULL,
 	description 	TEXT NULL,
@@ -122,13 +124,10 @@ CREATE TABLE join_token (
 -- todo 
 -- - create trigger on delete to check if a community no longer
 -- has members and to then delete it if so
--- - create trigger on update to check if is changed to be the owner and set owner to null
--- for all others in the community (only one owner may exist at a time per comm)
 CREATE TABLE community_membership (
 	com_id		uuid NOT NULL REFERENCES communities(com_id) ON DELETE CASCADE,
 	uid			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 	joined		BIGINT NOT NULL,
-	owner		BOOLEAN NOT NULL,
 	PRIMARY KEY(com_id, uid)
 );
 
