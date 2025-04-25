@@ -4,13 +4,16 @@ use crate::db::pg_sesh::Sesh;
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
-use super::{curr_time::get_current_time, types::{
-    tokens::auth_token::{AuthToken, DBAuthToken},
-    comm::community::{Communityinfo, DbCommunity},
-    instance::Instance,
-    registered_device::{DeviceInfo, RegisteredDevice},
-    user::{DbUser, SignupResult, SignupUser},
-}};
+use super::{
+    curr_time::get_current_time,
+    types::{
+        comm::community::{Communityinfo, DbCommunity},
+        instance::Instance,
+        registered_device::{DeviceInfo, RegisteredDevice},
+        tokens::auth_token::{AuthToken, DBAuthToken},
+        user::{DbUser, SignupResult, SignupUser},
+    },
+};
 
 #[derive(Clone, Debug)]
 pub struct PgConn {
@@ -149,7 +152,7 @@ impl PgConn {
         }
         if retrived_token.required_token.uid != token.uid {
             // we may wish to log this, attempting to use a token for a user it was
-            // not issued to 
+            // not issued to
             return Err(());
         }
         Ok(())
@@ -157,6 +160,9 @@ impl PgConn {
 
     /// creates a new community and a general channel set as system channel
     pub async fn create_community(&self, info: &Communityinfo, oner: &DbUser) -> DbCommunity {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+
         todo!()
     }
 }
