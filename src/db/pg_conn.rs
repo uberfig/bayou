@@ -1,6 +1,6 @@
 use std::ops::DerefMut;
 
-use crate::db::pg_sesh::Sesh;
+use crate::db::{pg_sesh::Sesh, types::room::{self, Room}};
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
@@ -159,10 +159,45 @@ impl PgConn {
     }
 
     /// creates a new community and a general channel set as system channel
-    pub async fn create_community(&self, info: &Communityinfo, oner: &DbUser) -> DbCommunity {
-        let client = self.db.get().await.expect("failed to get client");
-        let sesh = Sesh::Client(client);
+    pub async fn create_community(&self, info: Communityinfo, owner: &DbUser) -> DbCommunity {
+        let mut client = self.db.get().await.expect("failed to get client");
+        let transaction = client
+            .transaction()
+            .await
+            .expect("failed to begin transaction");
+        let sesh = Sesh::Transaction(transaction);
+        let id = Uuid::now_v7();
+        let community = DbCommunity {
+            id,
+            external_id: id,
+            domain: owner.info.domain.clone(),
+            info,
+            created: get_current_time(),
+            owner: owner.id,
+        };
+        let community = sesh.create_community(community).await;
+        let room_id = Uuid::now_v7();
+        let room = Room {
+            id: room_id,
+            external_id: room_id,
+            domain: owner.info.domain.clone(),
+            community: Some(id),
+            system_channel: true,
+            created: get_current_time(),
+            is_dm: false,
+            user_a: None,
+            user_b: None,
+            info: room::RoomInfo {
+                name: "general".to_string(),
+                description: None,
+                custom_emoji: None,
+                category: None,
+                display_order: 0,
+            },
+        };
+        let _room = sesh.create_room(room).await;
+        sesh.commit().await;
 
-        todo!()
+        community
     }
 }

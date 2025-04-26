@@ -25,7 +25,7 @@ async fn create(
             .content_type("application/json; charset=utf-8")
             .body(""));
     };
-    let community = conn.create_community(&new_community.info, &user).await;
+    let community = conn.create_community(new_community.info.clone(), &user).await;
 
     Ok(HttpResponse::Ok()
         .content_type("application/json; charset=utf-8")
