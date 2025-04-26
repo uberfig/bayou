@@ -146,20 +146,22 @@ CREATE TABLE rooms (
 	external_id		UUID NOT NULL,
 	domain		TEXT NOT NULL REFERENCES instances(domain) ON DELETE CASCADE,
 	community	UUID NULL REFERENCES communities(com_id) ON DELETE CASCADE,
-	category	UUID NULL REFERENCES categories(cat_id) ON DELETE SET NULL,
 	system_channel	BOOLEAN NOT NULL,
-	-- groups that are part of a community will be ordered from 
-	-- smallest to largest. to reorder, incriment all groups part of
-	-- a community that are greater than or equal to the position you
-	-- want to move one to and then update the room to be at that position
-	display_order	BIGINT NOT NULL DEFAULT 0,
-	name			TEXT NOT NULL,
-	description 	TEXT NULL,
 	created			BIGINT NOT NULL,
 
 	is_dm 		BOOLEAN NOT NULL DEFAULT false,
 	user_a		uuid NULL REFERENCES users(uid) ON DELETE CASCADE,
-	user_b		uuid NULL REFERENCES users(uid) ON DELETE CASCADE
+	user_b		uuid NULL REFERENCES users(uid) ON DELETE CASCADE,
+
+	name			TEXT NOT NULL,
+	description 	TEXT NULL,
+	custom_emoji 	TEXT NULL,
+	category	UUID NULL REFERENCES categories(cat_id) ON DELETE SET NULL,
+	-- groups that are part of a community will be ordered from 
+	-- smallest to largest. to reorder, incriment all groups part of
+	-- a community that are greater than or equal to the position you
+	-- want to move one to and then update the room to be at that position
+	display_order	BIGINT NOT NULL DEFAULT 0	
 );
 
 CREATE OR REPLACE FUNCTION room_integrity()

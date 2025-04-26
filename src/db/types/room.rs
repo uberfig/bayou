@@ -1,14 +1,13 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Room {
     pub id: Uuid,
     pub external_id: Uuid,
     pub domain: String,
     pub community: Option<Uuid>,
-    pub category: Option<Uuid>,
-    pub display_order: i64,
-    pub name: String,
-    pub description: Option<String>,
+    pub system_channel: bool,
     pub created: i64,
     pub is_dm: bool,
     /// if this is a dm or group chat this is the user that started it
@@ -19,6 +18,17 @@ pub struct Room {
     /// init the chat. exists so it will be auto deleted if they
     /// are deleted and so they can query for dms
     pub user_b: Option<Uuid>,
+    pub info: RoomInfo,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RoomInfo {
+    pub name: String,
+    pub description: Option<String>,
+    /// custom emoji present in the name and description
+    pub custom_emoji: Option<String>,
+    pub category: Option<Uuid>,
+    pub display_order: i64,
 }
 
 impl From<tokio_postgres::Row> for Room {
@@ -28,14 +38,74 @@ impl From<tokio_postgres::Row> for Room {
             external_id: row.get("external_id"),
             domain: row.get("domain"),
             community: row.get("community"),
-            category: row.get("category"),
-            display_order: row.get("display_order"),
-            name: row.get("name"),
-            description: row.get("description"),
+            system_channel: row.get("system_channel"),
+            info: RoomInfo {
+                name: row.get("name"),
+                description: row.get("description"),
+                custom_emoji: row.get("custom_emoji"),
+                category: row.get("category"),
+                display_order: row.get("display_order"),
+            },
             created: row.get("created"),
             is_dm: row.get("is_dm"),
             user_a: row.get("user_a"),
             user_b: row.get("user_b"),
         }
+    }
+}
+
+impl Room {
+    pub const fn create_statement() -> &'static str {
+        r#"
+        INSERT INTO rooms 
+        (
+            room_id,
+            external_id,
+            domain,
+            community,
+            system_channel,
+            created,
+            is_dm,
+            user_a,
+            user_b,
+            name,
+            description,
+            custom_emoji,
+            category,
+            display_order
+        )
+        VALUES
+        (
+            $1, $2, $3, $4, $5, $6, $7, $8,
+            $9, $10, $11, $12, $13, $14
+        )
+        RETURNING *;
+        "#
+    }
+    pub const fn read_statement() -> &'static str {
+        r#"
+        SELECT * FROM rooms WHERE room_id = $1;
+        "#
+    }
+    pub const fn update_statement() -> &'static str {
+        r#"
+        UPDATE rooms SET
+        external_id = $1,
+        domain = $2,
+        system_channel = $3,
+        name = $4,
+        description = $5,
+        custom_emoji = $6,
+        category = $7,
+        display_order = $8
+
+        WHERE room_id = $9
+        RETURNING *;
+        "#
+    }
+    pub const fn delete_statement() -> &'static str {
+        r#"
+        DELETE FROM rooms WHERE room_id = $1;
+        "#
     }
 }
