@@ -1,7 +1,7 @@
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
-        comm::{community::{Communityinfo, DbCommunity}, community_membership::CommMembership},
+        comm::{community::DbCommunity, community_membership::CommMembership},
         instance::Instance,
         registered_device::{DeviceInfo, RegisteredDevice},
         tokens::{auth_token::DBAuthToken, signup_token::SignupToken},
