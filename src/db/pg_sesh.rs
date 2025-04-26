@@ -401,22 +401,6 @@ impl Sesh<'_> {
             .pop();
         result.map(|x| x.into())
     }
-    // pub async fn update_comm_owner(&self, com_id: &Uuid, uid: &Uuid, owner: bool) -> CommMembership {
-    //     let result = self
-    //         .query(
-    //             CommMembership::update_owner_statement(),
-    //             &[
-    //                 &owner,
-    //                 com_id,
-    //                 uid
-    //             ],
-    //         )
-    //         .await
-    //         .expect("failed to update community membership")
-    //         .pop()
-    //         .expect("updating community membership returned nothing");
-    //     result.into()
-    // }
     pub async fn delete_comm_membership(&self, com_id: &Uuid, uid: &Uuid) {
         let _result = self
             .query(CommMembership::delete_statement(), &[com_id, uid])
