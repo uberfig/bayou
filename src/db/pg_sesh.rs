@@ -345,11 +345,14 @@ impl Sesh<'_> {
             .pop();
         result.map(|x| x.into())
     }
-    pub async fn update_community(&self, communnity: &DbCommunity) -> DbCommunity {
+    pub async fn update_community(&self, communnity: DbCommunity) -> DbCommunity {
         let result = self
             .query(
                 DbCommunity::update_statement(),
                 &[
+                    &communnity.external_id,
+                    &communnity.domain,
+                    &communnity.owner,
                     &communnity.info.name,
                     &communnity.info.description,
                     &communnity.info.custom_emoji,

@@ -68,10 +68,14 @@ impl DbCommunity {
     pub const fn update_statement() -> &'static str {
         r#"
         UPDATE communities SET
-        name = $1,
-        description = $2,
-        custom_emoji = $3
-        WHERE com_id = $4
+        external_id = $1,
+        domain = $2,
+        owner = $3,
+        name = $4,
+        description = $5,
+        custom_emoji = $6
+
+        WHERE com_id = $7
         RETURNING *;
         "#
     }
