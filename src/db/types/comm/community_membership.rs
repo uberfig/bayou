@@ -6,7 +6,6 @@ pub struct CommMembership {
     pub com_id: Uuid,
     pub uid: Uuid,
     pub joined: i64,
-    pub owner: bool,
 }
 
 impl From<tokio_postgres::Row> for CommMembership {
@@ -15,7 +14,6 @@ impl From<tokio_postgres::Row> for CommMembership {
             com_id: row.get("com_id"),
             uid: row.get("uid"),
             joined: row.get("joined"),
-            owner: row.get("owner"),
         }
     }
 }
@@ -32,12 +30,11 @@ impl CommMembership {
         (
             com_id,
             uid,
-            joined,
-            owner
+            joined
         )
         VALUES
         (
-            $1, $2, $3, $4
+            $1, $2, $3
         )
         RETURNING *;
         "#

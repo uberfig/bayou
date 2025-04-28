@@ -7,7 +7,7 @@ use uuid::Uuid;
 use super::{
     curr_time::get_current_time,
     types::{
-        comm::community::{Communityinfo, DbCommunity},
+        comm::{community::{Communityinfo, DbCommunity}, community_membership::CommMembership},
         instance::Instance,
         registered_device::{DeviceInfo, RegisteredDevice},
         tokens::auth_token::{AuthToken, DBAuthToken},
@@ -158,7 +158,8 @@ impl PgConn {
         Ok(())
     }
 
-    /// creates a new community and a general channel set as system channel
+    /// creates a new community and a general channel set as system 
+    /// channel and makes a membership for the creator
     pub async fn create_community(&self, info: Communityinfo, owner: &DbUser) -> DbCommunity {
         let mut client = self.db.get().await.expect("failed to get client");
         let transaction = client
@@ -196,6 +197,13 @@ impl PgConn {
             },
         };
         let _room = sesh.create_room(room).await;
+        let _membership = sesh.create_comm_membership(
+            CommMembership {
+                com_id: community.id,
+                uid: owner.id,
+                joined: get_current_time(),
+            }
+        ).await;
         sesh.commit().await;
 
         community

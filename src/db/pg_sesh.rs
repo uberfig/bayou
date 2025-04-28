@@ -372,7 +372,6 @@ impl Sesh<'_> {
 // ------------------------- community membership -----------------------------
 impl Sesh<'_> {
     pub async fn create_comm_membership(&self, membership: CommMembership) -> CommMembership {
-        // let id = Uuid::now_v7();
         let result = self
             .query(
                 CommMembership::create_statement(),
@@ -380,7 +379,6 @@ impl Sesh<'_> {
                     &membership.com_id,
                     &membership.uid,
                     &membership.joined,
-                    &membership.owner,
                 ],
             )
             .await
