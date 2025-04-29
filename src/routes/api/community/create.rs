@@ -4,7 +4,10 @@ use actix_web::{
     HttpResponse, Result,
 };
 
-use crate::{db::{pg_conn::PgConn, types::comm::community::Communityinfo}, routes::api::types::info_with_token::BearrerWithInfo};
+use crate::{
+    db::{pg_conn::PgConn, types::comm::community::Communityinfo},
+    routes::api::types::info_with_token::BearrerWithInfo,
+};
 
 #[post("/create")]
 async fn create(
@@ -25,7 +28,9 @@ async fn create(
             .content_type("application/json; charset=utf-8")
             .body(""));
     };
-    let community = conn.create_community(new_community.info.clone(), &user).await;
+    let community = conn
+        .create_community(new_community.info.clone(), &user)
+        .await;
 
     Ok(HttpResponse::Ok()
         .content_type("application/json; charset=utf-8")

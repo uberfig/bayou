@@ -1,7 +1,12 @@
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
-        comm::{community::DbCommunity, community_membership::CommMembership}, instance::Instance, registered_device::{DeviceInfo, RegisteredDevice}, room::Room, tokens::{auth_token::DBAuthToken, signup_token::SignupToken}, user::{DbUser, UserInfo}
+        comm::{community::DbCommunity, community_membership::CommMembership},
+        instance::Instance,
+        registered_device::{DeviceInfo, RegisteredDevice},
+        room::Room,
+        tokens::{auth_token::DBAuthToken, signup_token::SignupToken},
+        user::{DbUser, UserInfo},
     },
 };
 use deadpool_postgres::{Object, Transaction};
@@ -375,11 +380,7 @@ impl Sesh<'_> {
         let result = self
             .query(
                 CommMembership::create_statement(),
-                &[
-                    &membership.com_id,
-                    &membership.uid,
-                    &membership.joined,
-                ],
+                &[&membership.com_id, &membership.uid, &membership.joined],
             )
             .await
             .expect("failed to create community membership")

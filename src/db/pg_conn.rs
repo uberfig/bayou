@@ -7,7 +7,15 @@ use uuid::Uuid;
 use super::{
     curr_time::get_current_time,
     types::{
-        comm::{community::{Communityinfo, DbCommunity}, community_membership::CommMembership}, instance::Instance, registered_device::{DeviceInfo, RegisteredDevice}, room::RoomInfo, tokens::auth_token::{AuthToken, DBAuthToken}, user::{DbUser, SignupResult, SignupUser}
+        comm::{
+            community::{Communityinfo, DbCommunity},
+            community_membership::CommMembership,
+        },
+        instance::Instance,
+        registered_device::{DeviceInfo, RegisteredDevice},
+        room::RoomInfo,
+        tokens::auth_token::{AuthToken, DBAuthToken},
+        user::{DbUser, SignupResult, SignupUser},
     },
 };
 
@@ -154,7 +162,7 @@ impl PgConn {
         Ok(())
     }
 
-    /// creates a new community and a general channel set as system 
+    /// creates a new community and a general channel set as system
     /// channel and makes a membership for the creator
     pub async fn create_community(&self, info: Communityinfo, owner: &DbUser) -> DbCommunity {
         let mut client = self.db.get().await.expect("failed to get client");
@@ -193,19 +201,29 @@ impl PgConn {
             },
         };
         let _room = sesh.create_room(room).await;
-        let _membership = sesh.create_comm_membership(
-            CommMembership {
+        let _membership = sesh
+            .create_comm_membership(CommMembership {
                 com_id: community.id,
                 uid: owner.id,
                 joined: get_current_time(),
-            }
-        ).await;
+            })
+            .await;
         sesh.commit().await;
 
         community
     }
+    pub async fn get_community(&self, community: Uuid) -> Option<DbCommunity> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.get_community(&community).await
+    }
 
-    pub async fn create_comm_room(&self, community: &DbCommunity, user: Uuid, info: RoomInfo) -> Result<Room, ()> {
+    pub async fn create_comm_room(
+        &self,
+        community: &DbCommunity,
+        user: Uuid,
+        info: RoomInfo,
+    ) -> Result<Room, ()> {
         // todo create role system and more fine grained permissions
         if community.owner != user {
             return Err(());
