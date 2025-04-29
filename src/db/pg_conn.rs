@@ -1,17 +1,13 @@
 use std::ops::DerefMut;
 
-use crate::db::{pg_sesh::Sesh, types::room::{self, Room}};
+use crate::db::{pg_sesh::Sesh, types::room::Room};
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
 use super::{
     curr_time::get_current_time,
     types::{
-        comm::{community::{Communityinfo, DbCommunity}, community_membership::CommMembership},
-        instance::Instance,
-        registered_device::{DeviceInfo, RegisteredDevice},
-        tokens::auth_token::{AuthToken, DBAuthToken},
-        user::{DbUser, SignupResult, SignupUser},
+        comm::{community::{Communityinfo, DbCommunity}, community_membership::CommMembership}, instance::Instance, registered_device::{DeviceInfo, RegisteredDevice}, room::RoomInfo, tokens::auth_token::{AuthToken, DBAuthToken}, user::{DbUser, SignupResult, SignupUser}
     },
 };
 
@@ -188,7 +184,7 @@ impl PgConn {
             is_dm: false,
             user_a: None,
             user_b: None,
-            info: room::RoomInfo {
+            info: RoomInfo {
                 name: "general".to_string(),
                 description: None,
                 custom_emoji: None,
@@ -207,5 +203,28 @@ impl PgConn {
         sesh.commit().await;
 
         community
+    }
+
+    pub async fn create_comm_room(&self, community: &DbCommunity, user: Uuid, info: RoomInfo) -> Result<Room, ()> {
+        // todo create role system and more fine grained permissions
+        if community.owner != user {
+            return Err(());
+        }
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        let room_id = Uuid::now_v7();
+        let room = Room {
+            id: room_id,
+            external_id: room_id,
+            domain: community.domain.clone(),
+            community: Some(community.id),
+            system_channel: false,
+            created: get_current_time(),
+            is_dm: false,
+            user_a: None,
+            user_b: None,
+            info,
+        };
+        Ok(sesh.create_room(room).await)
     }
 }

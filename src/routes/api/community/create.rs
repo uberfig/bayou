@@ -4,12 +4,12 @@ use actix_web::{
     HttpResponse, Result,
 };
 
-use crate::{db::pg_conn::PgConn, routes::api::types::community_info::BearrerCommunityInfo};
+use crate::{db::{pg_conn::PgConn, types::comm::community::Communityinfo}, routes::api::types::info_with_token::BearrerWithInfo};
 
 #[post("/create")]
 async fn create(
     conn: Data<PgConn>,
-    new_community: web::Json<BearrerCommunityInfo>,
+    new_community: web::Json<BearrerWithInfo<Communityinfo>>,
 ) -> Result<HttpResponse> {
     if conn
         .validate_auth_token(&new_community.token)

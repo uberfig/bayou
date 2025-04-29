@@ -1,3 +1,3 @@
 pub mod auth_err;
-pub mod community_info;
+pub mod info_with_token;
 pub mod login_request;
