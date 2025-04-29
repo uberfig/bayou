@@ -53,6 +53,7 @@ impl Sesh<'_> {
 }
 
 //---------------------------- users --------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn get_user(&self, username: &str, domain: &str) -> Option<DbUser> {
         let result = self
@@ -133,6 +134,7 @@ impl Sesh<'_> {
             .await
             .expect("failed to delete user");
     }
+    #[allow(unused_variables)]
     pub async fn set_user_banned(&self, user: &DbUser, banned: bool, reason: Option<String>) {
         todo!()
     }
@@ -151,6 +153,7 @@ impl Sesh<'_> {
 }
 
 // --------------------------------- instance --------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_instance(
         &self,
@@ -214,6 +217,7 @@ impl Sesh<'_> {
 }
 
 // ------------------------- signup token -----------------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_signup_token(&self, creator: &DbUser, expiry: i64) -> SignupToken {
         let id = Uuid::new_v4();
@@ -245,6 +249,7 @@ impl Sesh<'_> {
 }
 
 // ------------------------- registered device -----------------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_registered_device(&self, device: &DeviceInfo) -> RegisteredDevice {
         let id = Uuid::now_v7();
@@ -283,6 +288,7 @@ impl Sesh<'_> {
 }
 
 // ------------------------- auth tokens -----------------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_auth_token(&self, device: &Uuid, user: &Uuid) -> DBAuthToken {
         let id = Uuid::new_v4();
@@ -315,6 +321,7 @@ impl Sesh<'_> {
 }
 
 // ------------------------- community -----------------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_community(&self, community: DbCommunity) -> DbCommunity {
         // let id = Uuid::now_v7();
@@ -375,6 +382,7 @@ impl Sesh<'_> {
 }
 
 // ------------------------- community membership -----------------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_comm_membership(&self, membership: CommMembership) -> CommMembership {
         let result = self
@@ -419,6 +427,7 @@ impl Sesh<'_> {
 }
 
 // ------------------------- community -----------------------------
+#[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_room(&self, room: Room) -> Room {
         // let id = Uuid::now_v7();
