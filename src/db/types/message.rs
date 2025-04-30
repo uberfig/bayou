@@ -1,29 +1,63 @@
+use codes_iso_639::part_1::LanguageCode;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-pub struct Message {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum TextFormat {
+    Markdown,
+    Plain,
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DbMessage {
     pub id: Uuid,
     pub external_id: Uuid,
     pub domain: String,
     pub user: Uuid,
-    pub room: Uuid,
     pub published: i64,
-    pub is_reply: bool,
-    pub in_reply_to: Uuid,
-    pub content: String,
+    pub info: Messageinfo,
 }
 
-impl From<tokio_postgres::Row> for Message {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Messageinfo {
+    /// we seperate is reply and in reply to
+    /// so that if a message is in reply to something
+    /// but the origional is deleted or not federated
+    /// clients can just say in reply to "removed or 
+    /// not federated"
+    pub is_reply: bool,
+    pub in_reply_to: Option<Uuid>,
+    /// users can optionally have proxies that behave
+    /// like pluralkit. Users may only use proxies that
+    /// they created and clients can decide how to display
+    /// proxy messages
+    pub proxy_id: Option<Uuid>,
+    pub content: String,
+    pub format: TextFormat,
+    pub language: LanguageCode,
+    pub room: Uuid,
+}
+
+impl From<tokio_postgres::Row> for DbMessage {
     fn from(row: tokio_postgres::Row) -> Self {
-        Message {
+        
+        DbMessage {
             id: row.get("id"),
             external_id: row.get("external_id"),
             domain: row.get("domain"),
             user: row.get("user"),
-            room: row.get("room"),
             published: row.get("published"),
-            is_reply: row.get("is_reply"),
-            in_reply_to: row.get("in_reply_to"),
-            content: row.get("content"),
+            
+            info: Messageinfo {
+                room: row.get("room"),
+                is_reply: row.get("is_reply"),
+                in_reply_to: row.get("in_reply_to"),
+                content: row.get("content"),
+                proxy_id: row.get("proxy_id"),
+                format: todo!(),
+                language: todo!(),
+            }
         }
     }
 }

@@ -5,3 +5,4 @@ pub mod registered_device;
 pub mod room;
 pub mod tokens;
 pub mod user;
+pub mod custom_emoji;

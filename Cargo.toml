@@ -27,3 +27,4 @@ pkcs8 = "0.10.2"
 reqwest = { version = "0.12.15", default-features = false, features = ["json", "rustls-tls"] }
 httpdate = "1.0.3"
 argon2 = "0.5.3"
+codes-iso-639 = "0.1.5"

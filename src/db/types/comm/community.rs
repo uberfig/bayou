@@ -49,13 +49,12 @@ impl DbCommunity {
             domain,
             name,
             description,
-            custom_emoji,
             created,
             owner
         )
         VALUES
         (
-            $1, $2, $3, $4, $5, $6, $7, $8
+            $1, $2, $3, $4, $5, $6, $7
         )
         RETURNING *;
         "#
@@ -73,9 +72,8 @@ impl DbCommunity {
         owner = $3,
         name = $4,
         description = $5,
-        custom_emoji = $6
 
-        WHERE com_id = $7
+        WHERE com_id = $6
         RETURNING *;
         "#
     }

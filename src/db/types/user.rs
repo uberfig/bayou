@@ -13,7 +13,6 @@ pub struct UserInfo {
     pub username: String,
     pub display_name: Option<String>,
     pub summary: Option<String>,
-    pub custom_emoji: Option<String>,
     pub banned: bool,
     pub reason: Option<String>,
     pub fetched_at: Option<i64>,
@@ -58,7 +57,6 @@ impl SignupUser {
             username: self.username,
             display_name: None,
             summary: None,
-            custom_emoji: None,
             banned: false,
             reason: None,
             fetched_at: None,
@@ -98,7 +96,6 @@ impl From<tokio_postgres::Row> for DbUser {
                 username: row.get("username"),
                 display_name: row.get("display_name"),
                 summary: row.get("summary"),
-                custom_emoji: row.get("custom_emoji"),
                 banned: row.get("banned"),
                 reason: row.get("reason"),
                 fetched_at: row.get("fetched_at"),
@@ -119,7 +116,6 @@ impl DbUser {
             username,
             display_name,
             summary,
-            custom_emoji,
             banned,
             reason,
             fetched_at,
@@ -134,7 +130,7 @@ impl DbUser {
         VALUES
         (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
-            $11, $12, $13, $14, $15, $16
+            $11, $12, $13, $14, $15
         )
         RETURNING *;
         "#
@@ -154,7 +150,7 @@ impl DbUser {
         UPDATE users SET
         display_name = $1,
         summary = $2,
-        custom_emoji = $3,
+        instance_mod = $3,
         banned = $4,
         reason = $5,
         fetched_at = $6,
@@ -163,8 +159,7 @@ impl DbUser {
         email = $9,
         verified = $10,
         is_admin = $11,
-        instance_mod = $12,
-        created = $13
+        
         WHERE uid = $14
         RETURNING *;
         "#

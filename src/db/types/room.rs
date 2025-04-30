@@ -9,6 +9,7 @@ pub struct Room {
     pub community: Option<Uuid>,
     pub system_channel: bool,
     pub created: i64,
+    pub known_complete: bool,
     pub is_dm: bool,
     /// if this is a dm or group chat this is the user that started it
     /// we do this so that it can be automatically deleted if that user
@@ -47,6 +48,7 @@ impl From<tokio_postgres::Row> for Room {
                 display_order: row.get("display_order"),
             },
             created: row.get("created"),
+            known_complete: row.get("known_complete"),
             is_dm: row.get("is_dm"),
             user_a: row.get("user_a"),
             user_b: row.get("user_b"),
@@ -65,12 +67,12 @@ impl Room {
             community,
             system_channel,
             created,
+            known_complete,
             is_dm,
             user_a,
             user_b,
             name,
             description,
-            custom_emoji,
             category,
             display_order
         )
@@ -95,7 +97,7 @@ impl Room {
         system_channel = $3,
         name = $4,
         description = $5,
-        custom_emoji = $6,
+        known_complete = $7
         category = $7,
         display_order = $8
 

@@ -199,6 +199,7 @@ impl PgConn {
                 category: None,
                 display_order: 0,
             },
+            known_complete: true,
         };
         let _room = sesh.create_room(room).await;
         let _membership = sesh
@@ -242,6 +243,7 @@ impl PgConn {
             user_a: None,
             user_b: None,
             info,
+            known_complete: true,
         };
         Ok(sesh.create_room(room).await)
     }

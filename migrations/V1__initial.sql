@@ -19,8 +19,6 @@ CREATE TABLE users (
 	username			TEXT NOT NULL,
 	display_name		TEXT NULL,
 	summary				TEXT NULL, -- used as a user's bio
-	-- serde encoded json of custom emoji in display name and summary
-	custom_emoji 	TEXT NULL,
 
 	banned				BOOLEAN NOT NULL DEFAULT false,
 	reason				TEXT NULL,
@@ -101,8 +99,6 @@ CREATE TABLE communities (
 	
 	name			TEXT NOT NULL,
 	description 	TEXT NULL,
-	-- custom emoji present in the name and description
-	custom_emoji 	TEXT NULL,
 	created			BIGINT NOT NULL,
 
 	UNIQUE (external_id, domain)
@@ -148,6 +144,8 @@ CREATE TABLE rooms (
 	community	UUID NULL REFERENCES communities(com_id) ON DELETE CASCADE,
 	system_channel	BOOLEAN NOT NULL,
 	created			BIGINT NOT NULL,
+	-- allows for lazy loading of federated rooms to prevent undue strain
+	known_complete	BOOLEAN NOT NULL,
 
 	is_dm 		BOOLEAN NOT NULL DEFAULT false,
 	user_a		uuid NULL REFERENCES users(uid) ON DELETE CASCADE,
@@ -155,7 +153,6 @@ CREATE TABLE rooms (
 
 	name			TEXT NOT NULL,
 	description 	TEXT NULL,
-	custom_emoji 	TEXT NULL,
 	category	UUID NULL REFERENCES categories(cat_id) ON DELETE SET NULL,
 	-- groups that are part of a community will be ordered from 
 	-- smallest to largest. to reorder, incriment all groups part of
@@ -211,9 +208,9 @@ CREATE TABLE messages (
 	is_reply	BOOLEAN NOT NULL,
 	in_reply_to	uuid NULL REFERENCES messages(m_id) ON DELETE SET NULL,
 
-	content			TEXT NULL,
-	-- serde encoded json of custom emoji
-	custom_emoji 	TEXT NULL,
+	content		TEXT NOT NULL,
+	format		TEXT NOT NULL,
+	language	TEXT NULL,
 
 	fetched_at		BIGINT NULL,
 	UNIQUE (external_id, domain)
