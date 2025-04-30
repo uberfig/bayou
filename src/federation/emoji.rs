@@ -2,9 +2,9 @@
 //! defined spaces with the prefix /.well-known/bayou 
 //! as per the swamptalk protocol
 //! 
-//! - packs will be located at /.well-known/bayou/emoji/{pack id}
+//! - packs will be located at `/.well-known/bayou/emoji/{pack id}`
 //! - custom emoji will then be located at 
-//! /.well-known/bayou/emoji/{pack id}/{shortcode}
+//! `/.well-known/bayou/emoji/{pack id}/{shortcode}`
 //! 
 //! custom emoji should only link to media of the supported emoji 
 //! as listed in [`EmojiFormat`] to guarentee support
