@@ -72,17 +72,16 @@ impl Sesh<'_> {
             .pop();
         result.map(|x| x.into())
     }
-    pub async fn create_user(&self, new_user: UserInfo) -> DbUser {
-        let id = Uuid::now_v7();
+    pub async fn create_user(&self, new_user: DbUser) -> DbUser {
         let result = self
             .query(
                 DbUser::create_statement(),
                 &[
-                    &id,
+                    &new_user.id,
                     &new_user.domain,
-                    &new_user.username,
-                    &new_user.display_name,
-                    &new_user.summary,
+                    &new_user.info.username,
+                    &new_user.info.display_name,
+                    &new_user.info.summary,
                     &new_user.banned,
                     &new_user.reason,
                     &new_user.fetched_at,
@@ -92,7 +91,7 @@ impl Sesh<'_> {
                     &new_user.local_info.as_ref().map(|x| x.verified),
                     &new_user.local_info.as_ref().map(|x| x.is_admin),
                     &new_user.local_info.as_ref().map(|x| x.instance_mod),
-                    &new_user.created,
+                    &new_user.info.created,
                 ],
             )
             .await
@@ -108,15 +107,15 @@ impl Sesh<'_> {
                 &[
                     &user.info.display_name,
                     &user.info.summary,
-                    &user.info.local_info.as_ref().map(|x| x.instance_mod),
-                    &user.info.banned,
-                    &user.info.reason,
-                    &user.info.fetched_at,
-                    &user.info.local_info.is_some(),
-                    &user.info.local_info.as_ref().map(|x| x.password.clone()),
-                    &user.info.local_info.as_ref().map(|x| x.email.clone()),
-                    &user.info.local_info.as_ref().map(|x| x.verified),
-                    &user.info.local_info.as_ref().map(|x| x.is_admin),
+                    &user.local_info.as_ref().map(|x| x.instance_mod),
+                    &user.banned,
+                    &user.reason,
+                    &user.fetched_at,
+                    &user.local_info.is_some(),
+                    &user.local_info.as_ref().map(|x| x.password.clone()),
+                    &user.local_info.as_ref().map(|x| x.email.clone()),
+                    &user.local_info.as_ref().map(|x| x.verified),
+                    &user.local_info.as_ref().map(|x| x.is_admin),
                     &user.id,
                 ],
             )

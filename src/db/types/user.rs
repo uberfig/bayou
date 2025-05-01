@@ -6,18 +6,18 @@ use crate::{cryptography::passwords::hash_password, db::curr_time::get_current_t
 pub struct DbUser {
     pub id: Uuid,
     pub info: UserInfo,
+    pub local_info: Option<LocalUser>,
+    pub fetched_at: Option<i64>,
+    pub domain: String,
+    pub banned: bool,
+    pub reason: Option<String>,
 }
 
 pub struct UserInfo {
-    pub domain: String,
     pub username: String,
     pub display_name: Option<String>,
     pub summary: Option<String>,
-    pub banned: bool,
-    pub reason: Option<String>,
-    pub fetched_at: Option<i64>,
     pub created: i64,
-    pub local_info: Option<LocalUser>,
 }
 
 pub struct LocalUser {
@@ -49,18 +49,18 @@ pub struct SignupUser {
 }
 
 impl SignupUser {
-    pub fn into_user(self, instance_domain: &str) -> UserInfo {
+    pub fn into_user(self, instance_domain: &str) -> DbUser {
         let curr_time = get_current_time();
+        let id = Uuid::now_v7();
 
-        UserInfo {
-            domain: instance_domain.to_string(),
-            username: self.username,
-            display_name: None,
-            summary: None,
-            banned: false,
-            reason: None,
-            fetched_at: None,
-            created: curr_time,
+        DbUser {
+            id,
+            info: UserInfo {
+                username: self.username,
+                display_name: None,
+                summary: None,
+                created: curr_time,
+            },
             local_info: Some(LocalUser {
                 password: hash_password(self.password.as_bytes()),
                 email: self.email,
@@ -70,6 +70,10 @@ impl SignupUser {
                 application_message: self.application_message,
                 application_approved: false,
             }),
+            fetched_at: None,
+            domain: instance_domain.to_string(),
+            banned: false,
+            reason: None,
         }
     }
 }
@@ -92,16 +96,16 @@ impl From<tokio_postgres::Row> for DbUser {
         DbUser {
             id: row.get("uid"),
             info: UserInfo {
-                domain: row.get("domain"),
                 username: row.get("username"),
                 display_name: row.get("display_name"),
                 summary: row.get("summary"),
-                banned: row.get("banned"),
-                reason: row.get("reason"),
-                fetched_at: row.get("fetched_at"),
-                local_info,
                 created: row.get("created"),
             },
+            local_info,
+            fetched_at: row.get("fetched_at"),
+            domain: row.get("domain"),
+            banned: row.get("banned"),
+            reason: row.get("reason"),
         }
     }
 }

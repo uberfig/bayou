@@ -10,12 +10,7 @@ use super::{
         comm::{
             community::{Communityinfo, DbCommunity},
             community_membership::CommMembership,
-        },
-        instance::Instance,
-        registered_device::{DeviceInfo, RegisteredDevice},
-        room::RoomInfo,
-        tokens::auth_token::{AuthToken, DBAuthToken},
-        user::{DbUser, SignupResult, SignupUser},
+        }, instance::Instance, message::{DbMessage, Messageinfo}, registered_device::{DeviceInfo, RegisteredDevice}, room::RoomInfo, tokens::auth_token::{AuthToken, DBAuthToken}, user::{DbUser, SignupResult, SignupUser}
     },
 };
 
@@ -175,7 +170,7 @@ impl PgConn {
         let community = DbCommunity {
             id,
             external_id: id,
-            domain: owner.info.domain.clone(),
+            domain: owner.domain.clone(),
             info,
             created: get_current_time(),
             owner: owner.id,
@@ -185,7 +180,7 @@ impl PgConn {
         let room = Room {
             id: room_id,
             external_id: room_id,
-            domain: owner.info.domain.clone(),
+            domain: owner.domain.clone(),
             community: Some(id),
             system_channel: true,
             created: get_current_time(),
@@ -218,6 +213,11 @@ impl PgConn {
         let sesh = Sesh::Client(client);
         sesh.get_community(&community).await
     }
+    pub async fn get_comm_membership(&self, com_id: Uuid, uid: Uuid) -> Option<CommMembership> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.get_comm_membership(&com_id, &uid).await
+    }
 
     pub async fn create_comm_room(
         &self,
@@ -246,5 +246,55 @@ impl PgConn {
             known_complete: true,
         };
         Ok(sesh.create_room(room).await)
+    }
+    pub async fn get_room(&self, room: Uuid) -> Option<Room> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.get_room(&room).await
+    }
+    /// attempt to send message to given room
+    /// returns err if room does not exist or not authorized to post in room
+    /// todo: add fine grained channel controls
+    /// todo: add more descriptive errors and use them in the api
+    pub async fn send_message(&self, user: &DbUser, message: Messageinfo) -> Result<DbMessage, ()> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        let Some(room) = sesh.get_room(&message.room).await else {
+            return Err(());
+        };
+        // ensure the user is allowed to post in the given room
+        match room.community {
+            // being posted to a room in a community
+            Some(com_id) => {
+                let Some(_) = sesh.get_comm_membership(&com_id, &user.id).await else {
+                    return Err(());
+                };
+            },
+            // being posted to a dm or group chat
+            None => return Err(()),
+        };
+
+        // ensure that the message is replying to a message that exists and in this channel
+        if let Some(reply) = message.in_reply_to {
+            let Some(reply) = sesh.get_message(&reply).await else {
+                return Err(());
+            };
+            if reply.info.room != message.room {
+                return Err(());
+            }
+        }
+
+        let id = Uuid::now_v7();
+        let message = DbMessage {
+            id,
+            external_id: id,
+            domain: user.domain.clone(),
+            user: user.id,
+            published: get_current_time(),
+            edited: None,
+            fetched_at: None,
+            info: message,
+        };
+        Ok(sesh.create_message(message).await)
     }
 }

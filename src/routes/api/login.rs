@@ -34,7 +34,7 @@ async fn login(
     else {
         return invalid(LoginErr::InvalidUsernameOrPassword);
     };
-    let Some(local_info) = user.info.local_info else {
+    let Some(local_info) = user.local_info else {
         return invalid(LoginErr::InvalidUsernameOrPassword);
     };
     if !verify_password(login_request.password.as_bytes(), &local_info.password) {
