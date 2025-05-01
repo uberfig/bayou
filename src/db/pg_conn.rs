@@ -10,7 +10,13 @@ use super::{
         comm::{
             community::{Communityinfo, DbCommunity},
             community_membership::CommMembership,
-        }, instance::Instance, message::{DbMessage, Messageinfo}, registered_device::{DeviceInfo, RegisteredDevice}, room::RoomInfo, tokens::auth_token::{AuthToken, DBAuthToken}, user::{DbUser, SignupResult, SignupUser}
+        },
+        instance::Instance,
+        message::{DbMessage, Messageinfo},
+        registered_device::{DeviceInfo, RegisteredDevice},
+        room::RoomInfo,
+        tokens::auth_token::{AuthToken, DBAuthToken},
+        user::{DbUser, SignupResult, SignupUser},
     },
 };
 
@@ -269,7 +275,7 @@ impl PgConn {
                 let Some(_) = sesh.get_comm_membership(&com_id, &user.id).await else {
                     return Err(());
                 };
-            },
+            }
             // being posted to a dm or group chat
             None => return Err(()),
         };

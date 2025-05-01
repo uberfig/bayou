@@ -7,7 +7,7 @@ use super::{
         registered_device::{DeviceInfo, RegisteredDevice},
         room::Room,
         tokens::{auth_token::DBAuthToken, signup_token::SignupToken},
-        user::{DbUser, UserInfo},
+        user::DbUser,
     },
 };
 use deadpool_postgres::{Object, Transaction};

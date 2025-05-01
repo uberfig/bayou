@@ -7,7 +7,10 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
-    db::{pg_conn::PgConn, types::{message::Messageinfo, room::RoomInfo}},
+    db::{
+        pg_conn::PgConn,
+        types::{message::Messageinfo, room::RoomInfo},
+    },
     routes::api::types::info_with_token::BearrerWithInfo,
 };
 
@@ -39,7 +42,7 @@ async fn send_message(
             return Ok(HttpResponse::Unauthorized()
                 .content_type("application/json; charset=utf-8")
                 .body(""));
-        },
+        }
     };
     Ok(HttpResponse::Ok()
         .content_type("application/json; charset=utf-8")
