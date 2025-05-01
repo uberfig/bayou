@@ -22,11 +22,10 @@ impl FromStr for TextFormat {
         match s {
             "markdown" => Ok(Self::Markdown),
             "plain" => Ok(Self::Plain),
-            _ => Err(FormatErr::Unkown)
+            _ => Err(FormatErr::Unkown),
         }
     }
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbMessage {
@@ -43,7 +42,7 @@ pub struct Messageinfo {
     /// we seperate is reply and in reply to
     /// so that if a message is in reply to something
     /// but the origional is deleted or not federated
-    /// clients can just say in reply to "removed or 
+    /// clients can just say in reply to "removed or
     /// not federated"
     pub is_reply: bool,
     pub in_reply_to: Option<Uuid>,
@@ -61,23 +60,24 @@ pub struct Messageinfo {
 impl From<tokio_postgres::Row> for DbMessage {
     fn from(row: tokio_postgres::Row) -> Self {
         let language: Option<&str> = row.get("language");
-        let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();        
+        let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();
         DbMessage {
             id: row.get("id"),
             external_id: row.get("external_id"),
             domain: row.get("domain"),
             user: row.get("user"),
             published: row.get("published"),
-            
+
             info: Messageinfo {
                 room: row.get("room"),
                 is_reply: row.get("is_reply"),
                 in_reply_to: row.get("in_reply_to"),
                 content: row.get("content"),
                 proxy_id: row.get("proxy_id"),
-                format: TextFormat::from_str(row.get("proxy_id")).expect("unkown text format in db"),
+                format: TextFormat::from_str(row.get("proxy_id"))
+                    .expect("unkown text format in db"),
                 language,
-            }
+            },
         }
     }
 }
