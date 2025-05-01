@@ -18,8 +18,6 @@ pub struct DbCommunity {
 pub struct Communityinfo {
     pub name: String,
     pub description: Option<String>,
-    /// custom emoji present in the name and description
-    pub custom_emoji: Option<String>,
 }
 
 impl From<tokio_postgres::Row> for DbCommunity {
@@ -31,7 +29,6 @@ impl From<tokio_postgres::Row> for DbCommunity {
             info: Communityinfo {
                 name: row.get("name"),
                 description: row.get("description"),
-                custom_emoji: row.get("custom_emoji"),
             },
             created: row.get("created"),
             owner: row.get("owner"),
