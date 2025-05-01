@@ -227,12 +227,8 @@ impl PgConn {
     /// get all rooms from a community if it exists and the user is in the community
     /// - caching here might be useful
     pub async fn get_comm_rooms(&self, com_id: Uuid, uid: Uuid) -> Result<Vec<Room>, ()> {
-        let mut client = self.db.get().await.expect("failed to get client");
-        let transaction = client
-            .transaction()
-            .await
-            .expect("failed to begin transaction");
-        let sesh = Sesh::Transaction(transaction);
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
         let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
             return Err(());
         };
@@ -241,12 +237,8 @@ impl PgConn {
     /// get all members from a community if it exists and the user is in the community
     /// - caching here might be useful
     pub async fn get_comm_members(&self, com_id: Uuid, uid: Uuid) -> Result<Vec<ApiUser>, ()> {
-        let mut client = self.db.get().await.expect("failed to get client");
-        let transaction = client
-            .transaction()
-            .await
-            .expect("failed to begin transaction");
-        let sesh = Sesh::Transaction(transaction);
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
         let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
             return Err(());
         };

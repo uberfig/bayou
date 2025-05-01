@@ -4,6 +4,8 @@ use codes_iso_639::part_1::LanguageCode;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::routes::api::types::{api_message::ApiMessage, api_user::ApiUser};
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum TextFormat {
     Markdown,
@@ -65,6 +67,28 @@ pub struct Messageinfo {
     pub format: TextFormat,
     pub language: Option<LanguageCode>,
     pub room: Uuid,
+}
+
+impl From<tokio_postgres::Row> for ApiMessage {
+    /// note, requires being joined on the users table and on the proxy table in the future
+    fn from(row: tokio_postgres::Row) -> Self {
+        let language: Option<&str> = row.get("language");
+        let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();
+        ApiMessage {
+            id: row.get("id"),
+            room: row.get("room"),
+            published: row.get("published"),
+            edited: row.get("edited"),
+            is_reply: row.get("is_reply"),
+            in_reply_to: row.get("in_reply_to"),
+            content: row.get("content"),
+            proxy_id: row.get("proxy_id"),
+            format: TextFormat::from_str(row.get("proxy_id"))
+                .expect("unkown text format in db"),
+            language,
+            user: row.into(),
+        }
+    }
 }
 
 impl From<tokio_postgres::Row> for DbMessage {

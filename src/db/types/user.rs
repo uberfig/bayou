@@ -91,6 +91,19 @@ impl SignupUser {
     }
 }
 
+impl From<tokio_postgres::Row> for ApiUser {
+    fn from(row: tokio_postgres::Row) -> Self {
+        ApiUser {
+            id: row.get("uid"),
+            domain: row.get("domain"),
+            username: row.get("username"),
+            display_name: row.get("display_name"),
+            summary: row.get("summary"),
+            created: row.get("created"),
+        }
+    }
+}
+
 impl From<tokio_postgres::Row> for DbUser {
     fn from(row: tokio_postgres::Row) -> Self {
         let is_authoratative: bool = row.get("is_authoratative");
