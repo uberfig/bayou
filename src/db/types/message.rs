@@ -26,6 +26,14 @@ impl FromStr for TextFormat {
         }
     }
 }
+impl TextFormat {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TextFormat::Markdown => "markdown",
+            TextFormat::Plain => "plain",
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbMessage {
@@ -86,7 +94,7 @@ impl From<tokio_postgres::Row> for DbMessage {
     }
 }
 
-impl Messageinfo {
+impl DbMessage {
     pub const fn create_statement() -> &'static str {
         r#"
         INSERT INTO messages 

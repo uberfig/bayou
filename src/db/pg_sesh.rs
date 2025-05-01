@@ -1,14 +1,10 @@
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
-        comm::{community::DbCommunity, community_membership::CommMembership},
-        instance::Instance,
-        registered_device::{DeviceInfo, RegisteredDevice},
-        room::Room,
-        tokens::{auth_token::DBAuthToken, signup_token::SignupToken},
-        user::{DbUser, UserInfo},
+        comm::{community::DbCommunity, community_membership::CommMembership}, instance::Instance, message::DbMessage, registered_device::{DeviceInfo, RegisteredDevice}, room::Room, tokens::{auth_token::DBAuthToken, signup_token::SignupToken}, user::{DbUser, UserInfo}
     },
 };
+use codes_iso_639::part_1::LanguageCode;
 use deadpool_postgres::{Object, Transaction};
 use tokio_postgres::{types::ToSql, Statement};
 use uuid::Uuid;
@@ -321,7 +317,6 @@ impl Sesh<'_> {
 #[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_community(&self, community: DbCommunity) -> DbCommunity {
-        // let id = Uuid::now_v7();
         let result = self
             .query(
                 DbCommunity::create_statement(),
@@ -421,7 +416,7 @@ impl Sesh<'_> {
     }
 }
 
-// ------------------------- community -----------------------------
+// ------------------------- room -----------------------------
 #[allow(dead_code)]
 impl Sesh<'_> {
     pub async fn create_room(&self, room: Room) -> Room {
@@ -487,5 +482,68 @@ impl Sesh<'_> {
             .query(Room::delete_statement(), &[room_id])
             .await
             .expect("failed to delete room");
+    }
+}
+
+// ------------------------- message -----------------------------
+#[allow(dead_code)]
+impl Sesh<'_> {
+    pub async fn create_message(&self, message: DbMessage) -> DbMessage {
+        let result = self
+            .query(
+                DbMessage::create_statement(),
+                &[
+                    &message.id,
+                    &message.external_id,
+                    &message.domain,
+                    &message.user,
+                    &message.info.room,
+                    &message.published,
+                    &message.edited,
+                    &message.fetched_at,
+                    &message.info.is_reply,
+                    &message.info.in_reply_to,
+                    &message.info.content,
+                    &message.info.format.as_str(),
+                    &message.info.language.map(|x| x.to_string()),
+                ],
+            )
+            .await
+            .expect("failed to create message")
+            .pop()
+            .expect("creating message returned nothing");
+        result.into()
+    }
+    pub async fn get_message(&self, m_id: &Uuid) -> Option<DbMessage> {
+        let result = self
+            .query(DbMessage::read_statement(), &[m_id])
+            .await
+            .expect("failed to fetch message")
+            .pop();
+        result.map(|x| x.into())
+    }
+    pub async fn update_message(&self, message: DbMessage) -> DbMessage {
+        let result = self
+            .query(
+                DbMessage::update_statement(),
+                &[
+                    &message.edited,
+                    &message.info.content,
+                    &message.info.format.as_str(),
+                    &message.info.language.map(|x| x.to_string()),
+                    &message.fetched_at,
+                ],
+            )
+            .await
+            .expect("failed to update message")
+            .pop()
+            .expect("updating message returned nothing");
+        result.into()
+    }
+    pub async fn delete_message(&self, m_id: &Uuid) {
+        let _result = self
+            .query(DbMessage::delete_statement(), &[m_id])
+            .await
+            .expect("failed to delete message");
     }
 }
