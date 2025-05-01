@@ -1,6 +1,6 @@
 use std::ops::DerefMut;
 
-use crate::db::{pg_sesh::Sesh, types::room::Room};
+use crate::{db::{pg_sesh::Sesh, types::room::Room}, routes::api::types::api_user::ApiUser};
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
@@ -225,6 +225,7 @@ impl PgConn {
         sesh.get_comm_membership(&com_id, &uid).await
     }
     /// get all rooms from a community if it exists and the user is in the community
+    /// - caching here might be useful
     pub async fn get_comm_rooms(&self, com_id: Uuid, uid: Uuid) -> Result<Vec<Room>, ()> {
         let mut client = self.db.get().await.expect("failed to get client");
         let transaction = client
@@ -236,6 +237,20 @@ impl PgConn {
             return Err(());
         };
         Ok(sesh.get_all_comm_rooms(&com_id).await)
+    }
+    /// get all members from a community if it exists and the user is in the community
+    /// - caching here might be useful
+    pub async fn get_comm_members(&self, com_id: Uuid, uid: Uuid) -> Result<Vec<ApiUser>, ()> {
+        let mut client = self.db.get().await.expect("failed to get client");
+        let transaction = client
+            .transaction()
+            .await
+            .expect("failed to begin transaction");
+        let sesh = Sesh::Transaction(transaction);
+        let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
+            return Err(());
+        };
+        Ok(sesh.get_all_comm_users(&com_id).await.into_iter().map(|x| x.into()).collect())
     }
     pub async fn create_comm_room(
         &self,

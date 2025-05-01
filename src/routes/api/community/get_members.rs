@@ -19,13 +19,13 @@ async fn get_members(
             .content_type("application/json; charset=utf-8")
             .body(""));
     }
-    todo!()
-    // let Ok(rooms) = conn.get_comm_rooms(community.info, community.token.uid).await else {
-    //     return Ok(HttpResponse::Unauthorized()
-    //         .content_type("application/json; charset=utf-8")
-    //         .body(""));
-    // };
-    // Ok(HttpResponse::Ok()
-    //     .content_type("application/json; charset=utf-8")
-    //     .body(serde_json::to_string(&rooms).expect("failed to serialize dbcommunity")))
+    
+    let Ok(users) = conn.get_comm_members(community.info, community.token.uid).await else {
+        return Ok(HttpResponse::Unauthorized()
+            .content_type("application/json; charset=utf-8")
+            .body(""));
+    };
+    Ok(HttpResponse::Ok()
+        .content_type("application/json; charset=utf-8")
+        .body(serde_json::to_string(&users).expect("failed to serialize dbcommunity")))
 }

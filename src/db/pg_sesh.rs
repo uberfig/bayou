@@ -413,9 +413,16 @@ impl Sesh<'_> {
     }
     pub async fn get_all_comm_members(&self, com_id: &Uuid) -> Vec<CommMembership> {
         let result = self
-            .query(CommMembership::get_all_user_comms(), &[com_id])
+            .query(CommMembership::get_all_comm_members(), &[com_id])
             .await
             .expect("failed to fetch community members");
+        result.into_iter().map(|x| x.into()).collect()
+    }
+    pub async fn get_all_comm_users(&self, com_id: &Uuid) -> Vec<DbUser> {
+        let result = self
+            .query(CommMembership::get_all_comm_users(), &[com_id])
+            .await
+            .expect("failed to fetch community users");
         result.into_iter().map(|x| x.into()).collect()
     }
 }

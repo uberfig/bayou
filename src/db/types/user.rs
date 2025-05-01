@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{cryptography::passwords::hash_password, db::curr_time::get_current_time};
+use crate::{cryptography::passwords::hash_password, db::curr_time::get_current_time, routes::api::types::api_user::ApiUser};
 
 pub struct DbUser {
     pub id: Uuid,
@@ -11,6 +11,19 @@ pub struct DbUser {
     pub domain: String,
     pub banned: bool,
     pub reason: Option<String>,
+}
+
+impl From<DbUser> for ApiUser {
+    fn from(user: DbUser) -> Self {
+        ApiUser {
+            id: user.id,
+            domain: user.domain,
+            username: user.info.username,
+            display_name: user.info.display_name,
+            summary: user.info.summary,
+            created: user.info.created,
+        }
+    }
 }
 
 pub struct UserInfo {
