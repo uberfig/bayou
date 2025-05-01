@@ -204,6 +204,8 @@ CREATE TABLE messages (
 
 	room		uuid NOT NULL REFERENCES rooms(room_id) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
+	edited		BIGINT NULL,
+	fetched_at	BIGINT NULL,
 
 	is_reply	BOOLEAN NOT NULL,
 	in_reply_to	uuid NULL REFERENCES messages(m_id) ON DELETE SET NULL,
@@ -211,8 +213,7 @@ CREATE TABLE messages (
 	content		TEXT NOT NULL,
 	format		TEXT NOT NULL,
 	language	TEXT NULL,
-
-	fetched_at		BIGINT NULL,
+	
 	UNIQUE (external_id, domain)
 );
 

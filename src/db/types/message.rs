@@ -34,6 +34,8 @@ pub struct DbMessage {
     pub domain: String,
     pub user: Uuid,
     pub published: i64,
+    pub edited: Option<i64>,
+    pub fetched_at: Option<i64>,
     pub info: Messageinfo,
 }
 
@@ -67,6 +69,8 @@ impl From<tokio_postgres::Row> for DbMessage {
             domain: row.get("domain"),
             user: row.get("user"),
             published: row.get("published"),
+            edited: row.get("edited"),
+            fetched_at: row.get("fetched_at"),
 
             info: Messageinfo {
                 room: row.get("room"),
@@ -79,5 +83,57 @@ impl From<tokio_postgres::Row> for DbMessage {
                 language,
             },
         }
+    }
+}
+
+impl Messageinfo {
+    pub const fn create_statement() -> &'static str {
+        r#"
+        INSERT INTO messages 
+        (
+            m_id,
+            external_id,
+            domain,
+            uid,
+            room,
+            published,
+            edited,
+            fetched_at,
+            is_reply,
+            in_reply_to,
+            content,
+            format,
+            language
+        )
+        VALUES
+        (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+        )
+        RETURNING *;
+        "#
+    }
+    pub const fn read_statement() -> &'static str {
+        r#"
+        SELECT * FROM messages WHERE m_id = $1;
+        "#
+    }
+    pub const fn update_statement() -> &'static str {
+        r#"
+        UPDATE messages
+        SET
+            edited = $1,
+            content = $2,
+            format = $3,
+            language = $4,
+            fetched_at = $5
+        WHERE
+            m_id = $6
+        RETURNING *;
+        "#
+    }
+    pub const fn delete_statement() -> &'static str {
+        r#"
+        DELETE FROM messages WHERE m_id = $1;
+        "#
     }
 }
