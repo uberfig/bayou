@@ -224,7 +224,19 @@ impl PgConn {
         let sesh = Sesh::Client(client);
         sesh.get_comm_membership(&com_id, &uid).await
     }
-
+    /// get all rooms from a community if it exists and the user is in the community
+    pub async fn get_comm_rooms(&self, com_id: Uuid, uid: Uuid) -> Result<Vec<Room>, ()> {
+        let mut client = self.db.get().await.expect("failed to get client");
+        let transaction = client
+            .transaction()
+            .await
+            .expect("failed to begin transaction");
+        let sesh = Sesh::Transaction(transaction);
+        let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
+            return Err(());
+        };
+        Ok(sesh.get_all_comm_rooms(&com_id).await)
+    }
     pub async fn create_comm_room(
         &self,
         community: &DbCommunity,

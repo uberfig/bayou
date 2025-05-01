@@ -110,4 +110,9 @@ impl Room {
         DELETE FROM rooms WHERE room_id = $1;
         "#
     }
+    pub const fn get_all_comm_rooms() -> &'static str {
+        r#"
+        SELECT * FROM rooms WHERE community = $1;
+        "#
+    }
 }

@@ -487,6 +487,13 @@ impl Sesh<'_> {
             .await
             .expect("failed to delete room");
     }
+    pub async fn get_all_comm_rooms(&self, com_id: &Uuid) -> Vec<Room> {
+        let result = self
+            .query(Room::get_all_comm_rooms(), &[com_id])
+            .await
+            .expect("failed to fetch community rooms");
+        result.into_iter().map(|x| x.into()).collect()
+    }
 }
 
 // ------------------------- message -----------------------------
