@@ -1,10 +1,15 @@
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
-        comm::{community::DbCommunity, community_membership::CommMembership}, instance::Instance, message::DbMessage, registered_device::{DeviceInfo, RegisteredDevice}, room::Room, tokens::{auth_token::DBAuthToken, signup_token::SignupToken}, user::{DbUser, UserInfo}
+        comm::{community::DbCommunity, community_membership::CommMembership},
+        instance::Instance,
+        message::DbMessage,
+        registered_device::{DeviceInfo, RegisteredDevice},
+        room::Room,
+        tokens::{auth_token::DBAuthToken, signup_token::SignupToken},
+        user::{DbUser, UserInfo},
     },
 };
-use codes_iso_639::part_1::LanguageCode;
 use deadpool_postgres::{Object, Transaction};
 use tokio_postgres::{types::ToSql, Statement};
 use uuid::Uuid;
