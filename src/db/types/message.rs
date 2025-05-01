@@ -1,11 +1,30 @@
+use std::str::FromStr;
+
 use codes_iso_639::part_1::LanguageCode;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum TextFormat {
     Markdown,
     Plain,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum FormatErr {
+    Unkown,
+}
+
+impl FromStr for TextFormat {
+    type Err = FormatErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "markdown" => Ok(Self::Markdown),
+            "plain" => Ok(Self::Plain),
+            _ => Err(FormatErr::Unkown)
+        }
+    }
 }
 
 
@@ -35,13 +54,14 @@ pub struct Messageinfo {
     pub proxy_id: Option<Uuid>,
     pub content: String,
     pub format: TextFormat,
-    pub language: LanguageCode,
+    pub language: Option<LanguageCode>,
     pub room: Uuid,
 }
 
 impl From<tokio_postgres::Row> for DbMessage {
     fn from(row: tokio_postgres::Row) -> Self {
-        
+        let language: Option<&str> = row.get("language");
+        let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();        
         DbMessage {
             id: row.get("id"),
             external_id: row.get("external_id"),
@@ -55,8 +75,8 @@ impl From<tokio_postgres::Row> for DbMessage {
                 in_reply_to: row.get("in_reply_to"),
                 content: row.get("content"),
                 proxy_id: row.get("proxy_id"),
-                format: todo!(),
-                language: todo!(),
+                format: TextFormat::from_str(row.get("proxy_id")).expect("unkown text format in db"),
+                language,
             }
         }
     }
