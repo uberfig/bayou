@@ -161,26 +161,27 @@ CREATE TABLE rooms (
 	display_order	BIGINT NOT NULL DEFAULT 0	
 );
 
-CREATE OR REPLACE FUNCTION room_integrity()
-  RETURNS TRIGGER
-  LANGUAGE PLPGSQL
-  AS
+CREATE OR REPLACE FUNCTION room_integrity() RETURNS TRIGGER AS
 $$
 BEGIN
 	-- only one system channel integrity
-	IF NEW.system_channel = true AND OLD.system_channel = false THEN
-		 UPDATE rooms SET system_channel = false WHERE community = NEW.community;
+	IF (NEW.system_channel = true AND OLD.system_channel = false) THEN
+		UPDATE rooms SET system_channel = false 
+		WHERE community = NEW.community;
 	END IF;
 
 	-- shift down room display orders to make room for new order when inserting
-	IF NEW.display_order <> OLD.display_order THEN
-		 UPDATE rooms SET display_order = display_order + 1 
-		 WHERE community = NEW.community AND display_order >= NEW.display_order;
+	IF (NEW.display_order <> OLD.display_order) THEN
+		UPDATE rooms 
+		SET display_order = display_order + 1 
+		WHERE community = NEW.community 
+			AND display_order >= NEW.display_order
+			AND room_id <> NEW.room_id;
 	END IF;
 
 	RETURN NEW;
 END;
-$$
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_room_integrity
     BEFORE UPDATE ON rooms
