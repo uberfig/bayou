@@ -7,7 +7,7 @@ use actix_web::{
 use crate::db::{pg_conn::PgConn, types::registered_device::DeviceInfo};
 
 #[post("/register")]
-async fn register_device(
+pub async fn register_device(
     conn: Data<PgConn>,
     device_info: web::Json<DeviceInfo>,
 ) -> Result<HttpResponse> {

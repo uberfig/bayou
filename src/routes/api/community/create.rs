@@ -10,7 +10,7 @@ use crate::{
 };
 
 #[post("/create")]
-async fn create(
+pub async fn create(
     conn: Data<PgConn>,
     new_community: web::Json<BearrerWithInfo<Communityinfo>>,
 ) -> Result<HttpResponse> {

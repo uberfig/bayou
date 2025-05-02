@@ -10,7 +10,7 @@ use crate::db::{
 };
 
 #[post("/signup")]
-async fn signup(
+pub async fn signup(
     state: Data<crate::config::Config>,
     conn: Data<PgConn>,
     new_user: web::Json<SignupUser>,

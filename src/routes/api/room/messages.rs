@@ -9,7 +9,7 @@ use actix_web::{
 };
 
 #[get("/messages")]
-async fn get_messages(
+pub async fn get_messages(
     conn: Data<PgConn>,
     room: web::Json<BearrerWithInfo<MessagesLoader>>,
 ) -> Result<HttpResponse> {

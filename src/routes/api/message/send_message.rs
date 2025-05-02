@@ -15,14 +15,14 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct NewRoom {
+pub struct NewRoom {
     room_info: RoomInfo,
     #[serde(with = "uuid::serde::simple")]
     community: Uuid,
 }
 
 #[post("/new")]
-async fn send_message(
+pub async fn send_message(
     conn: Data<PgConn>,
     message: web::Json<BearrerWithInfo<Messageinfo>>,
 ) -> Result<HttpResponse> {

@@ -19,7 +19,7 @@ struct NewRoom {
 }
 
 #[post("/create_room")]
-async fn create_room(
+pub async fn create_room(
     conn: Data<PgConn>,
     new_room: web::Json<BearrerWithInfo<NewRoom>>,
 ) -> Result<HttpResponse> {

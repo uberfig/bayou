@@ -7,7 +7,7 @@ use actix_web::{
 use uuid::Uuid;
 
 #[get("/rooms")]
-async fn get_rooms(
+pub async fn get_rooms(
     conn: Data<PgConn>,
     community: web::Json<BearrerWithInfo<Uuid>>,
 ) -> Result<HttpResponse> {

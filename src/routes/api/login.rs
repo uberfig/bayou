@@ -23,7 +23,7 @@ fn invalid(err: LoginErr) -> Result<HttpResponse> {
 }
 
 #[post("/login")]
-async fn login(
+pub async fn login(
     state: Data<crate::config::Config>,
     conn: Data<PgConn>,
     login_request: web::Json<LoginRequest>,
