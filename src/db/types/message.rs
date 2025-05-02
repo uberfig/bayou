@@ -168,4 +168,14 @@ impl DbMessage {
         DELETE FROM messages WHERE m_id = $1;
         "#
     }
+    pub const fn get_room_messages() -> &'static str {
+        r#"
+        SELECT * FROM messages NATURAL INNER JOIN users WHERE room_id = $1 ORDER BY timestamp DESC LIMIT $2;
+        "#
+    }
+    pub const fn get_messages_prior() -> &'static str {
+        r#"
+        SELECT * FROM messages NATURAL INNER JOIN users WHERE room_id = $1 AND published <= $2 AND m_id <> $3 ORDER BY timestamp DESC LIMIT $4;
+        "#
+    }
 }

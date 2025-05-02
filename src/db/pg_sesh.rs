@@ -1,3 +1,5 @@
+use crate::routes::api::types::api_message::ApiMessage;
+
 use super::{
     curr_time::{get_current_time, get_expiry},
     types::{
@@ -563,5 +565,19 @@ impl Sesh<'_> {
             .query(DbMessage::delete_statement(), &[m_id])
             .await
             .expect("failed to delete message");
+    }
+    pub async fn get_room_messages(&self, room_id: &Uuid, limit: u32) -> Vec<ApiMessage> {
+        let result = self
+            .query(DbMessage::get_room_messages(), &[room_id, &limit])
+            .await
+            .expect("failed to fetch room messages");
+        result.into_iter().map(|x| x.into()).collect()
+    }
+    pub async fn get_room_messages_before(&self, room_id: Uuid, limit: u32, time: i64, post: Uuid) -> Vec<ApiMessage> {
+        let result = self
+            .query(DbMessage::get_room_messages(), &[&room_id, &time, &post, &limit])
+            .await
+            .expect("failed to fetch room messages");
+        result.into_iter().map(|x| x.into()).collect()
     }
 }

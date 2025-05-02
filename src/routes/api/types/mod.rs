@@ -3,3 +3,4 @@ pub mod info_with_token;
 pub mod login_request;
 pub mod api_user;
 pub mod api_message;
+pub mod message_loader;
