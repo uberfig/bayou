@@ -571,7 +571,7 @@ impl Sesh<'_> {
             .await
             .expect("failed to delete message");
     }
-    pub async fn get_room_messages(&self, room_id: &Uuid, limit: u32) -> Vec<ApiMessage> {
+    pub async fn get_room_messages(&self, room_id: &Uuid, limit: i64) -> Vec<ApiMessage> {
         let result = self
             .query(DbMessage::get_room_messages(), &[room_id, &limit])
             .await
@@ -581,13 +581,13 @@ impl Sesh<'_> {
     pub async fn get_room_messages_before(
         &self,
         room_id: Uuid,
-        limit: u32,
+        limit: i64,
         time: i64,
         post: Uuid,
     ) -> Vec<ApiMessage> {
         let result = self
             .query(
-                DbMessage::get_room_messages(),
+                DbMessage::get_messages_prior(),
                 &[&room_id, &time, &post, &limit],
             )
             .await

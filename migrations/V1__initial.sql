@@ -210,7 +210,7 @@ CREATE TABLE messages (
 	domain		TEXT NOT NULL REFERENCES instances(domain) ON DELETE CASCADE,
 	uid			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 
-	room		uuid NOT NULL REFERENCES rooms(room_id) ON DELETE CASCADE,
+	room_id		uuid NOT NULL REFERENCES rooms(room_id) ON DELETE CASCADE,
 	published	BIGINT NOT NULL,
 	edited		BIGINT NULL,
 	fetched_at	BIGINT NULL,

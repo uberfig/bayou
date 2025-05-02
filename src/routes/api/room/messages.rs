@@ -18,6 +18,7 @@ pub async fn get_messages(
             .content_type("application/json; charset=utf-8")
             .body(""));
     }
+    println!("valid");
     let messages = match room.info.before {
         Some(before) => {
             let Ok(messages) = conn
@@ -31,6 +32,7 @@ pub async fn get_messages(
             messages
         }
         None => {
+            println!("none");
             let Ok(messages) = conn.get_room_messages(room.info.room, room.token.uid).await else {
                 return Ok(HttpResponse::Unauthorized()
                     .content_type("application/json; charset=utf-8")

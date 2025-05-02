@@ -14,7 +14,6 @@ use crate::{
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct NewRoom {
     room_info: RoomInfo,
-    #[serde(with = "uuid::serde::simple")]
     community: Uuid,
 }
 

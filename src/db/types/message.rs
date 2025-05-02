@@ -75,15 +75,15 @@ impl From<tokio_postgres::Row> for ApiMessage {
         let language: Option<&str> = row.get("language");
         let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();
         ApiMessage {
-            id: row.get("id"),
-            room: row.get("room"),
+            id: row.get("m_id"),
+            room: row.get("room_id"),
             published: row.get("published"),
             edited: row.get("edited"),
             is_reply: row.get("is_reply"),
             in_reply_to: row.get("in_reply_to"),
             content: row.get("content"),
             proxy_id: row.get("proxy_id"),
-            format: TextFormat::from_str(row.get("proxy_id")).expect("unkown text format in db"),
+            format: TextFormat::from_str(row.get("format")).expect("unkown text format in db"),
             language,
             user: row.into(),
         }
@@ -104,7 +104,7 @@ impl From<tokio_postgres::Row> for DbMessage {
             fetched_at: row.get("fetched_at"),
 
             info: Messageinfo {
-                room: row.get("room"),
+                room: row.get("room_id"),
                 is_reply: row.get("is_reply"),
                 in_reply_to: row.get("in_reply_to"),
                 content: row.get("content"),
@@ -126,7 +126,7 @@ impl DbMessage {
             external_id,
             domain,
             uid,
-            room,
+            room_id,
             published,
             edited,
             fetched_at,
@@ -169,12 +169,12 @@ impl DbMessage {
     }
     pub const fn get_room_messages() -> &'static str {
         r#"
-        SELECT * FROM messages NATURAL INNER JOIN users WHERE room_id = $1 ORDER BY timestamp DESC LIMIT $2;
+        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 ORDER BY published DESC LIMIT $2;
         "#
     }
     pub const fn get_messages_prior() -> &'static str {
         r#"
-        SELECT * FROM messages NATURAL INNER JOIN users WHERE room_id = $1 AND published <= $2 AND m_id <> $3 ORDER BY timestamp DESC LIMIT $4;
+        SELECT * FROM messages NATURAL INNER JOIN users WHERE room_id = $1 AND published <= $2 AND m_id <> $3 ORDER BY published DESC LIMIT $4;
         "#
     }
 }

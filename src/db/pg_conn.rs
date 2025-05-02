@@ -23,7 +23,7 @@ use super::{
     },
 };
 
-pub const MAX_PAGENATION: u32 = 40;
+pub const MAX_PAGENATION: i64 = 40;
 
 #[derive(Clone, Debug)]
 pub struct PgConn {
@@ -346,6 +346,7 @@ impl PgConn {
             }
             None => todo!(),
         };
+        println!("getting messages");
         Ok(sesh.get_room_messages(&room_id, MAX_PAGENATION).await)
     }
     pub async fn get_room_messages_before(
