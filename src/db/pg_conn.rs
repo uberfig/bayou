@@ -109,12 +109,7 @@ impl PgConn {
         }
         if require_token {
             let token = match &new_user.token {
-                Some(token) => {
-                    let Ok(token) = Uuid::parse_str(&token) else {
-                        return Err(SignupResult::InvalidToken);
-                    };
-                    token
-                }
+                Some(token) => token,
                 None => return Err(SignupResult::InvalidToken),
             };
             let Some(token) = sesh.get_signup_token(&token).await else {

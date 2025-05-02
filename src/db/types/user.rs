@@ -60,7 +60,7 @@ pub struct SignupUser {
     pub username: String,
     pub password: String,
     pub email: Option<String>,
-    pub token: Option<String>,
+    pub token: Option<Uuid>,
     pub application_message: Option<String>,
 }
 
