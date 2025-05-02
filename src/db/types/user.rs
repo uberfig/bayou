@@ -53,6 +53,7 @@ pub enum SignupResult {
     UsernameTaken,
     InvalidToken,
     Success,
+    InvalidUsername,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

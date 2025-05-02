@@ -94,10 +94,14 @@ impl PgConn {
 
     pub async fn try_signup_user(
         &self,
-        new_user: SignupUser,
+        mut new_user: SignupUser,
         domain: &str,
         require_token: bool,
     ) -> Result<DbUser, SignupResult> {
+        if !new_user.username.chars().all(|x: char| char::is_ascii_alphanumeric(&x) || x.eq(&'_')) {
+            return Err(SignupResult::InvalidUsername);
+        }
+        new_user.username = new_user.username.to_ascii_lowercase();
         let mut client = self.db.get().await.expect("failed to get client");
         let transaction = client
             .transaction()
