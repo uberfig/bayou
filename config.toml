@@ -1,7 +1,7 @@
 instance_domain="testing1.ivytime.gay"
 bind_address="127.0.0.1"
 port=8020
-open_signups=false
+open_signups=true
 allow_applications=false
 
 pg_user="ivy"

@@ -93,6 +93,8 @@ impl Sesh<'_> {
                     &new_user.local_info.as_ref().map(|x| x.verified),
                     &new_user.local_info.as_ref().map(|x| x.is_admin),
                     &new_user.local_info.as_ref().map(|x| x.instance_mod),
+                    &new_user.local_info.as_ref().map(|x| x.application_message.clone()),
+                    &new_user.local_info.as_ref().map(|x| x.application_approved),
                     &new_user.info.created,
                 ],
             )

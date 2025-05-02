@@ -42,7 +42,7 @@ pub struct LocalUser {
     pub instance_mod: bool,
     /// used for if signups require an application
     pub application_message: Option<String>,
-    pub application_approved: bool,
+    pub application_approved: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -81,7 +81,7 @@ impl SignupUser {
                 is_admin: false,
                 instance_mod: false,
                 application_message: self.application_message,
-                application_approved: false,
+                application_approved: Some(false),
             }),
             fetched_at: None,
             domain: instance_domain.to_string(),
@@ -155,12 +155,14 @@ impl DbUser {
             verified,
             is_admin,
             instance_mod,
+            application_message,
+            application_approved,
             created
         )
         VALUES
         (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
-            $11, $12, $13, $14, $15
+            $11, $12, $13, $14, $15, $16, $17
         )
         RETURNING *;
         "#
