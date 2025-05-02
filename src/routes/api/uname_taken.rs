@@ -1,12 +1,12 @@
+use crate::db::pg_conn::PgConn;
 use actix_web::{
     get,
     web::{self, Data},
     HttpResponse, Result,
 };
-use crate::db::pg_conn::PgConn;
 
-/// `get /api/bayou_v1/username_availible` 
-/// 
+/// `get /api/bayou_v1/username_availible`
+///
 /// request with a username in the body and it will check if it has been taken
 /// responses:
 /// - ok (200) username is available

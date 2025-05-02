@@ -4,3 +4,5 @@ pub mod auth_err;
 pub mod info_with_token;
 pub mod login_request;
 pub mod message_loader;
+pub mod signup_user;
+pub mod signup_result;

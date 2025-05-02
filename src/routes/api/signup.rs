@@ -4,11 +4,19 @@ use actix_web::{
     HttpResponse, Result,
 };
 
-use crate::db::{
-    pg_conn::PgConn,
-    types::user::{SignupResult, SignupUser},
+use crate::{
+    db::pg_conn::PgConn,
+    routes::api::types::{signup_result::SignupResult, signup_user::SignupUser},
 };
 
+/// `post /api/bayou_v1/signup`
+///
+/// request with a username in the body and it will check if it has been taken
+/// responses:
+/// - ok (200) account successfully created and a [`crate::routes::api::types:signup_result::SignupResult::Success`]
+/// should be present in the body
+/// - bad request (400) account failed to be created, more information returned in the body as a
+/// non success [`crate::routes::api::types::signup_result::SignupResult`]
 #[post("/signup")]
 pub async fn signup(
     state: Data<crate::config::Config>,
