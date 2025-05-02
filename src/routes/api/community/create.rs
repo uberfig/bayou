@@ -1,3 +1,10 @@
+//! `post /api/bayou_v1/community/create`
+//!
+//! create a new community, expects a [`crate::db::types::comm::community::Communityinfo`] wrapped in a [`crate::routes::api::types::info_with_token::BearrerWithInfo`]
+//! - ok (200) community successfully created and a [`crate::db::types::comm::community::DbCommunity`]
+//! should be present in the body
+//! - unauthorized (401) included token is not valid, community not created
+
 use actix_web::{
     post,
     web::{self, Data},

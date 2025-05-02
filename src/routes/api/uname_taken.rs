@@ -13,7 +13,7 @@ use actix_web::{
 };
 
 #[get("/username_availible")]
-pub async fn signup(
+pub async fn username_availible(
     state: Data<crate::config::Config>,
     conn: Data<PgConn>,
     new_user: web::Json<String>,
