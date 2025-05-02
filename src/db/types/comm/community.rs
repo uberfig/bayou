@@ -3,14 +3,17 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCommunity {
+    #[serde(with = "uuid::serde::simple")]
     pub id: Uuid,
     /// will be equal to the id when a local community, used to
     /// access communities at the protocol endpoint when federation
     /// is implimented
+    #[serde(with = "uuid::serde::simple")]
     pub external_id: Uuid,
     pub domain: String,
     pub info: Communityinfo,
     pub created: i64,
+    #[serde(with = "uuid::serde::simple")]
     pub owner: Uuid,
 }
 
@@ -23,7 +26,7 @@ pub struct Communityinfo {
 impl From<tokio_postgres::Row> for DbCommunity {
     fn from(row: tokio_postgres::Row) -> Self {
         DbCommunity {
-            id: row.get("id"),
+            id: row.get("com_id"),
             external_id: row.get("external_id"),
             domain: row.get("domain"),
             info: Communityinfo {

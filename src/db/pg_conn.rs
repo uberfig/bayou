@@ -201,7 +201,6 @@ impl PgConn {
             info: RoomInfo {
                 name: "general".to_string(),
                 description: None,
-                custom_emoji: None,
                 category: None,
                 display_order: 0,
             },

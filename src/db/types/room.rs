@@ -26,8 +26,6 @@ pub struct Room {
 pub struct RoomInfo {
     pub name: String,
     pub description: Option<String>,
-    /// custom emoji present in the name and description
-    pub custom_emoji: Option<String>,
     pub category: Option<Uuid>,
     pub display_order: i64,
 }
@@ -35,7 +33,7 @@ pub struct RoomInfo {
 impl From<tokio_postgres::Row> for Room {
     fn from(row: tokio_postgres::Row) -> Self {
         Room {
-            id: row.get("id"),
+            id: row.get("room_id"),
             external_id: row.get("external_id"),
             domain: row.get("domain"),
             community: row.get("community"),
@@ -43,7 +41,6 @@ impl From<tokio_postgres::Row> for Room {
             info: RoomInfo {
                 name: row.get("name"),
                 description: row.get("description"),
-                custom_emoji: row.get("custom_emoji"),
                 category: row.get("category"),
                 display_order: row.get("display_order"),
             },
