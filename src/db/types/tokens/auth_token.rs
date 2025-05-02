@@ -9,14 +9,11 @@ pub struct DBAuthToken {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AuthToken {
-    #[serde(with = "uuid::serde::simple")]
     pub token: Uuid,
     /// auth tokens will only be valid for the device they were
     /// issued to
-    #[serde(with = "uuid::serde::simple")]
     pub device_id: Uuid,
     /// the uid this auth token is valid for
-    #[serde(with = "uuid::serde::simple")]
     pub uid: Uuid,
 }
 

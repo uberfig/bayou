@@ -3,17 +3,14 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DbCommunity {
-    #[serde(with = "uuid::serde::simple")]
     pub id: Uuid,
     /// will be equal to the id when a local community, used to
     /// access communities at the protocol endpoint when federation
     /// is implimented
-    #[serde(with = "uuid::serde::simple")]
     pub external_id: Uuid,
     pub domain: String,
     pub info: Communityinfo,
     pub created: i64,
-    #[serde(with = "uuid::serde::simple")]
     pub owner: Uuid,
 }
 

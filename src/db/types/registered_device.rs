@@ -3,7 +3,6 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RegisteredDevice {
-    #[serde(with = "uuid::serde::simple")]
     pub device_id: Uuid,
     pub info: DeviceInfo,
     pub registered_at: i64,
