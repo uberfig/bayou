@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{cryptography::passwords::hash_password, db::curr_time::get_current_time, routes::api::types::api_user::ApiUser};
+use crate::{
+    cryptography::passwords::hash_password, db::curr_time::get_current_time,
+    routes::api::types::api_user::ApiUser,
+};
 
 pub struct DbUser {
     pub id: Uuid,

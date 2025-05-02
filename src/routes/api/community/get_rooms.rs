@@ -1,13 +1,10 @@
+use crate::{db::pg_conn::PgConn, routes::api::types::info_with_token::BearrerWithInfo};
 use actix_web::{
     get,
     web::{self, Data},
     HttpResponse, Result,
 };
 use uuid::Uuid;
-use crate::{
-    db::pg_conn::PgConn,
-    routes::api::types::info_with_token::BearrerWithInfo,
-};
 
 #[get("/rooms")]
 async fn get_rooms(
@@ -19,7 +16,10 @@ async fn get_rooms(
             .content_type("application/json; charset=utf-8")
             .body(""));
     }
-    let Ok(rooms) = conn.get_comm_rooms(community.info, community.token.uid).await else {
+    let Ok(rooms) = conn
+        .get_comm_rooms(community.info, community.token.uid)
+        .await
+    else {
         return Ok(HttpResponse::Unauthorized()
             .content_type("application/json; charset=utf-8")
             .body(""));

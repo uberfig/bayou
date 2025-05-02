@@ -7,7 +7,7 @@ use crate::db::types::message::TextFormat;
 use super::api_user::ApiUser;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiMessage{
+pub struct ApiMessage {
     pub id: Uuid,
     pub room: Uuid,
     pub user: ApiUser,
@@ -24,7 +24,7 @@ pub struct ApiMessage{
     /// like pluralkit. Users may only use proxies that
     /// they created and clients can decide how to display
     /// proxy messages
-    /// 
+    ///
     /// will contain a proxy user object in the future
     pub proxy_id: Option<Uuid>,
     pub content: String,

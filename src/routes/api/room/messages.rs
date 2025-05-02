@@ -1,11 +1,11 @@
+use crate::{
+    db::pg_conn::PgConn,
+    routes::api::types::{info_with_token::BearrerWithInfo, message_loader::MessagesLoader},
+};
 use actix_web::{
     get,
     web::{self, Data},
     HttpResponse, Result,
-};
-use crate::{
-    db::pg_conn::PgConn,
-    routes::api::types::{info_with_token::BearrerWithInfo, message_loader::MessagesLoader},
 };
 
 #[get("/messages")]
@@ -20,13 +20,16 @@ async fn get_messages(
     }
     let messages = match room.info.before {
         Some(before) => {
-            let Ok(messages) = conn.get_room_messages_before(room.info.room, room.token.uid, before.time, before.post).await else {
+            let Ok(messages) = conn
+                .get_room_messages_before(room.info.room, room.token.uid, before.time, before.post)
+                .await
+            else {
                 return Ok(HttpResponse::Unauthorized()
                     .content_type("application/json; charset=utf-8")
                     .body(""));
             };
             messages
-        },
+        }
         None => {
             let Ok(messages) = conn.get_room_messages(room.info.room, room.token.uid).await else {
                 return Ok(HttpResponse::Unauthorized()
@@ -34,9 +37,9 @@ async fn get_messages(
                     .body(""));
             };
             messages
-        },
+        }
     };
-    
+
     Ok(HttpResponse::Ok()
         .content_type("application/json; charset=utf-8")
         .body(serde_json::to_string(&messages).expect("failed to serialize dbcommunity")))

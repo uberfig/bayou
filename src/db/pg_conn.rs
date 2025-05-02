@@ -1,6 +1,9 @@
 use std::ops::DerefMut;
 
-use crate::{db::{pg_sesh::Sesh, types::room::Room}, routes::api::types::{api_message::ApiMessage, api_user::ApiUser}};
+use crate::{
+    db::{pg_sesh::Sesh, types::room::Room},
+    routes::api::types::{api_message::ApiMessage, api_user::ApiUser},
+};
 use deadpool_postgres::Pool;
 use uuid::Uuid;
 
@@ -244,7 +247,12 @@ impl PgConn {
         let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
             return Err(());
         };
-        Ok(sesh.get_all_comm_users(&com_id).await.into_iter().map(|x| x.into()).collect())
+        Ok(sesh
+            .get_all_comm_users(&com_id)
+            .await
+            .into_iter()
+            .map(|x| x.into())
+            .collect())
     }
     pub async fn create_comm_room(
         &self,
@@ -336,12 +344,18 @@ impl PgConn {
                 let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
                     return Err(());
                 };
-            },
+            }
             None => todo!(),
         };
         Ok(sesh.get_room_messages(&room_id, MAX_PAGENATION).await)
     }
-    pub async fn get_room_messages_before(&self, room_id: Uuid, uid: Uuid, time: i64, post: Uuid) -> Result<Vec<ApiMessage>, ()> {
+    pub async fn get_room_messages_before(
+        &self,
+        room_id: Uuid,
+        uid: Uuid,
+        time: i64,
+        post: Uuid,
+    ) -> Result<Vec<ApiMessage>, ()> {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
         let Some(room) = sesh.get_room(&room_id).await else {
@@ -352,9 +366,11 @@ impl PgConn {
                 let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
                     return Err(());
                 };
-            },
+            }
             None => todo!(),
         };
-        Ok(sesh.get_room_messages_before(room_id, MAX_PAGENATION, time, post).await)
+        Ok(sesh
+            .get_room_messages_before(room_id, MAX_PAGENATION, time, post)
+            .await)
     }
 }

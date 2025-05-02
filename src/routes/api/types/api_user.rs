@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ApiUser{
+pub struct ApiUser {
     pub id: Uuid,
     pub domain: String,
     pub username: String,

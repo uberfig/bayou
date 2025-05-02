@@ -93,7 +93,10 @@ impl Sesh<'_> {
                     &new_user.local_info.as_ref().map(|x| x.verified),
                     &new_user.local_info.as_ref().map(|x| x.is_admin),
                     &new_user.local_info.as_ref().map(|x| x.instance_mod),
-                    &new_user.local_info.as_ref().map(|x| x.application_message.clone()),
+                    &new_user
+                        .local_info
+                        .as_ref()
+                        .map(|x| x.application_message.clone()),
                     &new_user.local_info.as_ref().map(|x| x.application_approved),
                     &new_user.info.created,
                 ],
@@ -575,9 +578,18 @@ impl Sesh<'_> {
             .expect("failed to fetch room messages");
         result.into_iter().map(|x| x.into()).collect()
     }
-    pub async fn get_room_messages_before(&self, room_id: Uuid, limit: u32, time: i64, post: Uuid) -> Vec<ApiMessage> {
+    pub async fn get_room_messages_before(
+        &self,
+        room_id: Uuid,
+        limit: u32,
+        time: i64,
+        post: Uuid,
+    ) -> Vec<ApiMessage> {
         let result = self
-            .query(DbMessage::get_room_messages(), &[&room_id, &time, &post, &limit])
+            .query(
+                DbMessage::get_room_messages(),
+                &[&room_id, &time, &post, &limit],
+            )
             .await
             .expect("failed to fetch room messages");
         result.into_iter().map(|x| x.into()).collect()

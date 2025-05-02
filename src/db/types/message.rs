@@ -4,7 +4,7 @@ use codes_iso_639::part_1::LanguageCode;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::routes::api::types::{api_message::ApiMessage, api_user::ApiUser};
+use crate::routes::api::types::api_message::ApiMessage;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum TextFormat {
@@ -83,8 +83,7 @@ impl From<tokio_postgres::Row> for ApiMessage {
             in_reply_to: row.get("in_reply_to"),
             content: row.get("content"),
             proxy_id: row.get("proxy_id"),
-            format: TextFormat::from_str(row.get("proxy_id"))
-                .expect("unkown text format in db"),
+            format: TextFormat::from_str(row.get("proxy_id")).expect("unkown text format in db"),
             language,
             user: row.into(),
         }

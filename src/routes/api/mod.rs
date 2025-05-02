@@ -2,7 +2,7 @@ pub mod community;
 pub mod login;
 pub mod message;
 pub mod regester_device;
+pub mod room;
 pub mod routes;
 pub mod signup;
 pub mod types;
-pub mod room;
