@@ -95,10 +95,10 @@ impl From<tokio_postgres::Row> for DbMessage {
         let language: Option<&str> = row.get("language");
         let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();
         DbMessage {
-            id: row.get("id"),
+            id: row.get("m_id"),
             external_id: row.get("external_id"),
             domain: row.get("domain"),
-            user: row.get("user"),
+            user: row.get("uid"),
             published: row.get("published"),
             edited: row.get("edited"),
             fetched_at: row.get("fetched_at"),
@@ -109,7 +109,7 @@ impl From<tokio_postgres::Row> for DbMessage {
                 in_reply_to: row.get("in_reply_to"),
                 content: row.get("content"),
                 proxy_id: row.get("proxy_id"),
-                format: TextFormat::from_str(row.get("proxy_id"))
+                format: TextFormat::from_str(row.get("format"))
                     .expect("unkown text format in db"),
                 language,
             },

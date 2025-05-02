@@ -42,6 +42,13 @@ CREATE TABLE users (
 	UNIQUE (domain, username)
 );
 
+CREATE TABLE proxies (
+	proxy_id	uuid NOT NULL PRIMARY KEY UNIQUE,
+	uid			uuid NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+	proxy_name	TEXT NOT NULL,
+	proxy_bio	TEXT NULL
+);
+
 CREATE TABLE signup_token (
 	-- these need to be v4 uuids with random content
 	token_id		uuid NOT NULL PRIMARY KEY UNIQUE,
@@ -214,6 +221,7 @@ CREATE TABLE messages (
 	content		TEXT NOT NULL,
 	format		TEXT NOT NULL,
 	language	TEXT NULL,
+	proxy_id	UUID NULL REFERENCES proxies(proxy_id) ON DELETE SET NULL,
 	
 	UNIQUE (external_id, domain)
 );

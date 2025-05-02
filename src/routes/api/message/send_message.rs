@@ -36,7 +36,7 @@ pub async fn send_message(
             .content_type("application/json; charset=utf-8")
             .body(""));
     };
-    let message = match conn.send_message(&user, message.into_inner().info).await {
+    let _message = match conn.send_message(&user, message.into_inner().info).await {
         Ok(message) => message,
         Err(_) => {
             return Ok(HttpResponse::Unauthorized()
@@ -46,5 +46,5 @@ pub async fn send_message(
     };
     Ok(HttpResponse::Ok()
         .content_type("application/json; charset=utf-8")
-        .body(serde_json::to_string(&message).expect("failed to serialize dbcommunity")))
+        .body(serde_json::to_string("").expect("failed to serialize dbcommunity")))
 }
