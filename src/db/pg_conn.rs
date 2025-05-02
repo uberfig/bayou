@@ -98,7 +98,11 @@ impl PgConn {
         domain: &str,
         require_token: bool,
     ) -> Result<DbUser, SignupResult> {
-        if !new_user.username.chars().all(|x: char| char::is_ascii_alphanumeric(&x) || x.eq(&'_')) {
+        if !new_user
+            .username
+            .chars()
+            .all(|x: char| char::is_ascii_alphanumeric(&x) || x.eq(&'_'))
+        {
             return Err(SignupResult::InvalidUsername);
         }
         new_user.username = new_user.username.to_ascii_lowercase();
@@ -371,5 +375,11 @@ impl PgConn {
         Ok(sesh
             .get_room_messages_before(room_id, MAX_PAGENATION, time, post)
             .await)
+    }
+
+    pub async fn username_taken(&self, username: &str, domain: &str) -> bool {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.username_taken(username, domain).await
     }
 }

@@ -6,3 +6,4 @@ pub mod room;
 pub mod routes;
 pub mod signup;
 pub mod types;
+pub mod uname_taken;

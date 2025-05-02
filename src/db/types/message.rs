@@ -109,8 +109,7 @@ impl From<tokio_postgres::Row> for DbMessage {
                 in_reply_to: row.get("in_reply_to"),
                 content: row.get("content"),
                 proxy_id: row.get("proxy_id"),
-                format: TextFormat::from_str(row.get("format"))
-                    .expect("unkown text format in db"),
+                format: TextFormat::from_str(row.get("format")).expect("unkown text format in db"),
                 language,
             },
         }
