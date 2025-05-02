@@ -13,7 +13,7 @@ use crate::{
 ///
 /// request with a username in the body and it will check if it has been taken
 /// responses:
-/// - ok (200) account successfully created and a [`crate::routes::api::types:signup_result::SignupResult::Success`]
+/// - ok (200) account successfully created and a [`crate::routes::api::types::signup_result::SignupResult::Success`]
 /// should be present in the body
 /// - bad request (400) account failed to be created, more information returned in the body as a
 /// non success [`crate::routes::api::types::signup_result::SignupResult`]

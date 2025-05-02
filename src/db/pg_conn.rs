@@ -2,7 +2,10 @@ use std::ops::DerefMut;
 
 use crate::{
     db::{pg_sesh::Sesh, types::room::Room},
-    routes::api::types::{api_message::ApiMessage, api_user::ApiUser, signup_result::SignupResult, signup_user::SignupUser},
+    routes::api::types::{
+        api_message::ApiMessage, api_user::ApiUser, signup_result::SignupResult,
+        signup_user::SignupUser,
+    },
 };
 use deadpool_postgres::Pool;
 use uuid::Uuid;
