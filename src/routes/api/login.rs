@@ -1,3 +1,9 @@
+//! `post /api/bayou_v1/login`
+//! 
+//! login by posting a [`crate::routes::api::types::login_request`]
+//! - on success returns [`crate::db::types::tokens::auth_token`]
+//! - on failure returns [`crate::routes::api::login`]
+
 use actix_web::{
     post,
     web::{self, Data},
