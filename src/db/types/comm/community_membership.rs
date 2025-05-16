@@ -58,7 +58,7 @@ impl CommMembership {
 
     pub const fn get_all_user_comms() -> &'static str {
         r#"
-        SELECT * FROM community_membership WHERE uid = $1;
+        SELECT * FROM community_membership INNER JOIN communities USING (com_id) WHERE uid = $1;
         "#
     }
     pub const fn get_all_comm_members() -> &'static str {
