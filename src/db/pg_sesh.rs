@@ -411,12 +411,13 @@ impl Sesh<'_> {
             .await
             .expect("failed to delete community membership");
     }
-    pub async fn get_all_user_comms(&self, uid: &Uuid) -> Vec<CommMembership> {
+    /// gets all user membership joined on communities
+    pub async fn get_all_user_comms(&self, uid: &Uuid) -> Vec<tokio_postgres::Row> {
         let result = self
             .query(CommMembership::get_all_user_comms(), &[uid])
             .await
             .expect("failed to fetch user communities");
-        result.into_iter().map(|x| x.into()).collect()
+        result
     }
     pub async fn get_all_comm_members(&self, com_id: &Uuid) -> Vec<CommMembership> {
         let result = self

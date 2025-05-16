@@ -3,7 +3,7 @@
 //! get all rooms in a community, expects a [`uuid::Uuid`] wrapped in a [`crate::routes::api::types::info_with_token::BearrerWithInfo`]
 //! - ok (200) should contain an array of [`crate::db::types::room::Room`]
 //! should be present in the body
-//! - unauthorized (401) included token is not valid, community not created
+//! - unauthorized (401) included token is not valid
 
 use crate::{db::pg_conn::PgConn, routes::api::types::info_with_token::BearrerWithInfo};
 use actix_web::{
