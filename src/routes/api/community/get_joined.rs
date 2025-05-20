@@ -5,18 +5,21 @@
 //! present in the body
 //! - unauthorized (401) included token is not valid
 
-use crate::db::{pg_conn::PgConn, types::tokens::auth_token::AuthToken};
+use crate::{db::pg_conn::PgConn, routes::api::utilities::auth_header::get_auth_header};
 use actix_web::{
-    get,
-    web::{self, Data},
-    HttpResponse, Result,
+    get, web::Data, HttpRequest, HttpResponse, Result
 };
 
 #[get("/joined")]
 pub async fn get_joined(
     conn: Data<PgConn>,
-    token: web::Json<AuthToken>,
+    req: HttpRequest,
 ) -> Result<HttpResponse> {
+    let Some(token) = get_auth_header(&req) else {
+        return Ok(HttpResponse::Unauthorized()
+            .content_type("application/json; charset=utf-8")
+            .body("invalid or missing auth header"));
+    };
     if conn.validate_auth_token(&token).await.is_err() {
         return Ok(HttpResponse::Unauthorized()
             .content_type("application/json; charset=utf-8")

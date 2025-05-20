@@ -1,6 +1,6 @@
-//! `get /api/bayou_v1/username_availible`
+//! `get /api/bayou_v1/username_availible/{uname}`
 //! 
-//! request with a username in the body and it will check if it has been taken
+//! will check if it has been taken
 //! responses:
 //! - ok (200) username is available
 //! - conflict (409) username is taken
@@ -12,14 +12,14 @@ use actix_web::{
     HttpResponse, Result,
 };
 
-#[get("/username_availible")]
+#[get("/username_availible/{uname}")]
 pub async fn username_availible(
     state: Data<crate::config::Config>,
     conn: Data<PgConn>,
-    new_user: web::Json<String>,
+    path: web::Path<String>
 ) -> Result<HttpResponse> {
     match conn
-        .username_taken(&new_user.into_inner(), &state.instance_domain)
+        .username_taken(&path.into_inner(), &state.instance_domain)
         .await
     {
         false => Ok(HttpResponse::Ok()
