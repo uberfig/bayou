@@ -1,7 +1,8 @@
 use actix_cors::Cors;
-use actix_web::{web::Data, App, HttpServer};
+use actix_web::{rt::spawn, web::Data, App, HttpServer};
+use tokio::try_join;
 
-use crate::{config::Config, routes::get_routes};
+use crate::{config::Config, live_server::server::ChatServer, routes::get_routes};
 
 pub async fn start_application(config: Config) -> std::io::Result<()> {
     //init the conn and instance actor
@@ -15,10 +16,13 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
         .await;
     // conn.get_instance_actor(config.signing_algo).await;
 
+    let (chat_server, server_tx) = ChatServer::new();
+    let chat_server = spawn(chat_server.run());
+
     let bind = config.bind_address.clone();
     let port = config.port;
 
-    HttpServer::new(move || {
+    let http_server = HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_header()
             .allow_any_origin()
@@ -29,9 +33,12 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
             .wrap(cors)
             .app_data(Data::new(conn.clone()))
             .app_data(Data::new(config.to_owned()))
+            .app_data(Data::new(server_tx.clone()))
             .service(get_routes())
     })
     .bind((bind, port))?
-    .run()
-    .await
+    .run();
+    
+    try_join!(http_server, async move { chat_server.await.unwrap() })?;
+    Ok(())
 }

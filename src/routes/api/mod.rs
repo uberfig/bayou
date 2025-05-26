@@ -8,3 +8,4 @@ pub mod signup;
 pub mod types;
 pub mod uname_taken;
 pub mod utilities;
+pub mod websocket;
