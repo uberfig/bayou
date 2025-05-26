@@ -147,6 +147,11 @@ impl DbMessage {
         SELECT * FROM messages WHERE m_id = $1;
         "#
     }
+    pub const fn read_joined_statement() -> &'static str {
+        r#"
+        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE m_id = $1;
+        "#
+    }
     pub const fn update_statement() -> &'static str {
         r#"
         UPDATE messages

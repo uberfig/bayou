@@ -5,7 +5,7 @@
 //! client to be used for rendering the message log
 
 use actix_web::{
-    post,
+    get,
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
@@ -16,7 +16,7 @@ use crate::{
     live_server::{server::ChatServerHandle, socket_handler::ws_handler},
 };
 
-#[post("/ws")]
+#[get("/ws")]
 pub async fn websocket_handler(
     req: HttpRequest,
     stream: web::Payload,

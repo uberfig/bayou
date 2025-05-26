@@ -256,7 +256,7 @@ impl PgConn {
     }
     /// get all members from a community if it exists and the user is in the community
     /// - caching here might be useful
-    pub async fn get_comm_members(&self, com_id: Uuid, uid: Uuid) -> Result<Vec<ApiUser>, ()> {
+    pub async fn user_get_comm_members(&self, com_id: Uuid, uid: Uuid) -> Result<Vec<ApiUser>, ()> {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
         let Some(_membership) = sesh.get_comm_membership(&com_id, &uid).await else {
@@ -268,6 +268,16 @@ impl PgConn {
             .into_iter()
             .map(|x| x.into())
             .collect())
+    }
+    pub async fn get_comm_members(&self, com_id: Uuid) -> Vec<ApiUser> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh
+            .get_all_comm_users(&com_id)
+            .await
+            .into_iter()
+            .map(|x| x.into())
+            .collect()
     }
     pub async fn create_comm_room(
         &self,
@@ -346,6 +356,12 @@ impl PgConn {
             info: message,
         };
         Ok(sesh.create_message(message).await)
+    }
+
+    pub async fn get_api_message(&self, m_id: Uuid) -> Option<ApiMessage> {
+        let client = self.db.get().await.expect("failed to get client");
+        let sesh = Sesh::Client(client);
+        sesh.get_api_message(&m_id).await
     }
 
     pub async fn get_room_messages(&self, room_id: Uuid, uid: Uuid) -> Result<Vec<ApiMessage>, ()> {

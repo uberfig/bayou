@@ -548,6 +548,14 @@ impl Sesh<'_> {
             .pop();
         result.map(|x| x.into())
     }
+    pub async fn get_api_message(&self, m_id: &Uuid) -> Option<ApiMessage> {
+        let result = self
+            .query(DbMessage::read_joined_statement(), &[m_id])
+            .await
+            .expect("failed to fetch message")
+            .pop();
+        result.map(|x| x.into())
+    }
     pub async fn update_message(&self, message: DbMessage) -> DbMessage {
         let result = self
             .query(

@@ -18,7 +18,7 @@ pub async fn get_members(
     }
 
     let Ok(users) = conn
-        .get_comm_members(community.info, community.token.uid)
+        .user_get_comm_members(community.info, community.token.uid)
         .await
     else {
         return Ok(HttpResponse::Unauthorized()
