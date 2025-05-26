@@ -6,7 +6,10 @@ use std::time::{Duration, Instant};
 
 use actix_ws::{AggregatedMessage, CloseReason};
 use futures_util::StreamExt as _;
-use tokio::{sync::mpsc, time::{interval, Interval}};
+use tokio::{
+    sync::mpsc,
+    time::{interval, Interval},
+};
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -63,22 +66,29 @@ pub async fn ws_handler(
         .aggregate_continuations()
         .max_continuation_size(2 * 1024 * 1024);
 
-    let token = match await_token(&mut session, &mut msg_stream, &mut last_heartbeat, &mut interval).await {
+    let token = match await_token(
+        &mut session,
+        &mut msg_stream,
+        &mut last_heartbeat,
+        &mut interval,
+    )
+    .await
+    {
         Ok(token) => token,
         Err(_) => {
             let _ = session.close(None).await;
-            return ;
-        },
+            return;
+        }
     };
     if conn.validate_auth_token(&token).await.is_err() {
         let _ = session.close(None).await;
-        return ;
+        return;
     }
 
     let (conn_tx, mut outbound_messages) = mpsc::unbounded_channel();
     // unwrap: chat server is not dropped before the HTTP server
     let conn_id = chat_server.connect(conn_tx, token.uid).await;
-    
+
     let close_reason = loop {
         tokio::select! {
             Some(Ok(msg)) = msg_stream.next() => {
@@ -93,7 +103,7 @@ pub async fn ws_handler(
                         last_heartbeat = Instant::now();
                     }
 
-                    // currently not used but will be in the 
+                    // currently not used but will be in the
                     // future for things such as status information
                     // and any "live" communication
                     // may also be used for "subscribing" to

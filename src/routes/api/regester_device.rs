@@ -1,7 +1,7 @@
 //! `post /api/bayou_v1/register`
-//! 
+//!
 //! register a device with the instance by posting a [`crate::db::types::registered_device::DeviceInfo`]
-//! 
+//!
 //! returns a [`crate::db::types::registered_device`]
 
 use actix_web::{

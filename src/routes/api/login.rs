@@ -1,5 +1,5 @@
 //! `post /api/bayou_v1/login`
-//! 
+//!
 //! login by posting a [`crate::routes::api::types::login_request::LoginRequest`]
 //! - on success returns [`crate::db::types::tokens::auth_token::DBAuthToken`]
 //! - on failure returns [`crate::routes::api::login::LoginErr`]

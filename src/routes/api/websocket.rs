@@ -1,16 +1,19 @@
 //! `websocket /api/bayou_v1/ws`
-//! 
+//!
 //! expects an [`crate::db::types::tokens::auth_token::AuthToken`] sent
 //! through the channel upon connection, will send live messages to the
 //! client to be used for rendering the message log
 
 use actix_web::{
-    post, web::{self, Data}, HttpRequest, HttpResponse, Result
+    post,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Result,
 };
 use tokio::task::spawn_local;
 
 use crate::{
-    db::pg_conn::PgConn, live_server::{server::ChatServerHandle, socket_handler::ws_handler}
+    db::pg_conn::PgConn,
+    live_server::{server::ChatServerHandle, socket_handler::ws_handler},
 };
 
 #[post("/ws")]
@@ -27,7 +30,7 @@ pub async fn websocket_handler(
         (**chat_server).clone(),
         session,
         msg_stream,
-        (**conn).clone()
+        (**conn).clone(),
     ));
 
     Ok(res)

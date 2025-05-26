@@ -7,7 +7,9 @@
 
 use crate::{db::pg_conn::PgConn, routes::api::utilities::auth_header::get_auth_header};
 use actix_web::{
-    get, web::{self, Data}, HttpRequest, HttpResponse, Result
+    get,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Result,
 };
 use uuid::Uuid;
 
@@ -27,10 +29,7 @@ pub async fn get_rooms(
             .content_type("application/json; charset=utf-8")
             .body(""));
     }
-    let Ok(rooms) = conn
-        .get_comm_rooms(path.into_inner(), token.uid)
-        .await
-    else {
+    let Ok(rooms) = conn.get_comm_rooms(path.into_inner(), token.uid).await else {
         return Ok(HttpResponse::Unauthorized()
             .content_type("application/json; charset=utf-8")
             .body(""));

@@ -1,5 +1,6 @@
 use super::{
-    create::create, create_room::create_room, get_joined::get_joined, get_members::get_members, get_rooms::get_rooms
+    create::create, create_room::create_room, get_joined::get_joined, get_members::get_members,
+    get_rooms::get_rooms,
 };
 
 pub fn get_community_routes() -> actix_web::Scope {

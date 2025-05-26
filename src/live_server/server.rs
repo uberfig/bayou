@@ -1,7 +1,10 @@
-use std::{collections::{HashMap, HashSet}, io};
+use std::{
+    collections::{HashMap, HashSet},
+    io,
+};
 
-use uuid::Uuid;
 use tokio::sync::{mpsc, oneshot};
+use uuid::Uuid;
 
 use super::socket_msg::SocketMsg;
 
@@ -18,11 +21,11 @@ impl From<SocketMsg> for Msg {
     }
 }
 
-/// we take a list of message targets so that then 
-/// its not our job to handle that, the correct recipients 
-/// should be grabbed from the database and permissions 
+/// we take a list of message targets so that then
+/// its not our job to handle that, the correct recipients
+/// should be grabbed from the database and permissions
 /// should all be handled before the messages come here
-/// since the message server is just effectively 
+/// since the message server is just effectively
 /// single threadded for now
 pub enum MessageTarget {
     All,
@@ -35,7 +38,7 @@ pub enum Command {
         user: UserId,
         /// used to pass the conn id back to the websocket
         /// handler once we have registered them, this is needed
-        /// so that they may send a disconnect when they are 
+        /// so that they may send a disconnect when they are
         /// disconnected
         response_handle: oneshot::Sender<ConnId>,
     },
@@ -46,11 +49,10 @@ pub enum Command {
     BroadcastMessage {
         msg: SocketMsg,
         recipients: MessageTarget,
-        /// used to notify upon completion 
+        /// used to notify upon completion
         response_handle: oneshot::Sender<()>,
-    }
-    // todo create a join room command for room status information 
-    // (users online and their statusses, currently typing etc)
+    }, // todo create a join room command for room status information
+       // (users online and their statusses, currently typing etc)
 }
 
 /// this is largely based off https://github.com/actix/examples/blob/master/websockets/chat-actorless/src/server.rs
@@ -72,7 +74,7 @@ impl ChatServer {
             user_sessions: HashMap::new(),
             cmd_reciever: cmd_rx,
         };
-        (new, ChatServerHandle{cmd_tx})
+        (new, ChatServerHandle { cmd_tx })
     }
     async fn handle_message(&self, recipients: MessageTarget, msg: impl Into<Msg>) {
         let msg: Msg = msg.into();
@@ -81,7 +83,7 @@ impl ChatServer {
                 for (_user, sender) in &self.sessions {
                     let _ = sender.send(msg.clone());
                 }
-            },
+            }
             MessageTarget::List(uuids) => {
                 for user in uuids {
                     if let Some(conns) = self.user_sessions.get(&user) {
@@ -93,7 +95,7 @@ impl ChatServer {
                         }
                     }
                 }
-            },
+            }
         }
     }
     /// todo, pivot to using rwlocks for the sessions
@@ -103,12 +105,12 @@ impl ChatServer {
         match self.user_sessions.get_mut(&user) {
             Some(sessions) => {
                 sessions.insert(id);
-            },
+            }
             None => {
                 let mut set = HashSet::new();
                 set.insert(id);
                 self.user_sessions.insert(user, set);
-            },
+            }
         }
         id
     }
@@ -120,16 +122,20 @@ impl ChatServer {
                 if sessions.is_empty() {
                     self.user_sessions.remove(&user);
                 }
-            },
+            }
             // this shouldn't happen and should prob be logged if it has
             // as something has gone pretty wrong if so
-            None => {},
+            None => {}
         }
     }
     pub async fn run(mut self) -> io::Result<()> {
         while let Some(cmd) = self.cmd_reciever.recv().await {
             match cmd {
-                Command::Connect {conn_sender, user, response_handle } => {
+                Command::Connect {
+                    conn_sender,
+                    user,
+                    response_handle,
+                } => {
                     let conn_id = self.connect(conn_sender, user).await;
                     let _ = response_handle.send(conn_id);
                 }
@@ -138,7 +144,11 @@ impl ChatServer {
                     self.disconnect(user, conn).await;
                 }
 
-                Command::BroadcastMessage { msg, recipients, response_handle } => {
+                Command::BroadcastMessage {
+                    msg,
+                    recipients,
+                    response_handle,
+                } => {
                     self.handle_message(recipients, msg).await;
                     let _ = response_handle.send(());
                 }
@@ -159,23 +169,33 @@ pub struct ChatServerHandle {
 }
 
 impl ChatServerHandle {
-    pub async fn connect(&self, conn_sender: mpsc::UnboundedSender<Msg>, user: UserId,) -> ConnId {
+    pub async fn connect(&self, conn_sender: mpsc::UnboundedSender<Msg>, user: UserId) -> ConnId {
         let (res_tx, res_rx) = oneshot::channel();
         // unwraps used as the server should run until all chat server handles are dropped
         // and then nicely shutdown itself. the server should always be shutting down after
         // us here, never before
         self.cmd_tx
-            .send(Command::Connect { conn_sender, user, response_handle: res_tx })
+            .send(Command::Connect {
+                conn_sender,
+                user,
+                response_handle: res_tx,
+            })
             .unwrap();
         res_rx.await.unwrap()
     }
     pub fn disconnect(&self, conn: ConnId, user: UserId) {
-        self.cmd_tx.send(Command::Disconnect { user, conn }).unwrap();
+        self.cmd_tx
+            .send(Command::Disconnect { user, conn })
+            .unwrap();
     }
-    pub async fn send_message(&self, msg: SocketMsg, recipients: MessageTarget,) {
+    pub async fn send_message(&self, msg: SocketMsg, recipients: MessageTarget) {
         let (res_tx, res_rx) = oneshot::channel();
         self.cmd_tx
-            .send(Command::BroadcastMessage { msg, recipients, response_handle: res_tx })
+            .send(Command::BroadcastMessage {
+                msg,
+                recipients,
+                response_handle: res_tx,
+            })
             .unwrap();
         res_rx.await.unwrap()
     }

@@ -1,5 +1,5 @@
 //! `get /api/bayou_v1/username_availible/{uname}`
-//! 
+//!
 //! will check if it has been taken
 //! responses:
 //! - ok (200) username is available
@@ -16,7 +16,7 @@ use actix_web::{
 pub async fn username_availible(
     state: Data<crate::config::Config>,
     conn: Data<PgConn>,
-    path: web::Path<String>
+    path: web::Path<String>,
 ) -> Result<HttpResponse> {
     match conn
         .username_taken(&path.into_inner(), &state.instance_domain)

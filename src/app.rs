@@ -27,7 +27,7 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
             .allow_any_header()
             .allow_any_origin()
             .allowed_methods(vec!["GET", "POST"])
-            .max_age(60*60);
+            .max_age(60 * 60);
 
         App::new()
             .wrap(cors)
@@ -38,7 +38,7 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
     })
     .bind((bind, port))?
     .run();
-    
+
     try_join!(http_server, async move { chat_server.await.unwrap() })?;
     Ok(())
 }

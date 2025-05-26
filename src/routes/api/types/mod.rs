@@ -1,3 +1,4 @@
+pub mod api_community;
 pub mod api_message;
 pub mod api_user;
 pub mod auth_err;
@@ -6,4 +7,3 @@ pub mod login_request;
 pub mod message_loader;
 pub mod signup_result;
 pub mod signup_user;
-pub mod api_community;

@@ -3,7 +3,8 @@ use std::ops::DerefMut;
 use crate::{
     db::{pg_sesh::Sesh, types::room::Room},
     routes::api::types::{
-        api_community::ApiCommunity, api_message::ApiMessage, api_user::ApiUser, signup_result::SignupResult, signup_user::SignupUser
+        api_community::ApiCommunity, api_message::ApiMessage, api_user::ApiUser,
+        signup_result::SignupResult, signup_user::SignupUser,
     },
 };
 use deadpool_postgres::Pool;
@@ -247,7 +248,11 @@ impl PgConn {
     pub async fn get_all_joined(&self, uid: Uuid) -> Vec<ApiCommunity> {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
-        sesh.get_all_user_comms(&uid).await.into_iter().map(|x| DbCommunity::from(x).into()).collect()
+        sesh.get_all_user_comms(&uid)
+            .await
+            .into_iter()
+            .map(|x| DbCommunity::from(x).into())
+            .collect()
     }
     /// get all members from a community if it exists and the user is in the community
     /// - caching here might be useful
