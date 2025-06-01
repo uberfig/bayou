@@ -1,7 +1,11 @@
+//! `post /api/bayou_v1/message/new`
+//!
+//! send a new message, expects [`crate::db::types::message::Messageinfo`] with a token in the auth header
+//! - ok (200) message successfully sent
+//! - unauthorized (401) included token is not valid or not allowed to send to given room, message not sent
+
 use actix_web::{
-    post,
-    web::{self, Data},
-    HttpResponse, Result,
+    post, web::{self, Data}, HttpRequest, HttpResponse, Result
 };
 use serde::{Deserialize, Serialize};
 use tokio::task::spawn_local;
@@ -11,7 +15,7 @@ use crate::{
     db::{
         pg_conn::PgConn,
         types::{message::{DbMessage, Messageinfo}, room::RoomInfo},
-    }, live_server::{server::{ChatServerHandle, MessageTarget}, socket_msg::SocketMsg}, routes::api::types::info_with_token::BearrerWithInfo
+    }, live_server::{server::{ChatServerHandle, MessageTarget}, socket_msg::SocketMsg}, routes::api::utilities::auth_header::get_auth_header
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -47,21 +51,27 @@ pub async fn message_notifyer(
 
 #[post("/new")]
 pub async fn send_message(
+    req: HttpRequest,
     conn: Data<PgConn>,
-    message: web::Json<BearrerWithInfo<Messageinfo>>,
+    message: web::Json<Messageinfo>,
     chat_server: web::Data<ChatServerHandle>,
 ) -> Result<HttpResponse> {
-    if conn.validate_auth_token(&message.token).await.is_err() {
+    let Some(token) = get_auth_header(&req) else {
+        return Ok(HttpResponse::Unauthorized()
+            .content_type("application/json; charset=utf-8")
+            .body("invalid or missing auth header"));
+    };
+    if conn.validate_auth_token(&token).await.is_err() {
         return Ok(HttpResponse::Unauthorized()
             .content_type("application/json; charset=utf-8")
             .body(""));
     }
-    let Some(user) = conn.get_user_uid(&message.token.uid).await else {
+    let Some(user) = conn.get_user_uid(&token.uid).await else {
         return Ok(HttpResponse::Unauthorized()
             .content_type("application/json; charset=utf-8")
             .body(""));
     };
-    let message = match conn.send_message(&user, message.into_inner().info).await {
+    let message = match conn.send_message(&user, message.into_inner()).await {
         Ok(message) => message,
         Err(_) => {
             return Ok(HttpResponse::Unauthorized()
