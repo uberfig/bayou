@@ -1,2 +1,2 @@
 pub mod routes;
-pub mod send_message;
+pub(super) mod send_message;

@@ -1,3 +1,18 @@
+//! `get /api/bayou_v1/room/messages`
+//!
+//! get messages from a room, expects [`crate::db::types::message::Messageinfo`] with a token in the auth header
+//! 
+//! query params
+//! - `room` required, room id
+//! - `inclusive` optional, get messages including provided `older` or `newer` does nothing
+//! if neither is present 
+//! - `older` optional, message id, gets the messages older than the provided message
+//! - `newer` optional, message id, gets the messages newer than the provided message
+//! 
+//! responses
+//! - ok (200) list of [`crate::routes::api::types::api_message::ApiMessage`] in body
+//! - unauthorized (401) included token is not valid to view given room
+
 use crate::{
     db::pg_conn::PgConn,
     routes::api::types::{info_with_token::BearrerWithInfo, message_loader::MessagesLoader},
