@@ -3,6 +3,7 @@
 //! send a new message, expects [`crate::db::types::message::Messageinfo`] with a token in the auth header
 //! - ok (200) message successfully sent
 //! - unauthorized (401) included token is not valid or not allowed to send to given room, message not sent
+//! - bad request (400) message is empty
 
 use actix_web::{
     post, web::{self, Data}, HttpRequest, HttpResponse, Result
@@ -71,7 +72,14 @@ pub async fn send_message(
             .content_type("application/json; charset=utf-8")
             .body(""));
     };
-    let message = match conn.send_message(&user, message.into_inner()).await {
+    let mut message = message.into_inner();
+    message.content = message.content.trim().to_string();
+    if message.content.is_empty() {
+        return Ok(HttpResponse::BadRequest()
+            .content_type("application/json; charset=utf-8")
+            .body(""));
+    }
+    let message = match conn.send_message(&user, message).await {
         Ok(message) => message,
         Err(_) => {
             return Ok(HttpResponse::Unauthorized()
