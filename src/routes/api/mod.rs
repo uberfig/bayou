@@ -7,5 +7,5 @@ pub(super) mod routes;
 pub mod signup;
 pub mod types;
 pub mod uname_taken;
-pub mod utilities;
+pub(super) mod utilities;
 pub mod websocket;

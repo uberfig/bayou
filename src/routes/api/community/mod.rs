@@ -1,3 +1,5 @@
+//! `/api/bayou_v1/community/...`
+//! community specific methods such as creating and joining communities
 pub mod create;
 pub mod create_room;
 pub mod get_joined;
