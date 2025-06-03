@@ -8,6 +8,8 @@
 //! if neither is present 
 //! - `older` optional, message id, gets the messages older than the provided message
 //! - `newer` optional, message id, gets the messages newer than the provided message
+//! only one of `older` or `newer` should be passed, both is intentionally undefined 
+//! behavior as it is subject to change or being rejected
 //! 
 //! responses
 //! - ok (200) list of [`crate::routes::api::types::api_message::ApiMessage`] in body
@@ -15,49 +17,68 @@
 
 use crate::{
     db::pg_conn::PgConn,
-    routes::api::types::{info_with_token::BearrerWithInfo, message_loader::MessagesLoader},
+    routes::api::{types::api_message::ApiMessage, utilities::auth_header::get_auth_header},
 };
 use actix_web::{
-    get,
-    web::{self, Data},
-    HttpResponse, Result,
+    get, web::{self, Data}, HttpRequest, HttpResponse, Result
 };
+use serde::Deserialize;
+use uuid::Uuid;
+
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct GetMessagesQuery {
+    pub room: Uuid,
+    pub inclusive: Option<bool>,
+    pub older: Option<Uuid>,
+    pub newer: Option<Uuid>,
+}
+
+fn return_result(messages: &Vec<ApiMessage>) -> Result<HttpResponse> {
+    Ok(HttpResponse::Ok()
+        .content_type("application/json; charset=utf-8")
+        .body(serde_json::to_string(messages).expect("failed to serialize dbcommunity")))
+}
 
 #[get("/messages")]
 pub async fn get_messages(
     conn: Data<PgConn>,
-    room: web::Json<BearrerWithInfo<MessagesLoader>>,
+    info: web::Query<GetMessagesQuery>,
+    req: HttpRequest,
 ) -> Result<HttpResponse> {
-    if conn.validate_auth_token(&room.token).await.is_err() {
+    let Some(token) = get_auth_header(&req) else {
+        return Ok(HttpResponse::Unauthorized()
+            .content_type("application/json; charset=utf-8")
+            .body("invalid or missing auth header"));
+    };
+    if conn.validate_auth_token(&token).await.is_err() {
         return Ok(HttpResponse::Unauthorized()
             .content_type("application/json; charset=utf-8")
             .body(""));
     }
-    println!("valid");
-    let messages = match room.info.before {
-        Some(before) => {
-            let Ok(messages) = conn
-                .get_room_messages_before(room.info.room, room.token.uid, before.time, before.post)
-                .await
-            else {
-                return Ok(HttpResponse::Unauthorized()
-                    .content_type("application/json; charset=utf-8")
-                    .body(""));
-            };
-            messages
-        }
-        None => {
-            println!("none");
-            let Ok(messages) = conn.get_room_messages(room.info.room, room.token.uid).await else {
-                return Ok(HttpResponse::Unauthorized()
-                    .content_type("application/json; charset=utf-8")
-                    .body(""));
-            };
-            messages
-        }
-    };
+    
+    if let Some(older) = info.older {
+        let Ok(messages) = conn.get_room_messages_in_relation(info.room, token.uid, older, info.inclusive.unwrap_or(false), true).await else {
+            return Ok(HttpResponse::Unauthorized()
+                .content_type("application/json; charset=utf-8")
+                .body(""));
+        };
+        return return_result(&messages);
+    }
 
-    Ok(HttpResponse::Ok()
-        .content_type("application/json; charset=utf-8")
-        .body(serde_json::to_string(&messages).expect("failed to serialize dbcommunity")))
+    if let Some(newer) = info.newer {
+        let Ok(messages) = conn.get_room_messages_in_relation(info.room, token.uid, newer, info.inclusive.unwrap_or(false), false).await else {
+            return Ok(HttpResponse::Unauthorized()
+                .content_type("application/json; charset=utf-8")
+                .body(""));
+        };
+        return return_result(&messages);
+    }
+    
+    let Ok(messages) = conn.get_room_messages(info.room, token.uid).await else {
+        return Ok(HttpResponse::Unauthorized()
+            .content_type("application/json; charset=utf-8")
+            .body(""));
+    };
+    return_result(&messages)
 }

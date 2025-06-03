@@ -381,12 +381,14 @@ impl PgConn {
         println!("getting messages");
         Ok(sesh.get_room_messages(&room_id, MAX_PAGENATION).await)
     }
-    pub async fn get_room_messages_before(
+    pub async fn get_room_messages_in_relation(
         &self,
         room_id: Uuid,
         uid: Uuid,
-        time: i64,
         post: Uuid,
+        inclusive: bool,
+        // get posts before or after the post, older or newer
+        before: bool,
     ) -> Result<Vec<ApiMessage>, ()> {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
@@ -401,9 +403,18 @@ impl PgConn {
             }
             None => todo!(),
         };
-        Ok(sesh
-            .get_room_messages_before(room_id, MAX_PAGENATION, time, post)
-            .await)
+        match before {
+            true => {
+                Ok(sesh
+                    .get_room_messages_before(room_id, MAX_PAGENATION, post, inclusive)
+                    .await)
+            },
+            false => {
+                Ok(sesh
+                    .get_room_messages_after(room_id, MAX_PAGENATION, post, inclusive)
+                    .await)
+            },
+        }
     }
 
     pub async fn username_taken(&self, username: &str, domain: &str) -> bool {

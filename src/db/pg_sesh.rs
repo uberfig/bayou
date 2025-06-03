@@ -585,22 +585,40 @@ impl Sesh<'_> {
             .query(DbMessage::get_room_messages(), &[room_id, &limit])
             .await
             .expect("failed to fetch room messages");
-        result.into_iter().map(|x| x.into()).collect()
+        result.into_iter().rev().map(|x| x.into()).collect()
     }
     pub async fn get_room_messages_before(
         &self,
         room_id: Uuid,
         limit: i64,
-        time: i64,
         post: Uuid,
+        inclusive: bool,
     ) -> Vec<ApiMessage> {
         let result = self
             .query(
-                DbMessage::get_messages_prior(),
-                &[&room_id, &time, &post, &limit],
+                DbMessage::get_messages_prior(inclusive),
+                &[&room_id, &post, &limit],
             )
             .await
             .expect("failed to fetch room messages");
+        // we rev to make oldest to newest as the api expects
+        result.into_iter().rev().map(|x| x.into()).collect()
+    }
+    pub async fn get_room_messages_after(
+        &self,
+        room_id: Uuid,
+        limit: i64,
+        post: Uuid,
+        inclusive: bool,
+    ) -> Vec<ApiMessage> {
+        let result = self
+            .query(
+                DbMessage::get_messages_after(inclusive),
+                &[&room_id, &post, &limit],
+            )
+            .await
+            .expect("failed to fetch room messages");
+        // this query is in the right order
         result.into_iter().map(|x| x.into()).collect()
     }
 }

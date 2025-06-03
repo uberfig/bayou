@@ -173,12 +173,43 @@ impl DbMessage {
     }
     pub const fn get_room_messages() -> &'static str {
         r#"
-        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 ORDER BY published DESC LIMIT $2;
+        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 ORDER BY m_id DESC LIMIT $2;
         "#
     }
-    pub const fn get_messages_prior() -> &'static str {
-        r#"
-        SELECT * FROM messages NATURAL INNER JOIN users WHERE room_id = $1 AND published <= $2 AND m_id <> $3 ORDER BY published DESC LIMIT $4;
-        "#
+    /// gets messages older than a given message, messages in order of newest to oldest
+    /// 1. room_id
+    /// 2. m_id
+    /// 3. LIMIT
+    pub const fn get_messages_prior(inclusive: bool) -> &'static str {
+        match inclusive {
+            true => {
+                r#"
+                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id <= $2 ORDER BY m_id DESC LIMIT $3;
+                "#
+            },
+            false => {
+                r#"
+                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id < $2 ORDER BY m_id DESC LIMIT $3;
+                "#
+            },
+        }
+    }
+    /// gets messages newer than a given message, messages in order of oldest to newest
+    /// 1. room_id
+    /// 2. m_id
+    /// 3. LIMIT
+    pub const fn get_messages_after(inclusive: bool) -> &'static str {
+        match inclusive {
+            true => {
+                r#"
+                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id >= $2 ORDER BY m_id ASC LIMIT $3;
+                "#
+            },
+            false => {
+                r#"
+                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id > $2 ORDER BY m_id ASC LIMIT $3;
+                "#
+            },
+        }
     }
 }
