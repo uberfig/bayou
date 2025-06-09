@@ -378,7 +378,6 @@ impl PgConn {
             }
             None => todo!(),
         };
-        println!("getting messages");
         Ok(sesh.get_room_messages(&room_id, MAX_PAGENATION).await)
     }
     pub async fn get_room_messages_in_relation(
