@@ -173,7 +173,7 @@ impl DbMessage {
     }
     pub const fn get_room_messages() -> &'static str {
         r#"
-        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 ORDER BY m_id DESC LIMIT $2;
+        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 ORDER BY published DESC LIMIT $2;
         "#
     }
     /// gets messages older than a given message, messages in order of newest to oldest
@@ -184,12 +184,12 @@ impl DbMessage {
         match inclusive {
             true => {
                 r#"
-                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id <= $2 ORDER BY m_id DESC LIMIT $3;
+                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id <= $2 ORDER BY published DESC LIMIT $3;
                 "#
             },
             false => {
                 r#"
-                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id < $2 ORDER BY m_id DESC LIMIT $3;
+                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id < $2 ORDER BY published DESC LIMIT $3;
                 "#
             },
         }
