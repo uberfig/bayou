@@ -138,7 +138,7 @@ impl From<tokio_postgres::Row> for DbMessage {
     }
 }
 
-const SELECT_JOINED: &str = "SELECT * FROM messages INNER JOIN users USING (uid, domain) INNER JOIN proxies USING (uid, proxy_id)";
+const SELECT_JOINED: &str = "SELECT * FROM messages INNER JOIN users USING (uid, domain) LEFT JOIN proxies USING (uid, proxy_id)";
 
 impl DbMessage {
     pub const fn create_statement() -> &'static str {
