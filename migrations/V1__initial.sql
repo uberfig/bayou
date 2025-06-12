@@ -46,6 +46,7 @@ CREATE TABLE proxies (
 	proxy_id	UUID NOT NULL PRIMARY KEY UNIQUE,
 	uid			UUID NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
 	proxy_name	TEXT NOT NULL,
+	proxy_created	BIGINT NOT NULL,
 	proxy_bio	TEXT NULL
 );
 

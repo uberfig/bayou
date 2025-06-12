@@ -1,10 +1,11 @@
 use std::str::FromStr;
 
 use codes_iso_639::part_1::LanguageCode;
+use const_format::formatcp;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::routes::api::types::api_message::ApiMessage;
+use crate::{db::pg_sesh::Sesh, routes::api::types::{api_message::{ApiMessage, ReplyPreview}, proxy_user::ApiProxyUser}};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum TextFormat {
@@ -69,23 +70,44 @@ pub struct Messageinfo {
     pub room: Uuid,
 }
 
-impl From<tokio_postgres::Row> for ApiMessage {
-    /// note, requires being joined on the users table and on the proxy table in the future
+impl From<tokio_postgres::Row> for ReplyPreview {
     fn from(row: tokio_postgres::Row) -> Self {
         let language: Option<&str> = row.get("language");
         let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();
+        Self {
+            id: row.get("m_id"),
+            proxy: ApiProxyUser::maybe_from_row(&row),
+            content: row.get("content"),
+            format: TextFormat::from_str(row.get("format")).expect("unkown text format in db"),
+            language,
+            user: row.into(),
+        }
+    }
+}
+
+impl ApiMessage {
+    /// note, requires being joined on the users table and on the proxy table in the future
+    pub async fn from_row(row: tokio_postgres::Row, sesh: &Sesh<'_>) -> Self {
+        let language: Option<&str> = row.get("language");
+        let language = language.map(|x| LanguageCode::from_str(x).ok()).flatten();
+        
+        let in_reply_to: Option<Uuid> = row.get("in_reply_to");
+        let preview = match in_reply_to {
+            Some(id) => sesh.get_reply_preview(id).await,
+            None => None,
+        };
         ApiMessage {
             id: row.get("m_id"),
             room: row.get("room_id"),
             published: row.get("published"),
             edited: row.get("edited"),
             is_reply: row.get("is_reply"),
-            in_reply_to: row.get("in_reply_to"),
+            proxy: ApiProxyUser::maybe_from_row(&row),
             content: row.get("content"),
-            proxy_id: row.get("proxy_id"),
             format: TextFormat::from_str(row.get("format")).expect("unkown text format in db"),
             language,
             user: row.into(),
+            preview,            
         }
     }
 }
@@ -115,6 +137,8 @@ impl From<tokio_postgres::Row> for DbMessage {
         }
     }
 }
+
+const SELECT_JOINED: &str = "SELECT * FROM messages INNER JOIN users USING (uid, domain) INNER JOIN proxies USING (uid, proxy_id)";
 
 impl DbMessage {
     pub const fn create_statement() -> &'static str {
@@ -148,9 +172,7 @@ impl DbMessage {
         "#
     }
     pub const fn read_joined_statement() -> &'static str {
-        r#"
-        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE m_id = $1;
-        "#
+        formatcp!(r#"{} WHERE m_id = $1;"#, SELECT_JOINED)
     }
     pub const fn update_statement() -> &'static str {
         r#"
@@ -172,9 +194,7 @@ impl DbMessage {
         "#
     }
     pub const fn get_room_messages() -> &'static str {
-        r#"
-        SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 ORDER BY published DESC LIMIT $2;
-        "#
+        formatcp!(r#"{} WHERE room_id = $1 ORDER BY published DESC LIMIT $2;"#, SELECT_JOINED)
     }
     /// gets messages older than a given message, messages in order of newest to oldest
     /// 1. room_id
@@ -183,14 +203,10 @@ impl DbMessage {
     pub const fn get_messages_prior(inclusive: bool) -> &'static str {
         match inclusive {
             true => {
-                r#"
-                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id <= $2 ORDER BY published DESC LIMIT $3;
-                "#
+                formatcp!(r#"{} WHERE room_id = $1 AND m_id <= $2 ORDER BY published DESC LIMIT $3;"#, SELECT_JOINED)
             },
             false => {
-                r#"
-                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id < $2 ORDER BY published DESC LIMIT $3;
-                "#
+                formatcp!(r#"{} WHERE room_id = $1 AND m_id < $2 ORDER BY published DESC LIMIT $3;"#, SELECT_JOINED)
             },
         }
     }
@@ -201,14 +217,10 @@ impl DbMessage {
     pub const fn get_messages_after(inclusive: bool) -> &'static str {
         match inclusive {
             true => {
-                r#"
-                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id >= $2 ORDER BY m_id ASC LIMIT $3;
-                "#
+                formatcp!(r#"{} WHERE room_id = $1 AND m_id >= $2 ORDER BY m_id ASC LIMIT $3;"#, SELECT_JOINED)
             },
             false => {
-                r#"
-                SELECT * FROM messages INNER JOIN users USING (uid, domain) WHERE room_id = $1 AND m_id > $2 ORDER BY m_id ASC LIMIT $3;
-                "#
+                formatcp!(r#"{} WHERE room_id = $1 AND m_id > $2 ORDER BY m_id ASC LIMIT $3;"#, SELECT_JOINED)
             },
         }
     }
