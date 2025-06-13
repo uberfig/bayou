@@ -1,7 +1,6 @@
-use futures::future::join_all;
 use uuid::Uuid;
 
-use crate::{db::{pg_sesh::Sesh, types::message::DbMessage}, routes::api::types::api_message::{ApiMessage, ReplyPreview}};
+use crate::{db::{pg_sesh::Sesh, types::message::DbMessage}, routes::api::types::api_message::ApiMessage};
 
 #[allow(dead_code)]
 impl Sesh<'_> {
@@ -47,7 +46,10 @@ impl Sesh<'_> {
             .expect("failed to fetch message")
             .pop();
         match result {
-            Some(row) => Some(ApiMessage::from_row(row, self).await),
+            Some(row) => {
+                let json: tokio_postgres::types::Json<ApiMessage> = row.get("json_build_object");
+                Some(json.0)
+            },
             None => None,
         }
     }
@@ -80,7 +82,11 @@ impl Sesh<'_> {
             .query(DbMessage::get_room_messages(), &[room_id, &limit])
             .await
             .expect("failed to fetch room messages");
-        join_all(result.into_iter().rev().map(|x| ApiMessage::from_row(x, self))).await
+
+        result.into_iter().rev().map(|x| {
+            let json: tokio_postgres::types::Json<ApiMessage> = x.get("json_build_object");
+            json.0
+        }).collect()
     }
     pub async fn get_room_messages_before(
         &self,
@@ -97,7 +103,10 @@ impl Sesh<'_> {
             .await
             .expect("failed to fetch room messages");
         // we rev to make oldest to newest as the api expects
-        join_all(result.into_iter().rev().map(|x| ApiMessage::from_row(x, self))).await
+        result.into_iter().rev().map(|x| {
+            let json: tokio_postgres::types::Json<ApiMessage> = x.get("json_build_object");
+            json.0
+        }).collect()
     }
     pub async fn get_room_messages_after(
         &self,
@@ -114,17 +123,20 @@ impl Sesh<'_> {
             .await
             .expect("failed to fetch room messages");
         // this query is in the right order
-        join_all(result.into_iter().map(|x| ApiMessage::from_row(x, self))).await
+        result.into_iter().map(|x| {
+            let json: tokio_postgres::types::Json<ApiMessage> = x.get("json_build_object");
+            json.0
+        }).collect()
     }
-    pub async fn get_reply_preview(&self, m_id: Uuid) -> Option<ReplyPreview> {
-        let result = self
-            .query(DbMessage::read_statement(), &[&m_id])
-            .await
-            .expect("failed to fetch message")
-            .pop();
-        match result {
-            Some(row) => Some(row.into()),
-            None => None,
-        }
-    }
+    // pub async fn get_reply_preview(&self, m_id: Uuid) -> Option<ReplyPreview> {
+    //     let result = self
+    //         .query(DbMessage::read_statement(), &[&m_id])
+    //         .await
+    //         .expect("failed to fetch message")
+    //         .pop();
+    //     match result {
+    //         Some(row) => Some(row.into()),
+    //         None => None,
+    //     }
+    // }
 }

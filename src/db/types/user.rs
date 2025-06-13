@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::routes::api::types::api_user::ApiUser;
@@ -45,8 +44,10 @@ pub struct LocalUser {
     pub application_approved: Option<bool>,
 }
 
-impl From<tokio_postgres::Row> for ApiUser {
-    fn from(row: tokio_postgres::Row) -> Self {
+impl ApiUser {
+    pub fn from_row(row: &tokio_postgres::Row) -> Self {
+        println!("getting api user from row");
+        // dbg!(&row);
         ApiUser {
             id: row.get("uid"),
             domain: row.get("domain"),
