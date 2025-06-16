@@ -272,8 +272,7 @@ impl PgConn {
     pub async fn get_comm_members(&self, com_id: Uuid) -> Vec<ApiUser> {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
-        sesh
-            .get_all_comm_users(&com_id)
+        sesh.get_all_comm_users(&com_id)
             .await
             .into_iter()
             .map(|x| x.into())
@@ -403,16 +402,12 @@ impl PgConn {
             None => todo!(),
         };
         match before {
-            true => {
-                Ok(sesh
-                    .get_room_messages_before(room_id, MAX_PAGENATION, post, inclusive)
-                    .await)
-            },
-            false => {
-                Ok(sesh
-                    .get_room_messages_after(room_id, MAX_PAGENATION, post, inclusive)
-                    .await)
-            },
+            true => Ok(sesh
+                .get_room_messages_before(room_id, MAX_PAGENATION, post, inclusive)
+                .await),
+            false => Ok(sesh
+                .get_room_messages_after(room_id, MAX_PAGENATION, post, inclusive)
+                .await),
         }
     }
 

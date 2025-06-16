@@ -4,6 +4,6 @@ pub mod api_user;
 pub mod auth_err;
 pub mod info_with_token;
 pub mod login_request;
+pub mod proxy_user;
 pub mod signup_result;
 pub mod signup_user;
-pub mod proxy_user;

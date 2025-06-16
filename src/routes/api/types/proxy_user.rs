@@ -13,11 +13,11 @@ pub struct ApiProxyUser {
 impl ApiProxyUser {
     pub fn from_row(row: &tokio_postgres::Row) -> Self {
         Self {
-            id: row.get("proxy_id"), 
-            name: row.get("proxy_name"), 
-            bio: row.get("proxy_bio"), 
-            created: row.get("proxy_created"), 
-            parent_id: row.get("uid"), 
+            id: row.get("proxy_id"),
+            name: row.get("proxy_name"),
+            bio: row.get("proxy_bio"),
+            created: row.get("proxy_created"),
+            parent_id: row.get("uid"),
         }
     }
     pub fn maybe_from_row(row: &tokio_postgres::Row) -> Option<Self> {

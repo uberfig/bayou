@@ -5,7 +5,9 @@ use const_format::formatcp;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::routes::api::types::{api_message::{ApiMessage, ReplyPreview}, api_user::ApiUser, proxy_user::ApiProxyUser};
+use crate::routes::api::types::{
+    api_message::ReplyPreview, api_user::ApiUser, proxy_user::ApiProxyUser,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum TextFormat {
@@ -111,13 +113,11 @@ impl From<tokio_postgres::Row> for DbMessage {
     }
 }
 
-// const SELECT_JOINED: &str = 
-// r#"SELECT * FROM messages 
+// const SELECT_JOINED: &str =
+// r#"SELECT * FROM messages
 //     INNER JOIN users USING (uid, domain) LEFT JOIN proxies USING (uid, proxy_id)"#;
 
-
-const SELECT_JOINED: &str = 
-r#"SELECT
+const SELECT_JOINED: &str = r#"SELECT
 json_build_object(
 	'id', main.m_id,
 	'room', main.room_id,
@@ -247,7 +247,10 @@ impl DbMessage {
         "#
     }
     pub const fn get_room_messages() -> &'static str {
-        formatcp!(r#"{} WHERE main.room_id = $1 ORDER BY main.published DESC LIMIT $2;"#, SELECT_JOINED)
+        formatcp!(
+            r#"{} WHERE main.room_id = $1 ORDER BY main.published DESC LIMIT $2;"#,
+            SELECT_JOINED
+        )
     }
     /// gets messages older than a given message, messages in order of newest to oldest
     /// 1. room_id
@@ -256,11 +259,17 @@ impl DbMessage {
     pub const fn get_messages_prior(inclusive: bool) -> &'static str {
         match inclusive {
             true => {
-                formatcp!(r#"{} WHERE main.room_id = $1 AND main.m_id <= $2 ORDER BY main.published DESC LIMIT $3;"#, SELECT_JOINED)
-            },
+                formatcp!(
+                    r#"{} WHERE main.room_id = $1 AND main.m_id <= $2 ORDER BY main.published DESC LIMIT $3;"#,
+                    SELECT_JOINED
+                )
+            }
             false => {
-                formatcp!(r#"{} WHERE main.room_id = $1 AND main.m_id < $2 ORDER BY main.published DESC LIMIT $3;"#, SELECT_JOINED)
-            },
+                formatcp!(
+                    r#"{} WHERE main.room_id = $1 AND main.m_id < $2 ORDER BY main.published DESC LIMIT $3;"#,
+                    SELECT_JOINED
+                )
+            }
         }
     }
     /// gets messages newer than a given message, messages in order of oldest to newest
@@ -270,11 +279,17 @@ impl DbMessage {
     pub const fn get_messages_after(inclusive: bool) -> &'static str {
         match inclusive {
             true => {
-                formatcp!(r#"{} WHERE main.room_id = $1 AND main.m_id >= $2 ORDER BY main.published ASC LIMIT $3;"#, SELECT_JOINED)
-            },
+                formatcp!(
+                    r#"{} WHERE main.room_id = $1 AND main.m_id >= $2 ORDER BY main.published ASC LIMIT $3;"#,
+                    SELECT_JOINED
+                )
+            }
             false => {
-                formatcp!(r#"{} WHERE main.room_id = $1 AND main.m_id > $2 ORDER BY main.published ASC LIMIT $3;"#, SELECT_JOINED)
-            },
+                formatcp!(
+                    r#"{} WHERE main.room_id = $1 AND main.m_id > $2 ORDER BY main.published ASC LIMIT $3;"#,
+                    SELECT_JOINED
+                )
+            }
         }
     }
 }

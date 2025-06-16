@@ -1,6 +1,9 @@
 use uuid::Uuid;
 
-use crate::db::{pg_sesh::Sesh, types::{tokens::signup_token::SignupToken, user::DbUser}};
+use crate::db::{
+    pg_sesh::Sesh,
+    types::{tokens::signup_token::SignupToken, user::DbUser},
+};
 
 #[allow(dead_code)]
 impl Sesh<'_> {

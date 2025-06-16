@@ -4,16 +4,21 @@
 //! and a body with a [`NewRoom`]
 //! - ok (200) should contain a json [`crate::db::types::room::Room`]
 //! in the body
-//! - unauthorized (401) included token is not valid or authorized to create 
+//! - unauthorized (401) included token is not valid or authorized to create
 //! rooms in the given community
 
 use actix_web::{
-    post, web::{self, Data}, HttpRequest, HttpResponse, Result
+    post,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Result,
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{db::{pg_conn::PgConn, types::room::RoomInfo}, routes::api::utilities::auth_header::get_auth_header};
+use crate::{
+    db::{pg_conn::PgConn, types::room::RoomInfo},
+    routes::api::utilities::auth_header::get_auth_header,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct NewRoom {

@@ -42,7 +42,13 @@ impl Sesh<'_> {
         let result = self
             .query(
                 create_statement(),
-                &[&new_proxy.id, &new_proxy.parent_id, &new_proxy.name, &new_proxy.created, &new_proxy.bio],
+                &[
+                    &new_proxy.id,
+                    &new_proxy.parent_id,
+                    &new_proxy.name,
+                    &new_proxy.created,
+                    &new_proxy.bio,
+                ],
             )
             .await
             .expect("failed to create proxy")

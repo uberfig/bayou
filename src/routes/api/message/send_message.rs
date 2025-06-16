@@ -6,7 +6,9 @@
 //! - bad request (400) message is empty
 
 use actix_web::{
-    post, web::{self, Data}, HttpRequest, HttpResponse, Result
+    post,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Result,
 };
 use serde::{Deserialize, Serialize};
 use tokio::task::spawn_local;
@@ -15,8 +17,16 @@ use uuid::Uuid;
 use crate::{
     db::{
         pg_conn::PgConn,
-        types::{message::{DbMessage, Messageinfo}, room::RoomInfo},
-    }, live_server::{server::{ChatServerHandle, MessageTarget}, socket_msg::SocketMsg}, routes::api::utilities::auth_header::get_auth_header
+        types::{
+            message::{DbMessage, Messageinfo},
+            room::RoomInfo,
+        },
+    },
+    live_server::{
+        server::{ChatServerHandle, MessageTarget},
+        socket_msg::SocketMsg,
+    },
+    routes::api::utilities::auth_header::get_auth_header,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,20 +44,20 @@ pub async fn message_notifyer(
     message: DbMessage,
 ) {
     let Some(room) = conn.get_room(message.info.room).await else {
-        return ;
+        return;
     };
     let Some(message) = conn.get_api_message(message.id).await else {
-        return ;
+        return;
     };
     let members = match room.community {
-        Some(community) => {
-            conn.get_comm_members(community).await
-        },
+        Some(community) => conn.get_comm_members(community).await,
         None => todo!(),
     };
     let members: Vec<Uuid> = members.into_iter().map(|x| x.id).collect();
-    
-    chat_server.send_message(SocketMsg::NewMessage(message), MessageTarget::List(members)).await;
+
+    chat_server
+        .send_message(SocketMsg::NewMessage(message), MessageTarget::List(members))
+        .await;
 }
 
 #[post("/new")]

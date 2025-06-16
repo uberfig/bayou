@@ -1,6 +1,9 @@
 use uuid::Uuid;
 
-use crate::db::{pg_sesh::Sesh, types::{comm::community_membership::CommMembership, user::DbUser}};
+use crate::db::{
+    pg_sesh::Sesh,
+    types::{comm::community_membership::CommMembership, user::DbUser},
+};
 
 #[allow(dead_code)]
 impl Sesh<'_> {

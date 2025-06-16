@@ -7,7 +7,9 @@
 //! - unauthorized (401) included token is not valid, community not created
 
 use actix_web::{
-    post, web::{self, Data}, HttpRequest, HttpResponse, Result
+    post,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Result,
 };
 
 use crate::{

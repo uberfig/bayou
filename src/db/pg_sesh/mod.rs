@@ -1,16 +1,16 @@
 use deadpool_postgres::{Object, Transaction};
 use tokio_postgres::{types::ToSql, Statement};
 
-mod proxy;
-mod users;
-mod instance;
-mod registered_device;
-mod signup_token;
 mod auth_token;
-mod community;
 mod comm_membership;
-mod room;
+mod community;
+mod instance;
 mod message;
+mod proxy;
+mod registered_device;
+mod room;
+mod signup_token;
+mod users;
 
 pub enum Sesh<'a> {
     Client(Object),

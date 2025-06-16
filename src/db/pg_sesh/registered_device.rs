@@ -1,6 +1,10 @@
 use uuid::Uuid;
 
-use crate::db::{curr_time::get_current_time, pg_sesh::Sesh, types::registered_device::{DeviceInfo, RegisteredDevice}};
+use crate::db::{
+    curr_time::get_current_time,
+    pg_sesh::Sesh,
+    types::registered_device::{DeviceInfo, RegisteredDevice},
+};
 
 #[allow(dead_code)]
 impl Sesh<'_> {
