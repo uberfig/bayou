@@ -9,3 +9,4 @@ pub mod types;
 pub mod uname_taken;
 pub(super) mod utilities;
 pub mod websocket;
+pub mod files;

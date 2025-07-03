@@ -20,6 +20,11 @@ pub struct Config {
     pub open_signups: bool,
     pub allow_applications: bool,
 
+    /// max file upload size for a standard user in mb
+    pub max_standard_upload_size: usize,
+    pub max_superuser_upload_size: Option<usize>,
+    pub upload_memory_limit: usize,
+
     pub pg_user: String,
     pub pg_password: String,
     pub pg_host: String,

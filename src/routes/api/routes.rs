@@ -1,3 +1,5 @@
+use crate::routes::api::files::routes::get_file_routes;
+
 use super::{
     community::routes::get_community_routes, login::login, message::routes::get_message_routes,
     regester_device::register_device, room::routes::get_room_routes, signup::signup,
@@ -14,4 +16,5 @@ pub fn get_api_routes() -> actix_web::Scope {
         .service(get_room_routes())
         .service(username_availible)
         .service(websocket_handler)
+        .service(get_file_routes())
 }

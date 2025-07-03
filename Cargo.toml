@@ -33,3 +33,4 @@ actix-ws = "0.3.0"
 tokio = { version = "1.45.1", features = ["full"] }
 futures-util = "0.3.31"
 const_format = "0.2.34"
+actix-multipart = "0.7.2"

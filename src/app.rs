@@ -1,4 +1,5 @@
 use actix_cors::Cors;
+use actix_multipart::form::MultipartFormConfig;
 use actix_web::{rt::spawn, web::Data, App, HttpServer};
 use tokio::try_join;
 
@@ -35,6 +36,14 @@ pub async fn start_application(config: Config) -> std::io::Result<()> {
             .app_data(Data::new(config.to_owned()))
             .app_data(Data::new(server_tx.clone()))
             .service(get_routes())
+            .app_data(
+                MultipartFormConfig::default()
+                    .total_limit(
+                        100 * 1024 + // we leave some extra space in case the file + the metadata are a bit too big
+                        config.max_superuser_upload_size.unwrap_or(config.max_standard_upload_size) * 1024 * 1024
+                    ) 
+                    .memory_limit(config.upload_memory_limit * 1024 * 1024)
+            )
     })
     .bind((bind, port))?
     .run();

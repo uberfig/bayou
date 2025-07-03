@@ -3,6 +3,9 @@ bind_address="127.0.0.1"
 port=8020
 open_signups=true
 allow_applications=false
+max_standard_upload_size=50
+max_superuser_upload_size=100
+upload_memory_limit=25
 
 pg_user="ivy"
 pg_password="password"
