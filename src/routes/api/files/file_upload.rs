@@ -26,9 +26,11 @@ pub async fn upload_file(
     MultipartForm(form): MultipartForm<UploadForm>
 ) -> Result<HttpResponse> {
     println!(
-        "Uploaded file , with size: {}",
+        "Uploaded file {}, with size: {}, with mime: {}",
         // form.json.name, 
-        form.file.size
+        form.file.file_name.unwrap_or("[no name provided]".to_string()),
+        form.file.size,
+        form.file.content_type.map(|x| x.essence_str().to_string()).unwrap_or("missing mime type".to_string())
     );
     
     let Some(token) = get_auth_header(&req) else {
@@ -42,5 +44,5 @@ pub async fn upload_file(
             .body(""));
     }
     
-    todo!()
+    Ok(HttpResponse::Ok().body(""))
 }

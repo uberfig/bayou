@@ -12,3 +12,7 @@ pg_password="password"
 pg_host="127.0.0.1"
 pg_port=5432
 pg_dbname="bayou"
+
+[storage_options]
+type="Local"
+args={"base_path" = "./"}

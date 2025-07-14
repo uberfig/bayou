@@ -1,7 +1,7 @@
 use config::ConfigError;
 use serde::Deserialize;
 
-use crate::db::pg_conn::PgConn;
+use crate::{db::pg_conn::PgConn, file_manager::FileManager};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
@@ -30,6 +30,8 @@ pub struct Config {
     pub pg_host: String,
     pub pg_port: u16,
     pub pg_dbname: String,
+
+    pub storage_options: FileManager,
 }
 
 impl Config {
@@ -70,5 +72,6 @@ pub fn get_config() -> Result<Config, ConfigError> {
             return Err(error);
         }
     };
+    dbg!(&config);
     Ok(config)
 }

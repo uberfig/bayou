@@ -5,3 +5,4 @@ pub mod db;
 pub mod federation;
 pub mod live_server;
 pub mod routes;
+pub mod file_manager;

@@ -8,6 +8,7 @@ use crate::{
     },
 };
 use deadpool_postgres::Pool;
+use mime::Mime;
 use uuid::Uuid;
 
 use super::{
@@ -415,5 +416,9 @@ impl PgConn {
         let client = self.db.get().await.expect("failed to get client");
         let sesh = Sesh::Client(client);
         sesh.username_taken(username, domain).await
+    }
+
+    pub async fn register_file(&self, owner: Option<Uuid>, description: Option<String>, path: Option<String>, file_type: Mime) -> Uuid {
+        todo!()
     }
 }
